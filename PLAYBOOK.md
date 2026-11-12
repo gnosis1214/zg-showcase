@@ -20,6 +20,14 @@ Each page should feel like a premium product launch site, not a template.
 3. **One horizontal or layered scroll section:** horizontal track, stacked cards, parallax depth, or a scroll-driven timeline.
 4. **One real interactive control:** configurator (size, colour, engraving), hotspots, comparison slider, drag-to-rotate, live calculator or a spec toggle. It must change something visible.
 5. **At least three micro-interactions:** magnetic buttons, spotlight cards, cursor glow, hover tilt, count-up numbers, velocity marquee, animated accordion, split-text reveals.
+6. **A grabbable product, whenever the hero is a 3D object.** Once the object settles in a section, people can grab it:
+   - Mouse or touch drag turns it (and tilts it slightly) with smoothing.
+   - Letting go keeps it spinning with inertia, and a quick click flicks it round.
+   - A cursor change and a small "Drag to rotate" hint show it can be grabbed until the first grab.
+   - Hit-test the object with a raycast so text, links and form controls under or next to it stay clickable.
+   - Set `touch-action: pan-y pinch-zoom` on the sections that show it, so vertical swipes still scroll the page.
+   - If a section needs a set angle (a label facing the viewer in a configurator), ease back to it after a short pause.
+   - The Ilura page has the reference code.
 
 **Product page structure (adapt, don't copy)**
 nav with scroll progress, hero, scroll story, marquee or divider, features (bento), specs or ingredients (horizontal), stats, configurator or pricing, FAQ, closing CTA, footer.
