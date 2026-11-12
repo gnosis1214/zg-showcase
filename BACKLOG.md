@@ -6,7 +6,6 @@ Format: **Brand Product** (category, type). Hero / scroll story / interactive co
 
 ## Open
 
-- [ ] **Ilura Tidal Bloom** (fragrance, product). Three.js glass bottle with shader aura / sticky top-heart-base note chapters that recolour the liquid / size picker and live label engraving / teal, violet, amber.
 - [ ] **Velaro Strada R** (road bike, product). SVG line-drawn bike that draws itself on load / scroll explodes the bike into frame, groupset and wheels with part callouts / colourway swatches that repaint the frame / carbon black, signal red, chalk.
 - [ ] **Sonra Air** (wireless earbuds, product). Three.js charging case whose lid opens as you scroll and the buds float out / sticky chapters for ANC, battery and fit with a live waveform canvas / noise-cancelling slider that changes an audio-wave visual / graphite, ice blue, lilac.
 - [ ] **Quillmetric** (AI analytics SaaS, other). Shader gradient mesh behind a floating dashboard mock / scroll builds the dashboard widget by widget with charts that draw in / pricing toggle monthly to yearly with animated numbers / midnight, mint, electric violet.
@@ -25,4 +24,4 @@ Format: **Brand Product** (category, type). Hero / scroll story / interactive co
 
 ## Done
 
-_Ticked items move here with the page file name._
+- [x] **Ilura Tidal Bloom** (fragrance, product) → `pages/2026-11-13-am-ilura-tidal-bloom.html`
