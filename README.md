@@ -9,7 +9,9 @@ Open [`index.html`](index.html) for the gallery, or any file in [`pages/`](pages
 ## Pages
 
 <!-- zg:list:start -->
-_No pages yet._
+| Date | Page | Category | Highlights |
+|---|---|---|---|
+| 2026-11-13 am | [Ilura Tidal Bloom](pages/2026-11-13-am-ilura-tidal-bloom.html) | Fragrance | Three.js glass, Shader aura, Sticky chapters |
 <!-- zg:list:end -->
 
 ## Stack
