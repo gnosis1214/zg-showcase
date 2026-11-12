@@ -8,10 +8,22 @@
     "title": "Ilura Tidal Bloom",
     "category": "Fragrance",
     "summary": "A glass perfume bottle that refracts a living aura. Scroll through the top, heart and base notes, then engrave the label live.",
-    "palette": ["#6fe3d6", "#c49bff", "#f5c76b"],
+    "palette": [
+      "#6fe3d6",
+      "#c49bff",
+      "#f5c76b"
+    ],
     "hero": "Three.js transmission glass bottle over an fbm shader aura",
     "scrollStory": "Sticky note chapters that recolour the liquid and the aura",
-    "control": "Size picker with price roll and live label engraving",
-    "techniques": ["Three.js glass", "Shader aura", "Sticky chapters", "Horizontal atlas", "Live engraving", "Velocity marquee"]
+    "control": "Drag or click to rotate the bottle, size picker with price roll, live label engraving",
+    "techniques": [
+      "Three.js glass",
+      "Drag to rotate",
+      "Shader aura",
+      "Sticky chapters",
+      "Horizontal atlas",
+      "Live engraving",
+      "Velocity marquee"
+    ]
   }
 ]
