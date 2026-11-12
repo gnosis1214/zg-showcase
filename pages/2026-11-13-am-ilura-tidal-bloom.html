@@ -41,6 +41,14 @@ ul{list-style:none}
 .no-webgl #zg-stage{display:none}
 .zg-cursor{position:fixed;left:0;top:0;width:440px;height:440px;margin:-220px 0 0 -220px;border-radius:50%;background:radial-gradient(circle,rgba(196,155,255,.15),transparent 65%);pointer-events:none;z-index:1;opacity:0;transition:opacity .5s}
 .has-pointer .zg-cursor{opacity:1}
+/* Drag-to-rotate: cursor states, a hint pill, and horizontal swipes on touch go to the bottle */
+.is-grab,.is-grab *{cursor:grab}
+.is-grabbing,.is-grabbing *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
+[data-scene="hero"],[data-scene="notes"],[data-scene="reserve"]{touch-action:pan-y pinch-zoom}
+.zg-hint{position:fixed;left:0;top:0;z-index:1;display:flex;align-items:center;gap:8px;padding:7px 14px 7px 11px;border:1px solid var(--line2);border-radius:99px;background:rgba(14,12,22,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .6s;will-change:transform}
+.zg-hint.is-on{opacity:1}
+.zg-hint svg{width:16px;height:16px;flex:none;animation:zgNudge 2.4s ease-in-out infinite}
+@keyframes zgNudge{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
 .zg-grain{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:.055;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 main,.zg-footer{position:relative;z-index:2}
 
@@ -270,7 +278,7 @@ main,.zg-footer{position:relative;z-index:2}
 }
 @media (prefers-reduced-motion:reduce){
   .zg-intro{display:none}
-  .zg-marquee__track,.zg-refill svg,.zg-cap::after,.zg-rings i,.zg-scrollcue i{animation:none}
+  .zg-marquee__track,.zg-refill svg,.zg-cap::after,.zg-rings i,.zg-scrollcue i,.zg-hint svg{animation:none}
   .zg-rings i{opacity:.4;transform:scale(.7)}
   .zg-marquee__track{width:auto;flex-wrap:wrap}
   .zg-marquee__row[aria-hidden]{display:none}
@@ -284,6 +292,7 @@ main,.zg-footer{position:relative;z-index:2}
 <div class="zg-backdrop" aria-hidden="true"></div>
 <canvas id="zg-stage" aria-hidden="true"></canvas>
 <div class="zg-cursor" aria-hidden="true"></div>
+<div class="zg-hint" id="zg-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 4 0 0 0 18 0"/><path d="M21 12a9 4 0 0 0-14.5-3.2"/><path d="M6 6.5 6.5 8.8 8.8 8.3"/></svg>Drag to rotate</div>
 <div class="zg-grain" aria-hidden="true"></div>
 
 <header class="zg-nav" id="zg-nav">
@@ -1080,10 +1089,65 @@ addEventListener('resize', resize);
 const cur = { fx: T.fx, fy: T.fy, s: T.s, rot: 0, pal: 0, dim: 1, hidden: 0, size: 1 };
 const KEYS = Object.keys(cur);
 const ptr = { x: 0, y: 0 };
+const ZERO = { x: 0, y: 0 };
 const cA = new THREE.Color(), cB = new THREE.Color(), cC = new THREE.Color(), cL = new THREE.Color(), cR = new THREE.Color();
 const clock = new THREE.Clock();
 const TAU = Math.PI * 2;
-let time = 0, spin = 0, started = false;
+let time = 0, spin = 0, spinRate = .22, started = false;
+
+/* Drag to rotate. Once the bottle has settled in a section, grab it with a mouse or a finger:
+   dragging turns and tilts it, letting go keeps it spinning with inertia, a quick click flicks it. */
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const tmpV = new THREE.Vector3();
+const HIT = [glass, cap, label, liquid];
+const NO_GRAB = 'a,button,input,select,textarea,label,.zg-config,.zg-nav,.zg-notes__panel,.zg-hero__copy,.zg-toast';
+const drag = { on: false, id: -1, x: 0, y: 0, sx: 0, sy: 0, t0: 0, last: 0, yaw: 0, yawShown: 0, pitch: 0, pitchShown: 0, vel: 0, idle: 9, used: false };
+const hint = document.getElementById('zg-hint');
+let canGrab = false, hoverAt = null;
+zg.drag = drag;   // exposed for QA checks
+
+function overBottle(x, y, target) {
+  if (!canGrab || (target && target.closest && target.closest(NO_GRAB))) return false;
+  ndc.set(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  return raycaster.intersectObjects(HIT, false).length > 0;
+}
+function endDrag(e) {
+  if (!drag.on || (e && e.pointerId !== drag.id)) return;
+  drag.on = false;
+  zg.dragging = false;
+  drag.idle = 0;
+  root.classList.remove('is-grabbing');
+  const now = performance.now();
+  if (now - drag.last > 90) drag.vel = 0;            // held still before letting go: no fling
+  if (e && e.type === 'pointerup' && now - drag.t0 < 280 && Math.hypot(drag.x - drag.sx, drag.y - drag.sy) < 6) {
+    // A tap: push the side that was clicked, like flicking a bottle on a table.
+    tmpV.copy(bottle.position).project(camera);
+    drag.vel += (drag.sx < (tmpV.x + 1) / 2 * innerWidth ? 1 : -1) * 7;
+  }
+}
+addEventListener('pointerdown', (e) => {
+  if (e.button !== 0 || !overBottle(e.clientX, e.clientY, e.target)) return;
+  const now = performance.now();
+  Object.assign(drag, { on: true, id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t0: now, last: now, vel: 0, used: true });
+  zg.dragging = true;
+  root.classList.add('is-grabbing');
+  try { root.setPointerCapture(e.pointerId); } catch (_) { /* capture is optional */ }
+  if (e.pointerType === 'mouse') e.preventDefault();   // no text selection while dragging
+});
+addEventListener('pointermove', (e) => {
+  if (!drag.on) { hoverAt = e.pointerType === 'mouse' ? e : null; return; }
+  if (e.pointerId !== drag.id) return;
+  const now = performance.now(), turn = (e.clientX - drag.x) * .012;
+  drag.yaw += turn;
+  drag.pitch = Math.max(-.5, Math.min(.5, drag.pitch + (e.clientY - drag.y) * .006));
+  const v = turn / Math.max(8, now - drag.last) * 1000;      // rad/s, smoothed below
+  drag.vel = Math.max(-14, Math.min(14, drag.vel * .5 + v * .5));
+  drag.x = e.clientX; drag.y = e.clientY; drag.last = now;
+}, { passive: true });
+addEventListener('pointerup', endDrag);
+addEventListener('pointercancel', endDrag);
 
 function frame() {
   const dt = Math.min(clock.getDelta(), 1 / 20);
@@ -1095,7 +1159,7 @@ function frame() {
     cur.s *= .72;
   }
   for (const key of KEYS) if (typeof T[key] === 'number') cur[key] += (T[key] - cur[key]) * k;
-  const p = zg.pointer || { x: 0, y: 0 };
+  const p = drag.on ? ZERO : (zg.pointer || ZERO);
   ptr.x += (p.x - ptr.x) * k;
   ptr.y += (p.y - ptr.y) * k;
 
@@ -1105,16 +1169,43 @@ function frame() {
   bottle.scale.setScalar(Math.max(.001, cur.s * cur.size * (1 - cur.hidden * .3)));
   bottle.visible = cur.hidden < .985;
 
-  if (T.face) {
-    // Configurator: turn the label to face the viewer, nudged by the pointer.
-    const total = spin + cur.rot;
-    spin += (Math.round(total / TAU) * TAU + ptr.x * .45 - total) * k;
-  } else if (!reduce) {
-    spin += dt * .22 + Math.min(Math.abs(zg.velocity || 0), 40) * dt * .02;
+  // Grabbable only once the bottle has arrived in a section that shows it.
+  canGrab = !T.hidden && cur.hidden < .04 && Math.abs(cur.fx - T.fx) < .03 && Math.abs(cur.fy - T.fy) < .03;
+  if (!canGrab && drag.on) endDrag();
+  if (!drag.on) {
+    drag.idle += dt;
+    drag.yaw += drag.vel * dt;                // inertia after a fling
+    drag.vel *= Math.exp(-dt * 2.2);
+    drag.pitch *= Math.exp(-dt * 2.5);        // tilt springs back upright
+    root.classList.toggle('is-grab', !!hoverAt && overBottle(hoverAt.clientX, hoverAt.clientY, hoverAt.target));
   }
-  inner.rotation.y = spin + cur.rot;
-  bottle.rotation.x = ptr.y * .12 + (reduce ? 0 : Math.sin(time * .6) * .03);
+  const busy = drag.on || drag.idle < 1.6 || Math.abs(drag.vel) > .3;
+  if (T.face) {
+    // Configurator: once the visitor lets go, turn the label back to face them.
+    if (!busy) {
+      const total = spin + cur.rot + drag.yaw;
+      drag.yaw += (Math.round(total / TAU) * TAU + ptr.x * .45 - total) * k;
+    }
+  } else if (!reduce) {
+    spinRate += ((busy ? 0 : .22) - spinRate) * k;   // idle spin eases back in after a drag
+    spin += dt * spinRate + (busy ? 0 : Math.min(Math.abs(zg.velocity || 0), 40) * dt * .02);
+  }
+  const sk = 1 - Math.exp(-dt * 14);
+  drag.yawShown += (drag.yaw - drag.yawShown) * sk;
+  drag.pitchShown += (drag.pitch - drag.pitchShown) * sk;
+  inner.rotation.y = spin + cur.rot + drag.yawShown;
+  bottle.rotation.x = ptr.y * .12 + drag.pitchShown + (reduce ? 0 : Math.sin(time * .6) * .03);
   bottle.rotation.z = -ptr.x * .06;
+
+  // "Drag to rotate" hint under the bottle until the first grab.
+  if (hint) {
+    const show = canGrab && !drag.used;
+    hint.classList.toggle('is-on', show);
+    if (show) {
+      tmpV.set(bottle.position.x, bottle.position.y - 1.66 * bottle.scale.x, 0).project(camera);
+      hint.style.transform = `translate(${((tmpV.x + 1) / 2 * innerWidth).toFixed(1)}px,${((1 - tmpV.y) / 2 * innerHeight + 6).toFixed(1)}px) translateX(-50%)`;
+    }
+  }
   if (!reduce) { ring1.rotation.z += dt * .15; ring2.rotation.z -= dt * .1; }
 
   palAt(cur.pal, 'a', cA); palAt(cur.pal, 'b', cB); palAt(cur.pal, 'c', cC);
