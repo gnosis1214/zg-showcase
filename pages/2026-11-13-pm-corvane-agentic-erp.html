@@ -1011,7 +1011,114 @@ main,.zg-footer{position:relative;z-index:2}
   navState();
   addEventListener('scroll', navState, { passive: true });
 
-  /*@zg:controls*/
+  /* ROI model: the autonomy switch and three sliders drive the outputs, the split bar, and how
+     many agents light up (and how busy they are) in the constellation beside the form. */
+  var LEVELS = { shadow: { share: .18, lit: 3, rate: .5 }, copilot: { share: .61, lit: 6, rate: 1.2 }, auto: { share: .88, lit: 8, rate: 2 } };
+  var calc = $('#zg-calc'), seg = $('.zg-seg', calc), pill = $('.zg-seg__pill', calc), radios = $$('[role="radio"]', seg);
+  var rev = $('#zg-rev'), team = $('#zg-team'), tx = $('#zg-tx');
+  var o = {
+    hours: $('#zg-o-hours'), week: $('#zg-o-week'), save: $('#zg-o-save'), close: $('#zg-o-close'), pay: $('#zg-o-pay'), fee: $('#zg-o-fee'),
+    split: $('#zg-split'), sa: $('#zg-split-a'), sp: $('#zg-split-p'), lit: $('#zg-lit'),
+    rev: $('#zg-rev-out'), team: $('#zg-team-out'), tx: $('#zg-tx-out')
+  };
+  var level = 'copilot', shown = { hours: 0, save: 0, close: 0, pay: 0 };
+  function money(v) { return v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : '$' + Math.round(v / 1e3) + 'k'; }
+  function model() {
+    // 3.5 handling minutes per transaction, 30% held back for exceptions, $46 loaded hourly cost.
+    var L = LEVELS[level], perYear = +tx.value * 1000 * 12;
+    var hours = perYear * 3.5 / 60 * L.share * .7, save = hours * 46;
+    var fee = 220000 + +rev.value * 1e9 * .00008 + perYear * .05;
+    return { hours: hours, save: save, fee: fee, close: 11 - 8 * L.share, pay: fee / Math.max(1, save / 12), week: hours / +team.value / 46, share: L.share };
+  }
+  function paint() {
+    o.hours.textContent = (Math.round(shown.hours / 100) * 100).toLocaleString('en-US');
+    o.save.textContent = money(shown.save);
+    o.close.textContent = shown.close.toFixed(1) + ' days';
+    o.pay.textContent = shown.pay > 36 ? '36+ mo' : shown.pay.toFixed(1) + ' mo';
+  }
+  function render(animate) {
+    var r = model(), pct = Math.round(r.share * 100), L = LEVELS[level], v = +rev.value, k = +tx.value;
+    o.rev.textContent = v < 1 ? '$' + Math.round(v * 1000) + 'M' : '$' + v.toFixed(1).replace(/\.0$/, '') + 'B';
+    o.team.textContent = (+team.value).toLocaleString('en-US') + ' people';
+    o.tx.textContent = k >= 1000 ? (k / 1000).toFixed(2).replace(/\.?0+$/, '') + 'M' : k + 'k';
+    o.week.textContent = (r.week < 10 ? r.week.toFixed(1) : Math.round(r.week)) + ' h per person a week';
+    o.fee.textContent = 'on a ' + money(r.fee) + ' yearly fee';
+    o.split.style.setProperty('--a', pct + '%');
+    o.sa.textContent = pct + '%';
+    o.sp.textContent = (100 - pct) + '%';
+    o.lit.textContent = L.lit + ' of 8';
+    zg.calc.lit = L.lit;
+    zg.calc.rate = L.rate * (.6 + Math.min(1, k / 800) * .9);   // more volume, more packets
+    var target = { hours: r.hours, save: r.save, close: r.close, pay: r.pay };
+    if (animate && hasGsap && !zg.reduce) gsap.to(shown, Object.assign({ duration: .8, ease: 'power3.out', overwrite: true, onUpdate: paint }, target));
+    else { Object.assign(shown, target); paint(); }
+  }
+  function fillTrack(input) { input.style.setProperty('--p', ((input.value - input.min) / (input.max - input.min) * 100) + '%'); }
+  function choose(btn, animate, focus) {
+    radios.forEach(function (b, i) {
+      var on = b === btn;
+      b.setAttribute('aria-checked', String(on));
+      b.tabIndex = on ? 0 : -1;
+      if (on) pill.style.transform = 'translateX(' + (i * 100) + '%)';
+    });
+    level = btn.getAttribute('data-level');
+    render(animate);
+    if (focus) btn.focus();
+  }
+  radios.forEach(function (b) { b.addEventListener('click', function () { choose(b, true); }); });
+  seg.addEventListener('keydown', function (e) {
+    var i = radios.indexOf(document.activeElement), step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (i < 0 || !step) return;
+    e.preventDefault();
+    choose(radios[(i + step + radios.length) % radios.length], true, true);
+  });
+  [rev, team, tx].forEach(function (input) {
+    fillTrack(input);
+    input.addEventListener('input', function () { fillTrack(input); render(true); });
+  });
+  choose(radios[1]);
+  zg.model = model;   // exposed for QA checks
+  calc.addEventListener('submit', function (e) {
+    e.preventDefault();
+    toast('Concept page: Corvane is fictional, so there is no full model to send.');
+  });
+
+  // Hero status strip ticks like a live console.
+  if (!zg.reduce) {
+    var liveTasks = $('#zg-live-tasks'), liveWait = $('#zg-live-wait'), tasks = 1284;
+    setInterval(function () {
+      if (document.hidden) return;
+      tasks += 1 + Math.floor(Math.random() * 5);
+      liveTasks.textContent = tasks.toLocaleString('en-US');
+      if (Math.random() < .25) liveWait.textContent = String(2 + Math.floor(Math.random() * 3));
+    }, 1600);
+  }
+
+  // Spotlight that follows the pointer inside each agent card.
+  $$('.zg-cell').forEach(function (el) {
+    el.addEventListener('pointermove', function (e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+
+  // Agent names decode letter by letter when a card is hovered.
+  var GLYPHS = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#%&';
+  if (!zg.reduce) $$('[data-scramble]').forEach(function (el) {
+    var final = el.textContent, raf = 0;
+    el.setAttribute('aria-label', final);
+    el.closest('.zg-cell').addEventListener('pointerenter', function () {
+      var start = performance.now();
+      cancelAnimationFrame(raf);
+      (function step(now) {
+        var p = Math.min(1, (now - start) / 650), n = Math.floor(p * final.length), s = '';
+        for (var i = 0; i < final.length; i++) s += (i < n || final[i] === ' ') ? final[i] : GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+        el.textContent = s;
+        if (p < 1) raf = requestAnimationFrame(step);
+      })(start);
+    });
+  });
 
   if (!hasGsap) return;
 
@@ -1224,7 +1331,44 @@ main,.zg-footer{position:relative;z-index:2}
     });
   }
 
-  /*@zg:micro*/
+  /* Count-ups, the close ring and the cash forecast drawing in */
+  if (!zg.reduce) {
+    $$('[data-count]').forEach(function (el) {
+      var end = +el.getAttribute('data-count'), suf = el.getAttribute('data-suffix') || '', c = { v: 0 };
+      el.textContent = '0' + suf;
+      ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: function () {
+        gsap.to(c, { v: end, duration: 1.8, ease: 'power3.out', onUpdate: function () { el.textContent = Math.round(c.v) + suf; } });
+      } });
+    });
+    gsap.fromTo('#zg-ring', { strokeDashoffset: 1 }, { strokeDashoffset: .04, duration: 1.8, ease: 'power3.inOut', scrollTrigger: { trigger: '#zg-ring', start: 'top 88%', once: true } });
+    gsap.fromTo('#zg-cash', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut', scrollTrigger: { trigger: '#zg-cash', start: 'top 88%', once: true } });
+  }
+
+  /* Magnetic buttons, card tilt and the cursor glow (mouse only) */
+  if (finePointer && !zg.reduce) {
+    $$('[data-magnetic]').forEach(function (el) {
+      var xTo = gsap.quickTo(el, 'x', { duration: .55, ease: 'power3.out' }), yTo = gsap.quickTo(el, 'y', { duration: .55, ease: 'power3.out' });
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        xTo((e.clientX - r.left - r.width / 2) * .26);
+        yTo((e.clientY - r.top - r.height / 2) * .38);
+      });
+      el.addEventListener('pointerleave', function () { xTo(0); yTo(0); });
+    });
+    $$('.zg-cell').forEach(function (el) {
+      gsap.set(el, { transformPerspective: 1100 });
+      var rx = gsap.quickTo(el, 'rotationX', { duration: .6, ease: 'power3.out' }), ry = gsap.quickTo(el, 'rotationY', { duration: .6, ease: 'power3.out' });
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        ry(((e.clientX - r.left) / r.width - .5) * 6);
+        rx(-((e.clientY - r.top) / r.height - .5) * 6);
+      });
+      el.addEventListener('pointerleave', function () { rx(0); ry(0); });
+    });
+    var glow = $('.zg-cursor');
+    var gx = gsap.quickTo(glow, 'x', { duration: .8, ease: 'power3.out' }), gy = gsap.quickTo(glow, 'y', { duration: .8, ease: 'power3.out' });
+    addEventListener('pointermove', function (e) { root.classList.add('has-pointer'); gx(e.clientX); gy(e.clientY); }, { passive: true });
+  }
 
   /* ---------- Intro, then text reveals ---------- */
   function reveals() {
