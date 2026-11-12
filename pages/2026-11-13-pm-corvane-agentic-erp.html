@@ -123,6 +123,7 @@ main,.zg-footer{position:relative;z-index:2}
 
 /* Hero */
 .zg-hero{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:calc(var(--nav) + 56px) 0 56px}
+.zg-hero>.zg-wrap{width:100%}
 .zg-hero__copy{max-width:600px}
 .zg-tag{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--mut);padding:7px 14px;border:1px solid var(--line2);border-radius:99px;background:rgba(255,255,255,.03);backdrop-filter:blur(10px)}
 .zg-hero .zg-display{margin:22px 0 24px}
@@ -952,5 +953,405 @@ main,.zg-footer{position:relative;z-index:2}
 </footer>
 
 <div class="zg-toast" id="zg-toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Hero: the agent constellation. Canvas 2D with a small hand-rolled 3D projection, so it needs
+   no WebGL and no library. Eight named agents ride three tilted orbits around the ledger core,
+   and packets of work travel between them. The scroll script moves it per section through
+   window.zg.target; without that script it stays in the hero and fades out below it. */
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var zg = window.zg = window.zg || {};
+  var T = zg.target = zg.target || { fx: .5, fy: .02, s: 1, dim: 1, hidden: 0, grab: 1, lit: 8, rate: 1 };
+  var canvas = document.getElementById('zg-stage');
+  var ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
+  if (!ctx) { root.classList.add('no-canvas'); return; }
+
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mobileMQ = matchMedia('(max-width: 900px)');
+  var TAU = Math.PI * 2, CAM = 9;
+  var W = 0, H = 0, DPR = 1;
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, mobileMQ.matches ? 1.25 : 1.75);
+    W = innerWidth; H = innerHeight;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  var C = { cobalt: [91, 124, 255], cobalt2: [157, 176, 255], volt: [198, 245, 91], ember: [255, 125, 87], ink: [238, 241, 247] };
+  function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + Math.max(0, Math.min(1, a)).toFixed(3) + ')'; }
+
+  // Three orbits: radius, inclination around X, then turned around Y. Inner orbits run faster.
+  var ORBITS = [
+    { r: 1.0, inc: .55, node: .3, sp: .16 },
+    { r: 1.55, inc: -.38, node: 1.9, sp: .11 },
+    { r: 2.1, inc: .24, node: 4.0, sp: .075 }
+  ];
+  var AGENTS = [
+    { name: 'Intake', o: 0, a: .3, c: C.volt },
+    { name: 'Compliance', o: 0, a: 3.4, c: C.ember },
+    { name: 'Inventory', o: 1, a: 1.0, c: C.cobalt2 },
+    { name: 'Finance', o: 1, a: 3.1, c: C.volt },
+    { name: 'Planning', o: 1, a: 5.2, c: C.ember },
+    { name: 'Logistics', o: 2, a: 0, c: C.cobalt2 },
+    { name: 'Billing', o: 2, a: 2.1, c: C.volt },
+    { name: 'Treasury', o: 2, a: 4.2, c: C.cobalt }
+  ];
+  var LIGHT_ORDER = [0, 3, 2, 4, 6, 5, 7, 1];   // who switches on first as autonomy grows
+  AGENTS.forEach(function (ag, i) { ag.rank = LIGHT_ORDER.indexOf(i); ag.on = 1; ag.p = {}; ag.w = {}; });
+  var DUST = [];
+  for (var d = 0; d < 90; d++) {
+    DUST.push({ r: .45 + Math.random() * 2.2, inc: (Math.random() - .5) * 1.4, node: Math.random() * TAU, a: Math.random() * TAU, sp: .02 + Math.random() * .09, s: .5 + Math.random() * 1.1, w: {}, p: {} });
+  }
+
+  // A point on an orbit: circle in the XZ plane, inclined around X, then turned around Y.
+  function orbitPoint(r, inc, node, a, out) {
+    var x = Math.cos(a) * r, z = Math.sin(a) * r;
+    var y1 = -z * Math.sin(inc), z1 = z * Math.cos(inc);
+    out.x = x * Math.cos(node) + z1 * Math.sin(node);
+    out.y = y1;
+    out.z = -x * Math.sin(node) + z1 * Math.cos(node);
+    return out;
+  }
+  // View: spin around Y (yaw), tip toward the viewer around X (pitch), then perspective divide.
+  var view = { cx: 0, cy: 0, unit: 100, yaw: 0, pitch: .4 };
+  function project(p, out) {
+    var cyw = Math.cos(view.yaw), syw = Math.sin(view.yaw);
+    var x = p.x * cyw + p.z * syw, z = -p.x * syw + p.z * cyw;
+    var cp = Math.cos(view.pitch), sp = Math.sin(view.pitch);
+    var y2 = p.y * cp - z * sp, z2 = p.y * sp + z * cp;
+    var k = CAM / (CAM - z2);
+    out.x = view.cx + x * k * view.unit;
+    out.y = view.cy - y2 * k * view.unit;
+    out.z = z2;
+    out.k = k;
+    return out;
+  }
+
+  /* Drag to spin: once the constellation has settled in a section, grab it. Dragging turns and
+     tips it, letting go keeps it spinning with inertia, a quick click flicks it round. */
+  var NO_GRAB = 'a,button,input,select,textarea,label,.zg-hero__copy,.zg-live,.zg-calc,.zg-nav,.zg-toast,.zg-cta h2,.zg-cta p,.zg-cta .zg-cta-row';
+  var drag = { on: false, id: -1, x: 0, y: 0, sx: 0, sy: 0, t0: 0, last: 0, yaw: 0, yawShown: 0, pitch: 0, pitchShown: 0, vel: 0, idle: 9, used: false };
+  zg.drag = drag;   // exposed for QA checks
+  var hint = document.getElementById('zg-hint');
+  var canGrab = false, hoverAt = null, hoverIdx = -1;
+
+  function overConstellation(x, y, target) {
+    if (!canGrab || (target && target.closest && target.closest(NO_GRAB))) return false;
+    var R = 2.3 * view.unit, dx = x - view.cx, dy = y - view.cy;
+    return (dx * dx) / (R * R) + (dy * dy) / (R * R * .55) <= 1;
+  }
+  function endDrag(e) {
+    if (!drag.on || (e && e.pointerId !== drag.id)) return;
+    drag.on = false;
+    zg.dragging = false;
+    drag.idle = 0;
+    root.classList.remove('is-grabbing');
+    var now = performance.now();
+    if (now - drag.last > 90) drag.vel = 0;          // held still before letting go: no fling
+    if (e && e.type === 'pointerup' && now - drag.t0 < 280 && Math.hypot(drag.x - drag.sx, drag.y - drag.sy) < 6) {
+      drag.vel += (drag.sx < view.cx ? -1 : 1) * 5;  // a tap flicks the side that was clicked
+    }
+  }
+  addEventListener('pointerdown', function (e) {
+    if (e.button !== 0 || !overConstellation(e.clientX, e.clientY, e.target)) return;
+    var now = performance.now();
+    drag.on = true; drag.id = e.pointerId; drag.x = drag.sx = e.clientX; drag.y = drag.sy = e.clientY;
+    drag.t0 = drag.last = now; drag.vel = 0; drag.used = true;
+    zg.dragging = true;
+    root.classList.add('is-grabbing');
+    try { root.setPointerCapture(e.pointerId); } catch (_) { /* capture is optional */ }
+    if (e.pointerType === 'mouse') e.preventDefault();   // no text selection while dragging
+  });
+  addEventListener('pointermove', function (e) {
+    if (!drag.on) { hoverAt = e.pointerType === 'mouse' ? e : null; return; }
+    if (e.pointerId !== drag.id) return;
+    var now = performance.now(), turn = (e.clientX - drag.x) * .009;
+    drag.yaw += turn;
+    drag.pitch = Math.max(-.32, Math.min(.42, drag.pitch + (e.clientY - drag.y) * .004));
+    var v = turn / Math.max(8, now - drag.last) * 1000;
+    drag.vel = Math.max(-10, Math.min(10, drag.vel * .5 + v * .5));
+    drag.x = e.clientX; drag.y = e.clientY; drag.last = now;
+  }, { passive: true });
+  addEventListener('pointerup', endDrag);
+  addEventListener('pointercancel', endDrag);
+  var ptr = { x: 0, y: 0 }, ptrT = { x: 0, y: 0 };
+  addEventListener('pointermove', function (e) { ptrT.x = e.clientX / W * 2 - 1; ptrT.y = e.clientY / H * 2 - 1; }, { passive: true });
+
+  // Without the scroll script: stay in the hero, fade out once it scrolls away.
+  function fallbackTarget() {
+    var m = mobileMQ.matches;
+    T.fx = m ? 0 : .5; T.fy = m ? -.44 : .02; T.s = 1; T.dim = 1; T.grab = 1;
+    T.hidden = (window.scrollY || 0) > H * .7 ? 1 : 0;
+  }
+
+  var cur = { fx: 0, fy: 0, s: .7, dim: 0, hidden: 0 };
+  var packets = [], pings = [], acc = 0, time = 0, spin = 0, last = 0, started = false, cleared = false;
+  var cp = {}, tmp = {}, tmp2 = {};
+
+  function spawn() {
+    var lit = AGENTS.filter(function (ag) { return ag.on > .6; });
+    if (!lit.length) return;
+    var a = lit[Math.floor(Math.random() * lit.length)], b = null, r = Math.random();
+    if (r < .38) b = null;                          // agent to the ledger
+    else if (r < .66) { b = a; a = null; }          // ledger to agent
+    else {                                          // agent to agent
+      b = lit[Math.floor(Math.random() * lit.length)];
+      if (b === a) b = null;
+    }
+    packets.push({ a: a, b: b, t: 0, dur: .9 + Math.random() * .8, c: (a || b).c });
+  }
+  function posOf(ag) { return ag ? ag.p : cp; }
+
+  function frame(now) {
+    var dt = Math.min(((now || 0) - last) / 1000, 1 / 20);
+    if (!last) dt = 1 / 60;
+    last = now || 0;
+    if (!zg.layoutLive) fallbackTarget();
+    var k = 1 - Math.exp(-dt * 3.2);
+    if (!started) { cur.fx = T.fx; cur.fy = T.fy; cur.hidden = T.hidden; }
+    cur.fx += (T.fx - cur.fx) * k;
+    cur.fy += (T.fy - cur.fy) * k;
+    cur.s += (T.s - cur.s) * k;
+    cur.dim += (T.dim - cur.dim) * k;
+    cur.hidden += (T.hidden - cur.hidden) * k;
+    var alpha = (1 - cur.hidden) * cur.dim;
+
+    var m = mobileMQ.matches;
+    view.cx = W / 2 + cur.fx * W / 2;
+    view.cy = H / 2 + cur.fy * H / 2 + cur.hidden * H * .12;   // sinks a little as it fades out
+    view.unit = (m ? Math.min(W, H * .5) : Math.min(W * .5, H * .95)) * .19 * cur.s;
+
+    canGrab = !!T.grab && !T.hidden && cur.hidden < .04 && Math.abs(cur.fx - T.fx) < .03 && Math.abs(cur.fy - T.fy) < .03;
+    if (!canGrab && drag.on) endDrag();
+
+    if (alpha < .004) {
+      if (!cleared) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); cleared = true; }
+      if (hint) hint.classList.remove('is-on');
+      root.classList.remove('is-grab');
+      requestAnimationFrame(frame);
+      return;
+    }
+    cleared = false;
+    if (!reduce) time += dt;
+
+    // Spin: slow idle turn that pauses while dragging and eases back in afterwards.
+    if (!drag.on) {
+      drag.idle += dt;
+      drag.yaw += drag.vel * dt;
+      drag.vel *= Math.exp(-dt * 2);
+      drag.pitch *= Math.exp(-dt * 2.4);
+    }
+    var busy = drag.on || drag.idle < 1.4 || Math.abs(drag.vel) > .25;
+    if (!reduce && !busy) spin += dt * .07 + Math.min(Math.abs(zg.velocity || 0), 40) * dt * .004;
+    var sk = 1 - Math.exp(-dt * 14);
+    drag.yawShown += (drag.yaw - drag.yawShown) * sk;
+    drag.pitchShown += (drag.pitch - drag.pitchShown) * sk;
+    ptr.x += ((drag.on || reduce ? 0 : ptrT.x) - ptr.x) * k;
+    ptr.y += ((drag.on || reduce ? 0 : ptrT.y) - ptr.y) * k;
+    view.yaw = spin + drag.yawShown + ptr.x * .12;
+    view.pitch = .42 + drag.pitchShown + ptr.y * .05;
+
+    // How many agents are lit (the ROI model turns some off) and how busy the network is.
+    var litN = typeof T.lit === 'number' ? T.lit : 8;
+    AGENTS.forEach(function (ag, i) {
+      ag.on += ((ag.rank < litN ? 1 : 0) - ag.on) * k;
+      var o = ORBITS[ag.o];
+      orbitPoint(o.r, o.inc, o.node, ag.a + time * o.sp, ag.w);
+      project(ag.w, ag.p);
+      ag.i = i;
+    });
+    project({ x: 0, y: 0, z: 0 }, cp);
+    DUST.forEach(function (p) { orbitPoint(p.r, p.inc, p.node, p.a + time * p.sp, p.w); project(p.w, p.p); });
+
+    // Hover: the nearest agent under a mouse pointer shows its label.
+    hoverIdx = -1;
+    if (hoverAt && !drag.on && canGrab) {
+      var best = 26;
+      AGENTS.forEach(function (ag, i) {
+        var dd = Math.hypot(ag.p.x - hoverAt.clientX, ag.p.y - hoverAt.clientY);
+        if (dd < best) { best = dd; hoverIdx = i; }
+      });
+    }
+
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+    var u = view.unit;
+
+    // Orbit rings, back halves first (dimmer), front halves after the core.
+    function rings(front) {
+      ORBITS.forEach(function (o) {
+        ctx.beginPath();
+        var pen = false;
+        for (var s = 0; s <= 120; s++) {
+          orbitPoint(o.r, o.inc, o.node, s / 120 * TAU, tmp);
+          project(tmp, tmp2);
+          if ((tmp2.z >= 0) === front) {
+            if (pen) ctx.lineTo(tmp2.x, tmp2.y); else { ctx.moveTo(tmp2.x, tmp2.y); pen = true; }
+          } else pen = false;
+        }
+        ctx.strokeStyle = rgba(C.cobalt2, (front ? .34 : .13) * alpha);
+        ctx.lineWidth = front ? 1.1 : 1;
+        ctx.stroke();
+      });
+    }
+    rings(false);
+
+    // Core glow and spokes to every lit agent.
+    ctx.globalCompositeOperation = 'lighter';
+    var g = ctx.createRadialGradient(cp.x, cp.y, 0, cp.x, cp.y, u * 1.5);
+    g.addColorStop(0, rgba(C.cobalt, .5 * alpha));
+    g.addColorStop(.35, rgba(C.cobalt, .16 * alpha));
+    g.addColorStop(1, rgba(C.cobalt, 0));
+    ctx.fillStyle = g;
+    ctx.fillRect(cp.x - u * 1.5, cp.y - u * 1.5, u * 3, u * 3);
+    AGENTS.forEach(function (ag) {
+      if (ag.on < .02) return;
+      var lg = ctx.createLinearGradient(cp.x, cp.y, ag.p.x, ag.p.y);
+      lg.addColorStop(0, rgba(C.cobalt2, .02 * alpha));
+      lg.addColorStop(1, rgba(ag.c, .2 * ag.on * alpha));
+      ctx.strokeStyle = lg;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cp.x, cp.y); ctx.lineTo(ag.p.x, ag.p.y); ctx.stroke();
+    });
+    ctx.globalCompositeOperation = 'source-over';
+
+    function dust(front) {
+      DUST.forEach(function (p) {
+        if ((p.p.z >= 0) !== front) return;
+        ctx.fillStyle = rgba(C.ink, (.12 + .3 * (p.p.z + 2.4) / 4.8) * alpha);
+        ctx.fillRect(p.p.x, p.p.y, p.s * p.p.k, p.s * p.p.k);
+      });
+    }
+    function nodes(front) {
+      AGENTS.forEach(function (ag, i) {
+        if ((ag.p.z >= 0) !== front) return;
+        var r = (3.2 + 2 * ag.on) * ag.p.k * Math.max(.75, Math.min(1.3, u / 110));
+        var depth = .45 + .55 * (ag.p.z + 2.2) / 4.4;
+        if (ag.on > .02) {
+          ctx.globalCompositeOperation = 'lighter';
+          var h = ctx.createRadialGradient(ag.p.x, ag.p.y, 0, ag.p.x, ag.p.y, r * 6);
+          h.addColorStop(0, rgba(ag.c, .4 * ag.on * alpha * depth));
+          h.addColorStop(1, rgba(ag.c, 0));
+          ctx.fillStyle = h;
+          ctx.fillRect(ag.p.x - r * 6, ag.p.y - r * 6, r * 12, r * 12);
+          ctx.globalCompositeOperation = 'source-over';
+        }
+        ctx.beginPath();
+        ctx.arc(ag.p.x, ag.p.y, r, 0, TAU);
+        ctx.fillStyle = ag.on > .5 ? rgba(ag.c, (.55 + .45 * depth) * alpha) : rgba([8, 10, 18], alpha);
+        ctx.fill();
+        ctx.strokeStyle = rgba(ag.c, (.5 + .5 * ag.on) * alpha * depth);
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        if (i === hoverIdx) {
+          ctx.beginPath();
+          ctx.arc(ag.p.x, ag.p.y, r + 7, 0, TAU);
+          ctx.strokeStyle = rgba(ag.c, .8 * alpha);
+          ctx.stroke();
+        }
+      });
+    }
+    dust(false);
+    nodes(false);
+
+    // The ledger core: bright centre, a slowly turning dashed ring.
+    var cr = u * .15 * cp.k;
+    var cg = ctx.createRadialGradient(cp.x - cr * .3, cp.y - cr * .3, 0, cp.x, cp.y, cr);
+    cg.addColorStop(0, rgba([255, 255, 255], alpha));
+    cg.addColorStop(.6, rgba(C.cobalt2, alpha));
+    cg.addColorStop(1, rgba(C.cobalt, .9 * alpha));
+    ctx.beginPath(); ctx.arc(cp.x, cp.y, cr, 0, TAU); ctx.fillStyle = cg; ctx.fill();
+    ctx.save();
+    ctx.setLineDash([3, 6]);
+    ctx.lineDashOffset = -time * 14;
+    ctx.beginPath(); ctx.arc(cp.x, cp.y, cr * 2.3, 0, TAU);
+    ctx.strokeStyle = rgba(C.volt, .55 * alpha); ctx.lineWidth = 1; ctx.stroke();
+    ctx.restore();
+
+    rings(true);
+    dust(true);
+    nodes(true);
+
+    // Packets of work: a bright head and a fading tail along a bowed curve.
+    if (!reduce && T.hidden < .5) {
+      var lf = AGENTS.reduce(function (s, ag) { return s + ag.on; }, 0) / AGENTS.length;
+      acc += dt * 2.6 * lf * (T.rate || 1);
+      while (acc > 1) { acc -= 1; if (packets.length < 46) spawn(); }
+    }
+    ctx.globalCompositeOperation = 'lighter';
+    for (var q = packets.length - 1; q >= 0; q--) {
+      var pk = packets[q];
+      pk.t += dt / pk.dur;
+      var A = posOf(pk.a), B = posOf(pk.b);
+      if (pk.t >= 1) {
+        pings.push({ x: B.x, y: B.y, c: pk.b ? pk.b.c : C.volt, ag: pk.b, t: 0 });
+        packets.splice(q, 1);
+        continue;
+      }
+      var mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2, nx = -(B.y - A.y) * .22, ny = (B.x - A.x) * .22;
+      for (var j = 0; j < 9; j++) {
+        var tt = pk.t - j * .03;
+        if (tt < 0) break;
+        var it = 1 - tt;
+        var px = it * it * A.x + 2 * it * tt * (mx + nx) + tt * tt * B.x;
+        var py = it * it * A.y + 2 * it * tt * (my + ny) + tt * tt * B.y;
+        ctx.beginPath();
+        ctx.arc(px, py, Math.max(.4, 2.4 - j * .24), 0, TAU);
+        ctx.fillStyle = rgba(j ? pk.c : [255, 255, 255], (1 - j / 9) * .9 * alpha);
+        ctx.fill();
+      }
+    }
+    for (var w = pings.length - 1; w >= 0; w--) {
+      var pg = pings[w];
+      pg.t += dt / .7;
+      if (pg.t >= 1) { pings.splice(w, 1); continue; }
+      var at = pg.ag ? pg.ag.p : cp;
+      ctx.beginPath();
+      ctx.arc(at.x, at.y, 4 + pg.t * 20, 0, TAU);
+      ctx.strokeStyle = rgba(pg.c, (1 - pg.t) * .7 * alpha);
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Labels for agents facing the viewer, plus the core.
+    ctx.font = '500 11px "Geist Mono", ui-monospace, monospace';
+    ctx.textBaseline = 'middle';
+    AGENTS.forEach(function (ag, i) {
+      var la = (i === hoverIdx ? 1 : Math.max(0, Math.min(1, (ag.p.z + .3) * 1.4)) * (.35 + .65 * ag.on)) * alpha;
+      if (la < .02) return;
+      ctx.fillStyle = rgba(C.ink, la * .9);
+      ctx.fillText(ag.name.toUpperCase(), ag.p.x + 12, ag.p.y - 10);
+      ctx.fillStyle = rgba(ag.on > .5 ? ag.c : C.ink, la * .7);
+      ctx.fillText(ag.on > .5 ? 'active' : 'standby', ag.p.x + 12, ag.p.y + 4);
+    });
+    ctx.fillStyle = rgba(C.ink, .55 * alpha);
+    ctx.textAlign = 'center';
+    ctx.fillText('LEDGER CORE', cp.x, cp.y + cr * 2.3 + 14);
+    ctx.textAlign = 'left';
+
+    // Cursor and the "Drag to spin" hint under the constellation until the first grab.
+    if (!drag.on) root.classList.toggle('is-grab', !!hoverAt && overConstellation(hoverAt.clientX, hoverAt.clientY, hoverAt.target));
+    if (hint) {
+      var show = canGrab && !drag.used && alpha > .3;
+      hint.classList.toggle('is-on', show);
+      if (show) hint.style.transform = 'translate(' + cp.x.toFixed(1) + 'px,' + (cp.y + u * 2.1 * Math.sin(view.pitch) + u * .9).toFixed(1) + 'px) translateX(-50%)';
+    }
+
+    if (!started) {
+      started = true;
+      zg.ready3D = true;
+      root.classList.add('is-3d');
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
 </body>
 </html>
