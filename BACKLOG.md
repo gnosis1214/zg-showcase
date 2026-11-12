@@ -25,3 +25,4 @@ Format: **Brand Product** (category, type). Hero / scroll story / interactive co
 ## Done
 
 - [x] **Ilura Tidal Bloom** (fragrance, product) → `pages/2026-11-13-am-ilura-tidal-bloom.html`
+- [x] **Corvane Agentic ERP** (agentic ERP, other; requested directly, not from the open list) → `pages/2026-11-13-pm-corvane-agentic-erp.html`
