@@ -25,5 +25,32 @@
       "Live engraving",
       "Velocity marquee"
     ]
+  },
+  {
+    "file": "2026-11-13-pm-corvane-agentic-erp.html",
+    "date": "2026-11-13",
+    "slot": "pm",
+    "type": "other",
+    "brand": "Corvane",
+    "title": "Corvane Agentic ERP",
+    "category": "Enterprise software",
+    "summary": "An ERP run by AI agents. Follow one order through a pinned five-scene story, pull the architecture apart, then model the ROI and watch more agents light up.",
+    "palette": [
+      "#5b7cff",
+      "#c6f55b",
+      "#ff7d57"
+    ],
+    "hero": "Canvas 2D agent constellation with projected 3D orbits and packets of work",
+    "scrollStory": "Pinned stage that swaps five workflow scenes as one order moves through the agents",
+    "control": "ROI model with autonomy switch that relights the constellation, drag to spin",
+    "techniques": [
+      "Canvas constellation",
+      "Pinned workflow story",
+      "Exploded layer stack",
+      "ROI model",
+      "Drag to spin",
+      "Stacking cards",
+      "Scroll-lit manifesto"
+    ]
   }
 ]

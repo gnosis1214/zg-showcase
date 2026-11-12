@@ -11,6 +11,7 @@ Open [`index.html`](index.html) for the gallery, or any file in [`pages/`](pages
 <!-- zg:list:start -->
 | Date | Page | Category | Highlights |
 |---|---|---|---|
+| 2026-11-13 pm | [Corvane Agentic ERP](pages/2026-11-13-pm-corvane-agentic-erp.html) | Enterprise software | Canvas constellation, Pinned workflow story, Exploded layer stack |
 | 2026-11-13 am | [Ilura Tidal Bloom](pages/2026-11-13-am-ilura-tidal-bloom.html) | Fragrance | Three.js glass, Drag to rotate, Shader aura |
 <!-- zg:list:end -->
 
