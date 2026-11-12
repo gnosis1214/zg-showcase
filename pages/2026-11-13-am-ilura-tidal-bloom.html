@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('zg-js')</script>
 <style>
 :root{
   --bg:#07060b;--ink:#f4efe9;--mut:rgba(244,239,233,.7);--dim:rgba(244,239,233,.46);
@@ -216,6 +217,29 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-toast{position:fixed;left:50%;bottom:24px;z-index:60;max-width:calc(100% - 32px);transform:translate(-50%,140%);padding:14px 20px;border-radius:16px;border:1px solid var(--line2);background:rgba(16,14,24,.86);backdrop-filter:blur(16px);font-size:14px;transition:transform .5s var(--ease)}
 .zg-toast.is-on{transform:translate(-50%,0)}
 
+/* Scroll-driven layout, only when scripts run */
+.zg-js .zg-notes{height:360vh}
+.zg-js .zg-notes__sticky{position:sticky;top:0;height:100vh;height:100svh;padding:0;display:flex;align-items:center;overflow:hidden}
+.zg-js .zg-notes__sticky>.zg-wrap{width:100%}
+.zg-js .zg-chapters{position:relative;min-height:300px}
+.zg-js .zg-chapter{position:absolute;left:0;top:0;width:100%;margin:0;opacity:0;visibility:hidden;transform:translateY(26px);transition:opacity .6s var(--ease),transform .7s var(--ease),visibility 0s .7s}
+.zg-js .zg-chapter.is-active{opacity:1;visibility:visible;transform:none;transition:opacity .7s var(--ease) .12s,transform .8s var(--ease) .12s,visibility 0s}
+.zg-js .zg-steps{display:block;margin-top:30px;max-width:360px}
+.zg-steps__labels{display:flex;justify-content:space-between;margin-bottom:10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.zg-steps__labels span{transition:color .4s}
+.zg-steps__labels span.is-active{color:var(--ink)}
+.zg-steps__bar{display:block;height:2px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+.zg-steps__bar b{display:block;height:100%;background:linear-gradient(90deg,var(--tide),var(--bloom),var(--amber));transform-origin:0 50%;transform:scaleX(0)}
+.zg-js .zg-atlas__sticky{position:sticky;top:0;height:100vh;height:100svh;padding:0;overflow:hidden}
+.zg-js .zg-atlas__viewport{overflow:visible}
+.zg-js .zg-atlas--native{height:auto!important}
+.zg-js .zg-atlas--native .zg-atlas__sticky{position:relative;height:auto;padding:clamp(90px,14vh,150px) 0}
+.zg-js .zg-atlas--native .zg-atlas__viewport{overflow-x:auto}
+.zg-js .zg-marquee__track{animation:none}
+.zg-js .zg-a{grid-template-rows:0fr}
+.zg-js .zg-q.is-open .zg-a{grid-template-rows:1fr}
+.zg-line{padding-bottom:.06em}
+
 /* Layout below 900px: product sits in the top half, copy below it */
 @media (max-width:900px){
   .zg-nav ul{display:none}
@@ -232,6 +256,12 @@ main,.zg-footer{position:relative;z-index:2}
   .zg-reserve__grid{grid-template-columns:1fr;gap:0;min-height:0;padding-bottom:12vh}
   .zg-reserve__space{height:50svh}
   .zg-faq__grid{grid-template-columns:1fr}
+  .zg-js .zg-notes__sticky{align-items:flex-end;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+  .zg-js .zg-notes__panel{padding:22px 20px;border:1px solid var(--line);border-radius:22px;background:rgba(14,12,22,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  .zg-notes .zg-kicker{margin-bottom:12px}
+  .zg-notes .zg-lede{font-size:15px}
+  .zg-notes .zg-chips{margin-top:14px}
+  .zg-js .zg-steps{margin-top:18px;max-width:none}
 }
 @media (max-width:520px){
   .zg-hero__meta{gap:22px}
@@ -469,5 +499,319 @@ main,.zg-footer{position:relative;z-index:2}
 </footer>
 
 <div class="zg-toast" id="zg-toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var zg = window.zg = window.zg || {};
+  zg.target = zg.target || { fx: .5, fy: 0, s: 1, rot: 0, pal: 0, dim: 1, hidden: 0, size: 1 };
+  zg.pointer = { x: 0, y: 0 };
+  zg.velocity = 0;
+  zg.size = 50;
+  zg.engrave = '';
+  zg.notesP = 0;
+  zg.reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mobileMQ = matchMedia('(max-width: 900px)');
+  var finePointer = matchMedia('(pointer: fine)').matches;
+  var hasGsap = !!(window.gsap && window.ScrollTrigger);
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+
+  // If the CDN didn't load, fall back to the no-script layout but keep the controls working.
+  if (!hasGsap) root.classList.remove('zg-js');
+
+  // Show the CSS bottle if 3D hasn't started after a while (no WebGL, offline CDN).
+  setTimeout(function () { if (!zg.ready3D) root.classList.add('no-webgl'); }, 6000);
+
+  /* ---------- Controls that work with or without GSAP ---------- */
+  var toastEl = $('#zg-toast'), toastT;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('is-on');
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { toastEl.classList.remove('is-on'); }, 3400);
+  }
+
+  // Size picker and engraving: drive the price, the label preview and the 3D label.
+  var PRICES = { 30: 98, 50: 142, 100: 210 };
+  var SCALE = { 30: .86, 50: 1, 100: 1.13 };
+  var seg = $('.zg-seg'), pill = $('.zg-seg__pill'), radios = $$('[role="radio"]', seg);
+  var priceEl = $('#zg-price'), price = { v: 142 };
+  var input = $('#zg-engrave'), preview = $('#zg-engrave-preview');
+  function updatePreview() {
+    preview.textContent = 'Tidal Bloom · ' + zg.size + ' ml' + (zg.engrave ? ' · “' + zg.engrave + '”' : '');
+    window.dispatchEvent(new Event('zg:label'));
+  }
+  function choose(btn, focus) {
+    radios.forEach(function (b, i) {
+      var on = b === btn;
+      b.setAttribute('aria-checked', String(on));
+      b.tabIndex = on ? 0 : -1;
+      if (on) pill.style.transform = 'translateX(' + (i * 100) + '%)';
+    });
+    var ml = +btn.getAttribute('data-size');
+    zg.size = ml;
+    zg.target.size = SCALE[ml];
+    if (hasGsap && !zg.reduce) {
+      gsap.to(price, { v: PRICES[ml], duration: .9, ease: 'power3.out', overwrite: true,
+        onUpdate: function () { priceEl.textContent = '$' + Math.round(price.v); } });
+    } else {
+      price.v = PRICES[ml];
+      priceEl.textContent = '$' + PRICES[ml];
+    }
+    updatePreview();
+    if (focus) btn.focus();
+  }
+  radios.forEach(function (b) { b.addEventListener('click', function () { choose(b); }); });
+  seg.addEventListener('keydown', function (e) {
+    var i = radios.indexOf(document.activeElement);
+    if (i < 0) return;
+    var next = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!next) return;
+    e.preventDefault();
+    choose(radios[(i + next + radios.length) % radios.length], true);
+  });
+  choose(radios[1]);
+  input.addEventListener('input', function () {
+    var clean = input.value.replace(/[^\p{L}\p{N} .,'&!?-]/gu, '').slice(0, 12);
+    if (clean !== input.value) input.value = clean;
+    zg.engrave = clean.trim();
+    updatePreview();
+  });
+  $('#zg-config').addEventListener('submit', function (e) {
+    e.preventDefault();
+    toast('Concept page: Ilura is fictional, so there is no checkout.');
+  });
+
+  // FAQ accordion (first answer open).
+  $$('.zg-q').forEach(function (q, i) {
+    var b = $('button', q);
+    function set(open) { q.classList.toggle('is-open', open); b.setAttribute('aria-expanded', String(open)); }
+    set(i === 0);
+    b.addEventListener('click', function () {
+      set(!q.classList.contains('is-open'));
+      if (hasGsap) setTimeout(function () { ScrollTrigger.refresh(); }, 620);
+    });
+  });
+
+  // Fit the stacked note chapters to the tallest one.
+  var notes = $('.zg-notes'), chapters = $$('.zg-chapter', notes), chWrap = $('.zg-chapters', notes);
+  function fitChapters() {
+    if (!root.classList.contains('zg-js')) { chWrap.style.height = ''; return; }
+    chWrap.style.height = Math.max.apply(null, chapters.map(function (c) { return c.offsetHeight; })) + 'px';
+  }
+  fitChapters();
+  addEventListener('resize', fitChapters);
+  if (document.fonts) document.fonts.ready.then(fitChapters);
+
+  // Pointer: cursor glow, 3D tilt, spotlight cards.
+  addEventListener('pointermove', function (e) {
+    zg.pointer.x = e.clientX / innerWidth * 2 - 1;
+    zg.pointer.y = e.clientY / innerHeight * 2 - 1;
+  }, { passive: true });
+  $$('.zg-cell, .zg-ing').forEach(function (el) {
+    el.addEventListener('pointermove', function (e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+
+  if (!hasGsap) return;
+
+  /* ---------- Scroll choreography (GSAP + Lenis) ---------- */
+  gsap.registerPlugin(ScrollTrigger);
+  if (window.SplitText) gsap.registerPlugin(SplitText);
+
+  var lenis = null;
+  if (!zg.reduce && window.Lenis) {
+    lenis = new Lenis({ lerp: .09, smoothWheel: true });
+    lenis.on('scroll', function (e) { zg.velocity = e.velocity; ScrollTrigger.update(); });
+    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+  $$('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href');
+      var el = id.length > 1 && document.querySelector(id);
+      if (!el && id !== '#zg-top') return;
+      e.preventDefault();
+      if (lenis) lenis.scrollTo(el || 0, { duration: 1.6 });
+      else (el || document.body).scrollIntoView();
+    });
+  });
+
+  // Nav state and reading progress.
+  var nav = $('#zg-nav'), bar = $('#zg-progress');
+  ScrollTrigger.create({ start: 0, end: 'max', onUpdate: function (s) {
+    bar.style.transform = 'scaleX(' + s.progress.toFixed(4) + ')';
+    nav.classList.toggle('is-scrolled', s.scroll() > 40);
+  } });
+
+  // Where the bottle sits in each section. fx/fy are fractions of the half-viewport,
+  // s is scale. Sections with hide:1 send the bottle below the fold.
+  var LAYOUT = {
+    hero:    { d: [.5, -.02, 1],   m: [0, .44, .62], pal: 0,   dim: 1 },
+    notes:   { d: [.52, 0, 1.06],  m: [0, .5, .56],  pal: -1,  dim: 1.05 },
+    marquee: { hide: 1, pal: 2, dim: .75 },
+    atlas:   { hide: 1, pal: 1.3, dim: .62 },
+    stats:   { hide: 1, pal: 1, dim: .7 },
+    bento:   { hide: 1, pal: .6, dim: .58 },
+    reserve: { d: [-.5, 0, 1.02],  m: [0, .5, .56],  pal: 0,   dim: .95 },
+    faq:     { hide: 1, pal: 1, dim: .55 },
+    cta:     { hide: 1, pal: 0, dim: 1.15 }
+  };
+  var scenes = $$('[data-scene]');
+  function currentScene() {
+    var mid = innerHeight * .5;
+    for (var i = 0; i < scenes.length; i++) {
+      var r = scenes[i].getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) return scenes[i].getAttribute('data-scene');
+    }
+    return 'cta';
+  }
+  gsap.ticker.add(function () {
+    var name = currentScene(), L = LAYOUT[name], T = zg.target;
+    if (L.hide) T.hidden = 1;
+    else {
+      var v = mobileMQ.matches ? L.m : L.d;
+      T.fx = v[0]; T.fy = v[1]; T.s = v[2]; T.hidden = 0;
+    }
+    T.dim = L.dim;
+    if (name === 'notes') { T.pal = zg.notesP * 2; T.rot = zg.notesP * Math.PI * 2; }
+    else { T.pal = L.pal; T.rot = name === 'hero' ? 0 : Math.PI * 2; }
+  });
+
+  // Notes: scroll progress picks the chapter, fills the step bar and drifts the outline word.
+  var labels = $$('.zg-steps__labels span'), fill = $('#zg-steps-fill'), word = $('.zg-notes__word'), cur = 0;
+  function setChapter(i) {
+    cur = i;
+    chapters.forEach(function (c, j) { c.classList.toggle('is-active', j === i); });
+    labels.forEach(function (l, j) { l.classList.toggle('is-active', j === i); });
+    word.textContent = chapters[i].getAttribute('data-word');
+    if (!zg.reduce) gsap.fromTo(word, { opacity: 0, yPercent: 12 }, { opacity: 1, yPercent: 0, duration: .9, ease: 'expo.out', overwrite: true });
+  }
+  ScrollTrigger.create({
+    trigger: notes, start: 'top top', end: 'bottom bottom',
+    onUpdate: function (s) {
+      zg.notesP = s.progress;
+      fill.style.transform = 'scaleX(' + s.progress.toFixed(4) + ')';
+      var i = Math.min(2, Math.floor(s.progress * 3));
+      if (i !== cur) setChapter(i);
+      if (!zg.reduce) gsap.set(word, { xPercent: -s.progress * 28 });
+    }
+  });
+
+  // Atlas: vertical scroll drives a horizontal track. Native scroller when motion is reduced.
+  var atlas = $('.zg-atlas'), track = $('#zg-track');
+  if (zg.reduce) atlas.classList.add('zg-atlas--native');
+  else {
+    var dist = function () { return Math.max(0, track.scrollWidth - innerWidth); };
+    var sizeAtlas = function () { atlas.style.height = (innerHeight + dist()) + 'px'; };
+    sizeAtlas();
+    ScrollTrigger.addEventListener('refreshInit', sizeAtlas);
+    var slide = gsap.to(track, {
+      x: function () { return -dist(); }, ease: 'none',
+      scrollTrigger: { trigger: atlas, start: 'top top', end: 'bottom bottom', scrub: true, invalidateOnRefresh: true }
+    });
+    $$('.zg-ing', track).forEach(function (card) {
+      gsap.fromTo($('.zg-ing__orb', card), { xPercent: 26, rotate: -30 }, {
+        xPercent: -26, rotate: 30, ease: 'none',
+        scrollTrigger: { trigger: card, containerAnimation: slide, start: 'left right', end: 'right left', scrub: true }
+      });
+      gsap.from($('.zg-ing__bar b', card), {
+        scaleX: 0, duration: 1.3, ease: 'power3.out',
+        scrollTrigger: { trigger: card, containerAnimation: slide, start: 'left 85%', toggleActions: 'play none none reverse' }
+      });
+    });
+  }
+
+  // Count-ups and the maceration bars.
+  $$('[data-count]').forEach(function (el) {
+    if (zg.reduce) return;
+    var end = +el.getAttribute('data-count'), suf = el.getAttribute('data-suffix') || '', o = { v: 0 };
+    el.textContent = '0' + suf;
+    ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: function () {
+      gsap.to(o, { v: end, duration: 1.9, ease: 'power3.out', onUpdate: function () { el.textContent = Math.round(o.v) + suf; } });
+    } });
+  });
+  if (!zg.reduce) {
+    gsap.from('#zg-weeks i', { scaleY: 0, duration: 1.1, ease: 'power3.out', stagger: .12,
+      scrollTrigger: { trigger: '#zg-weeks', start: 'top 88%', once: true } });
+  }
+
+  // Marquee speeds up and flips direction with scroll velocity.
+  if (!zg.reduce) {
+    var loop = gsap.to('#zg-marquee', { xPercent: -50, duration: 42, ease: 'none', repeat: -1 });
+    loop.totalTime(loop.duration() * 500);
+    var skewTo = gsap.quickTo('#zg-marquee', 'skewX', { duration: .5, ease: 'power3.out' });
+    var dir = 1;
+    gsap.ticker.add(function () {
+      var v = zg.velocity || 0;
+      if (Math.abs(v) > .2) dir = v > 0 ? 1 : -1;
+      loop.timeScale(dir * (1 + Math.min(Math.abs(v), 50) * .14));
+      skewTo(Math.max(-8, Math.min(8, -v * .35)));
+    });
+  }
+
+  // Magnetic buttons and cursor glow (mouse only).
+  if (finePointer && !zg.reduce) {
+    $$('[data-magnetic]').forEach(function (el) {
+      var xTo = gsap.quickTo(el, 'x', { duration: .55, ease: 'power3.out' });
+      var yTo = gsap.quickTo(el, 'y', { duration: .55, ease: 'power3.out' });
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        xTo((e.clientX - r.left - r.width / 2) * .28);
+        yTo((e.clientY - r.top - r.height / 2) * .4);
+      });
+      el.addEventListener('pointerleave', function () { xTo(0); yTo(0); });
+    });
+    var glow = $('.zg-cursor');
+    var gx = gsap.quickTo(glow, 'x', { duration: .8, ease: 'power3.out' });
+    var gy = gsap.quickTo(glow, 'y', { duration: .8, ease: 'power3.out' });
+    addEventListener('pointermove', function (e) { root.classList.add('has-pointer'); gx(e.clientX); gy(e.clientY); }, { passive: true });
+  }
+
+  /* ---------- Intro, then text reveals ---------- */
+  function reveals() {
+    if (zg.reduce) return;
+    if (window.SplitText) {
+      $$('[data-split]').forEach(function (el) {
+        SplitText.create(el, {
+          type: 'lines', mask: 'lines', linesClass: 'zg-line', autoSplit: true,
+          onSplit: function (self) {
+            return gsap.from(self.lines, { yPercent: 115, duration: 1.2, ease: 'expo.out', stagger: .09,
+              scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
+          }
+        });
+      });
+    }
+    var items = $$('[data-reveal]');
+    gsap.set(items, { y: 34, autoAlpha: 0 });
+    ScrollTrigger.batch(items, { start: 'top 92%', once: true, onEnter: function (batch) {
+      gsap.to(batch, { y: 0, autoAlpha: 1, duration: 1.1, ease: 'power3.out', stagger: .1, delay: .15 });
+    } });
+  }
+
+  var intro = $('.zg-intro'), t0 = performance.now();
+  if (zg.reduce || !intro) { if (intro) intro.remove(); reveals(); return; }
+  if (lenis) lenis.stop();
+  (function waitIntro() {
+    var t = performance.now() - t0;
+    if ((zg.ready3D && t > 1100) || t > 2300) {
+      intro.style.animation = 'none';
+      gsap.to(intro, { clipPath: 'inset(0 0 100% 0)', duration: 1.1, ease: 'expo.inOut', onComplete: function () { intro.remove(); } });
+      if (lenis) lenis.start();
+      reveals();
+      ScrollTrigger.refresh();
+    } else requestAnimationFrame(waitIntro);
+  })();
+})();
+</script>
 </body>
 </html>
