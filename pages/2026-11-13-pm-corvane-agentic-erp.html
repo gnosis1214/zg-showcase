@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('zg-js')</script>
 <style>
 /* Registered so the aura fields can glide between section positions with a plain CSS transition */
 @property --ax{syntax:'<percentage>';inherits:false;initial-value:74%}
@@ -403,8 +404,10 @@ main,.zg-footer{position:relative;z-index:2}
 .is-pinned .zg-step{display:contents}
 .is-pinned .zg-step__text{grid-area:text;opacity:0;visibility:hidden;transform:translateY(22px);transition:opacity .5s var(--ease),transform .6s var(--ease),visibility 0s .6s}
 .is-pinned .zg-step__text.is-active{opacity:1;visibility:visible;transform:none;transition:opacity .6s var(--ease) .1s,transform .7s var(--ease) .1s,visibility 0s}
-.is-pinned .zg-frame{display:block;grid-area:stage;align-self:stretch}
-.is-pinned .zg-scene{grid-area:stage;align-self:start;margin:62px 20px 22px;padding:0;border:0;background:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.is-pinned .zg-flow__head .zg-h2{font-size:clamp(30px,3.3vw,48px)}
+.is-pinned .zg-flow__head .zg-lede{font-size:16px}
+.is-pinned .zg-frame{display:block;grid-area:stage;align-self:stretch;min-height:420px}
+.is-pinned .zg-scene{grid-area:stage;align-self:center;margin:62px 20px 22px;padding:0;border:0;background:none;backdrop-filter:none;-webkit-backdrop-filter:none}
 .zg-rail{margin-top:28px;max-width:440px}
 .zg-rail__labels{display:flex;justify-content:space-between;margin-bottom:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 .zg-rail__labels span{transition:color .4s}
@@ -452,6 +455,7 @@ main,.zg-footer{position:relative;z-index:2}
   .is-pinned .zg-flow__head .zg-h2,.is-pinned .zg-flow__head .zg-lede{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
   .is-pinned .zg-flow__head .zg-kicker{margin-bottom:0}
   .is-pinned .zg-rail{margin-top:14px;max-width:none}
+  .is-pinned .zg-frame{min-height:0}
   .is-pinned .zg-scene{margin:58px 14px 16px}
   .is-pinned .zg-step__text h3{font-size:23px;margin:8px 0 8px}
   .is-pinned .zg-step__text p{font-size:15px}
@@ -954,6 +958,312 @@ main,.zg-footer{position:relative;z-index:2}
 
 <div class="zg-toast" id="zg-toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var zg = window.zg = window.zg || {};
+  var T = zg.target = zg.target || { fx: .5, fy: .02, s: 1, dim: 1, hidden: 0, grab: 1, lit: 8, rate: 1 };
+  zg.velocity = 0;
+  zg.calc = zg.calc || { lit: 6, rate: 1.2 };
+  zg.reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mobileMQ = matchMedia('(max-width: 900px)');
+  var finePointer = matchMedia('(pointer: fine)').matches;
+  var hasGsap = !!(window.gsap && window.ScrollTrigger);
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+
+  // If the CDN didn't load, keep the static layout but leave the controls working.
+  if (!hasGsap) root.classList.remove('zg-js');
+
+  /* ---------- Works with or without GSAP ---------- */
+  var toastEl = $('#zg-toast'), toastT;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('is-on');
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { toastEl.classList.remove('is-on'); }, 3600);
+  }
+  zg.toast = toast;
+  $$('[data-toast]').forEach(function (b) {
+    b.addEventListener('click', function () { toast('Concept page: Corvane is fictional, so there is no briefing to book.'); });
+  });
+
+  // FAQ accordion, first answer open.
+  $$('.zg-q').forEach(function (q, i) {
+    var b = $('button', q);
+    function set(open) { q.classList.toggle('is-open', open); b.setAttribute('aria-expanded', String(open)); }
+    set(i === 0);
+    b.addEventListener('click', function () {
+      set(!q.classList.contains('is-open'));
+      if (hasGsap) setTimeout(function () { ScrollTrigger.refresh(); }, 620);
+    });
+  });
+
+  // Nav turns solid once the page leaves the top.
+  var nav = $('#zg-nav');
+  function navState() { nav.classList.toggle('is-top', (window.scrollY || 0) < 30); }
+  navState();
+  addEventListener('scroll', navState, { passive: true });
+
+  /*@zg:controls*/
+
+  if (!hasGsap) return;
+
+  /* ---------- Scroll choreography (GSAP + Lenis) ---------- */
+  gsap.registerPlugin(ScrollTrigger);
+  if (window.SplitText) gsap.registerPlugin(SplitText);
+
+  var lenis = null;
+  if (!zg.reduce && window.Lenis) {
+    lenis = new Lenis({ lerp: .09, smoothWheel: true });
+    lenis.on('scroll', function (e) { zg.velocity = e.velocity; ScrollTrigger.update(); });
+    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+  $$('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href');
+      var el = id.length > 1 && document.querySelector(id);
+      if (!el && id !== '#zg-top') return;
+      e.preventDefault();
+      if (lenis) lenis.scrollTo(el || 0, { duration: 1.6 });
+      else (el || document.body).scrollIntoView();
+    });
+  });
+
+  var bar = $('#zg-progress');
+  ScrollTrigger.create({ start: 0, end: 'max', onUpdate: function (s) { bar.style.transform = 'scaleX(' + s.progress.toFixed(4) + ')'; } });
+
+  // Where the constellation sits in each section. fx/fy are fractions of the half-viewport
+  // (negative fy is up), s is scale. m:null or hide:1 fades it out. roi:1 hands the lit-agent
+  // count and packet rate to the ROI model.
+  zg.layoutLive = true;
+  var LAYOUT = {
+    hero:      { d: [.5, .02, 1],    m: [0, -.44, 1],  dim: 1,   grab: 1 },
+    ticker:    { d: [.5, .02, 1],    m: [0, -.44, 1],  dim: .6 },
+    manifesto: { d: [0, 0, 1.5],     m: [0, 0, 1.2],   dim: .28 },
+    flow:      { hide: 1 }, agents: { hide: 1 }, stack: { hide: 1 }, rollout: { hide: 1 }, stats: { hide: 1 },
+    roi:       { d: [-.5, -.04, .95], m: null,         dim: 1,   grab: 1, roi: 1 },
+    faq:       { hide: 1 },
+    cta:       { d: [0, .02, 1.4],   m: [0, 0, 1.1],   dim: .5,  grab: 1 }
+  };
+  var scenes = $$('[data-scene]'), aura = '';
+  function currentScene() {
+    var mid = innerHeight * .5;
+    for (var i = 0; i < scenes.length; i++) {
+      var r = scenes[i].getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) return scenes[i].getAttribute('data-scene');
+    }
+    return 'cta';
+  }
+  gsap.ticker.add(function () {
+    var name = currentScene(), L = LAYOUT[name] || LAYOUT.faq;
+    var v = mobileMQ.matches ? L.m : L.d;
+    if (L.hide || !v) T.hidden = 1;
+    else { T.fx = v[0]; T.fy = v[1]; T.s = v[2]; T.hidden = 0; T.dim = L.dim; }
+    T.grab = L.grab ? 1 : 0;
+    T.lit = L.roi ? zg.calc.lit : 8;
+    T.rate = L.roi ? zg.calc.rate : 1;
+    if (name !== aura) { aura = name; root.setAttribute('data-aura', name); }
+  });
+
+  // Shrinks a pinned stage that is taller than the screen (short phones, landscape tablets).
+  function fit(el) {
+    el.style.transform = '';
+    var avail = innerHeight - 64 - 20, h = el.offsetHeight;
+    if (h > avail) el.style.transform = 'scale(' + (avail / h).toFixed(3) + ')';
+  }
+
+  /* Manifesto: each word lights up as it scrolls past */
+  var big = $('#zg-manifesto');
+  if (!zg.reduce) {
+    (function split(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 1) { split(n); return; }
+        if (n.nodeType !== 3 || !n.textContent.trim()) return;
+        var frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var s = document.createElement('span');
+          s.className = 'zg-w';
+          s.textContent = part;
+          frag.appendChild(s);
+        });
+        node.replaceChild(frag, n);
+      });
+    })(big);
+    gsap.fromTo($$('.zg-w', big), { opacity: .14 }, {
+      opacity: 1, ease: 'none', stagger: .12,
+      scrollTrigger: { trigger: big, start: 'top 80%', end: 'bottom 42%', scrub: true }
+    });
+  }
+
+  /* Flow: one pinned stage. Scroll scrubs a five-scene timeline; each scene swaps in, plays its
+     own build (scan, plan tree, parallel bars, approval, ledger) and swaps out for the next. */
+  var flow = $('#zg-flow'), flowGrid = $('#zg-flow-grid');
+  if (!zg.reduce) {
+    flow.classList.add('is-pinned');
+    var steps = $$('.zg-step', flow);
+    var texts = steps.map(function (s) { return $('.zg-step__text', s); });
+    var sc = steps.map(function (s) { return $('.zg-scene', s); });
+    var railLabels = $$('.zg-rail__labels span'), railFill = $('#zg-rail-fill');
+    var stepName = $('#zg-frame-step'), stateEl = $('#zg-frame-state'), clock = $('#zg-clock');
+    var NAMES = ['intake', 'plan', 'agents', 'approval', 'ledger'];
+    var STATES = [['Running', ''], ['Planning', ''], ['Running', ''], ['Awaiting approval', 'is-warn'], ['Complete', 'is-ok']];
+    var curStep = -1;
+    var setStep = function (i) {
+      curStep = i;
+      texts.forEach(function (t, j) { t.classList.toggle('is-active', j === i); });
+      railLabels.forEach(function (l, j) { l.classList.toggle('is-active', j === i); l.classList.toggle('is-done', j < i); });
+      stepName.textContent = NAMES[i];
+      stateEl.textContent = STATES[i][0];
+      stateEl.className = 'zg-frame__state' + (STATES[i][1] ? ' ' + STATES[i][1] : '');
+    };
+    setStep(0);
+
+    var tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out' } });
+    sc.forEach(function (s, i) {
+      if (i > 0) tl.fromTo(s, { autoAlpha: 0, y: 28, scale: .97 }, { autoAlpha: 1, y: 0, scale: 1, duration: .16 }, i - .04);
+      if (i < sc.length - 1) tl.to(s, { autoAlpha: 0, y: -24, scale: .98, duration: .14, ease: 'power2.in' }, i + .86);
+    });
+    // 1 Signal: a scan line reads the document and the fields fill in.
+    var beam = $('.zg-doc__beam', sc[0]);
+    tl.fromTo(beam, { top: '-14%', autoAlpha: 1 }, { top: '100%', duration: .5, ease: 'none' }, .06)
+      .to(beam, { autoAlpha: 0, duration: .06 }, .56)
+      .fromTo($$('.zg-doc li', sc[0]), { opacity: .3 }, { opacity: 1, stagger: .09, duration: .08 }, .1)
+      .fromTo($$('.zg-fields > div', sc[0]), { autoAlpha: 0, x: -18 }, { autoAlpha: 1, x: 0, stagger: .08, duration: .12 }, .16)
+      .fromTo($('.zg-scene__foot', sc[0]), { autoAlpha: 0 }, { autoAlpha: 1, duration: .1 }, .6);
+    // 2 Plan: the orchestrator appears, the trunk draws down and tasks branch off it.
+    tl.fromTo($('.zg-orch', sc[1]), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: .12 }, 1.04)
+      .fromTo($('.zg-tree__trunk', sc[1]), { scaleY: 0 }, { scaleY: 1, duration: .4, ease: 'none' }, 1.12)
+      .fromTo($$('.zg-tree li', sc[1]), { autoAlpha: 0, x: -14 }, { autoAlpha: 1, x: 0, stagger: .07, duration: .12 }, 1.16)
+      .fromTo($$('.zg-chip', sc[1]), { autoAlpha: 0, scale: .6 }, { autoAlpha: 1, scale: 1, stagger: .07, duration: .1 }, 1.42);
+    // 3 Act: four bars fill at their own pace, then each status flips to its result.
+    var DUR = [.42, .26, .52, .6];
+    $$('.zg-lane', sc[2]).forEach(function (lane, j) {
+      var at = 2.06 + j * .03, end = at + DUR[j];
+      tl.fromTo($('.zg-lane__bar b', lane), { scaleX: 0 }, { scaleX: 1, duration: DUR[j], ease: 'power1.inOut' }, at)
+        .fromTo($('.zg-lane__a', lane), { autoAlpha: 1 }, { autoAlpha: 0, duration: .04 }, end)
+        .fromTo($('.zg-lane__b', lane), { autoAlpha: 0 }, { autoAlpha: 1, duration: .06 }, end + .02);
+    });
+    tl.fromTo($('.zg-scene__foot', sc[2]), { autoAlpha: 0 }, { autoAlpha: 1, duration: .1 }, 2.1);
+    // 4 Check: rules tick through, one flags, the approval card arrives and gets approved.
+    tl.fromTo($$('.zg-rules li', sc[3]), { opacity: .25 }, { opacity: 1, stagger: .08, duration: .08 }, 3.06)
+      .fromTo($$('.zg-ico', sc[3]), { scale: 0 }, { scale: 1, stagger: .08, duration: .1, ease: 'back.out(2)' }, 3.08)
+      .fromTo($('.zg-approve', sc[3]), { autoAlpha: 0, x: 30 }, { autoAlpha: 1, x: 0, duration: .14 }, 3.4)
+      .fromTo($('.zg-approve__btn', sc[3]), { backgroundColor: '#eef1f7' }, { backgroundColor: '#c6f55b', duration: .06 }, 3.7)
+      .fromTo($('.zg-approve__a', sc[3]), { autoAlpha: 1 }, { autoAlpha: 0, duration: .04 }, 3.7)
+      .fromTo($('.zg-approve__b', sc[3]), { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: .06 }, 3.72);
+    // 5 Post: records land, the audit chain links up and seals.
+    tl.fromTo($$('.zg-recs li', sc[4]), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, stagger: .07, duration: .1 }, 4.06)
+      .fromTo($$('.zg-recs__ok', sc[4]), { autoAlpha: 0 }, { autoAlpha: 1, stagger: .07, duration: .06 }, 4.22)
+      .fromTo($$('.zg-chain > *', sc[4]), { autoAlpha: 0, scale: .7 }, { autoAlpha: 1, scale: 1, stagger: .035, duration: .08 }, 4.38)
+      .fromTo($('.zg-sum', sc[4]), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: .1 }, 4.66);
+    // The clock runs across the whole story: T+00:00 to T+03:42.
+    var clk = { v: 0 };
+    tl.to(clk, { v: 222, duration: 5, ease: 'none', onUpdate: function () {
+      var s = Math.round(clk.v);
+      clock.textContent = 'T+' + pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+    } }, 0);
+
+    ScrollTrigger.create({
+      trigger: flow, start: 'top top', end: 'bottom bottom', animation: tl, scrub: .5,
+      onUpdate: function (s) {
+        railFill.style.transform = 'scaleX(' + s.progress.toFixed(4) + ')';
+        var i = Math.min(4, Math.floor(s.progress * 5));
+        if (i !== curStep) setStep(i);
+      }
+    });
+    ScrollTrigger.addEventListener('refreshInit', function () { fit(flowGrid); });
+    fit(flowGrid);
+  }
+
+  /* Architecture: the five plates pull apart, then the active layer walks down the stack. */
+  var stack = $('#zg-stack'), stackGrid = $('#zg-stack-grid');
+  if (!zg.reduce) {
+    stack.classList.add('is-pinned');
+    var iso = $('#zg-iso'), plates = $$('.zg-plate', iso), layers = $$('.zg-layers li', stack), curLayer = -1;
+    var setLayer = function (i) {
+      curLayer = i;
+      plates.forEach(function (p, j) { p.classList.toggle('is-active', j === i); });
+      layers.forEach(function (l, j) { l.classList.toggle('is-active', j === i); });
+    };
+    setLayer(0);
+    var gapMax = function () { return Math.max(26, (iso.clientHeight - plates[0].offsetWidth * .84) / 4) + 'px'; };
+    gsap.fromTo(iso, { '--gap': '10px' }, {
+      '--gap': gapMax, ease: 'none',
+      scrollTrigger: { trigger: stack, start: 'top top', end: function () { return '+=' + (stack.offsetHeight - innerHeight) * .45; }, scrub: .5, invalidateOnRefresh: true }
+    });
+    ScrollTrigger.create({
+      trigger: stack, start: 'top top', end: 'bottom bottom',
+      onUpdate: function (s) { var i = Math.min(4, Math.floor(s.progress * 5)); if (i !== curLayer) setLayer(i); }
+    });
+    ScrollTrigger.addEventListener('refreshInit', function () { fit(stackGrid); });
+    fit(stackGrid);
+  }
+
+  /* Rollout: each card sinks back and darkens as the next one slides over it. */
+  if (!zg.reduce) {
+    var phases = $$('.zg-phase');
+    phases.forEach(function (card, i) {
+      if (i === phases.length - 1) return;
+      gsap.fromTo(card, { scale: 1, '--shade': 0 }, {
+        scale: .94, '--shade': .55, ease: 'none',
+        scrollTrigger: {
+          trigger: phases[i + 1], start: 'top bottom', scrub: true, invalidateOnRefresh: true,
+          end: function () { return 'top ' + (64 + (mobileMQ.matches ? 12 + (i + 1) * 10 : 24 + (i + 1) * 16)) + 'px'; }
+        }
+      });
+    });
+  }
+
+  /*@zg:micro*/
+
+  /* ---------- Intro, then text reveals ---------- */
+  function reveals() {
+    if (zg.reduce) return;
+    if (window.SplitText) {
+      $$('[data-split]').forEach(function (el) {
+        SplitText.create(el, {
+          type: 'lines', mask: 'lines', linesClass: 'zg-line', autoSplit: true,
+          onSplit: function (self) {
+            return gsap.from(self.lines, { yPercent: 115, duration: 1.2, ease: 'expo.out', stagger: .09,
+              scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
+          }
+        });
+      });
+    }
+    var items = $$('[data-reveal]');
+    gsap.set(items, { y: 34, autoAlpha: 0 });
+    ScrollTrigger.batch(items, { start: 'top 92%', once: true, onEnter: function (batch) {
+      gsap.to(batch, { y: 0, autoAlpha: 1, duration: 1.1, ease: 'power3.out', stagger: .1, delay: .15 });
+    } });
+  }
+  if (document.fonts) document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+
+  var intro = $('.zg-intro'), t0 = performance.now();
+  if (zg.reduce || !intro) { if (intro) intro.remove(); reveals(); return; }
+  if (lenis) lenis.stop();
+  (function waitIntro() {
+    var t = performance.now() - t0;
+    if ((zg.ready3D && t > 1200) || t > 2300) {
+      intro.style.animation = 'none';
+      gsap.to(intro, { clipPath: 'inset(0 0 100% 0)', duration: 1.1, ease: 'expo.inOut', onComplete: function () { intro.remove(); } });
+      if (lenis) lenis.start();
+      reveals();
+      ScrollTrigger.refresh();
+    } else requestAnimationFrame(waitIntro);
+  })();
+})();
+</script>
+
 <script>
 /* Hero: the agent constellation. Canvas 2D with a small hand-rolled 3D projection, so it needs
    no WebGL and no library. Eight named agents ride three tilted orbits around the ledger core,
@@ -1017,7 +1327,7 @@ main,.zg-footer{position:relative;z-index:2}
     return out;
   }
   // View: spin around Y (yaw), tip toward the viewer around X (pitch), then perspective divide.
-  var view = { cx: 0, cy: 0, unit: 100, yaw: 0, pitch: .4 };
+  var view = zg.view = { cx: 0, cy: 0, unit: 100, yaw: 0, pitch: .4 };
   function project(p, out) {
     var cyw = Math.cos(view.yaw), syw = Math.sin(view.yaw);
     var x = p.x * cyw + p.z * syw, z = -p.x * syw + p.z * cyw;
@@ -1123,7 +1433,7 @@ main,.zg-footer{position:relative;z-index:2}
     var m = mobileMQ.matches;
     view.cx = W / 2 + cur.fx * W / 2;
     view.cy = H / 2 + cur.fy * H / 2 + cur.hidden * H * .12;   // sinks a little as it fades out
-    view.unit = (m ? Math.min(W, H * .5) : Math.min(W * .5, H * .95)) * .19 * cur.s;
+    view.unit = (m ? Math.min(W, H * .5) * .165 : Math.min(W * .5, H * .95) * .19) * cur.s;
 
     canGrab = !!T.grab && !T.hidden && cur.hidden < .04 && Math.abs(cur.fx - T.fx) < .03 && Math.abs(cur.fy - T.fy) < .03;
     if (!canGrab && drag.on) endDrag();
@@ -1340,7 +1650,7 @@ main,.zg-footer{position:relative;z-index:2}
     if (hint) {
       var show = canGrab && !drag.used && alpha > .3;
       hint.classList.toggle('is-on', show);
-      if (show) hint.style.transform = 'translate(' + cp.x.toFixed(1) + 'px,' + (cp.y + u * 2.1 * Math.sin(view.pitch) + u * .9).toFixed(1) + 'px) translateX(-50%)';
+      if (show) hint.style.transform = 'translate(' + cp.x.toFixed(1) + 'px,' + (cp.y + u * 2.1 * Math.sin(view.pitch) + u * (m ? .55 : .9)).toFixed(1) + 'px) translateX(-50%)';
     }
 
     if (!started) {
