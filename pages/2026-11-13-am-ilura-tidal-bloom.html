@@ -71,7 +71,7 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-tag{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);padding:7px 14px;border:1px solid var(--line);border-radius:99px;background:rgba(255,255,255,.03);backdrop-filter:blur(10px)}
 .zg-tag i{width:6px;height:6px;border-radius:50%;background:var(--tide);box-shadow:0 0 14px var(--tide)}
 .zg-kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
-.zg-display{font-weight:500;font-size:clamp(46px,7.4vw,112px);line-height:.95;letter-spacing:-.042em}
+.zg-display{font-weight:500;font-size:clamp(44px,6.2vw,100px);line-height:.95;letter-spacing:-.042em}
 .zg-h2{font-weight:500;font-size:clamp(34px,4.8vw,66px);line-height:1.02;letter-spacing:-.035em}
 .zg-display em,.zg-h2 em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
 .zg-grad{background:linear-gradient(100deg,var(--tide),var(--bloom) 52%,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.08em}
@@ -90,8 +90,8 @@ main,.zg-footer{position:relative;z-index:2}
 
 /* Hero */
 .zg-hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;padding:130px 0 90px}
-.zg-hero__copy{max-width:610px}
-.zg-hero .zg-display{margin:24px 0 26px}
+.zg-hero__copy{max-width:640px}
+.zg-hero .zg-display{margin:24px 0 26px;max-width:9.6em}
 .zg-cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
 .zg-hero__meta{display:flex;gap:34px;margin-top:52px;font-size:13px;color:var(--dim)}
 .zg-hero__meta b{display:block;color:var(--ink);font-weight:500;font-size:15px}
@@ -126,7 +126,7 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-atlas__viewport{overflow-x:auto;scrollbar-width:none}
 .zg-atlas__viewport::-webkit-scrollbar{display:none}
 .zg-atlas__track{display:flex;gap:18px;width:max-content;padding:0 var(--gut);will-change:transform}
-.zg-ing{--mx:50%;--my:50%;position:relative;flex:none;width:clamp(262px,25vw,336px);height:clamp(400px,58vh,500px);padding:22px;border:1px solid var(--line);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;flex-direction:column;overflow:hidden}
+.zg-ing{--mx:50%;--my:50%;position:relative;flex:none;width:clamp(262px,25vw,336px);height:clamp(340px,52vh,480px);padding:22px;border:1px solid var(--line);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;flex-direction:column;overflow:hidden}
 .zg-ing__role{align-self:flex-start;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:5px 11px;border:1px solid var(--line2);border-radius:99px;color:var(--mut)}
 .zg-ing__orb{width:58%;aspect-ratio:1;border-radius:50%;margin:clamp(18px,4vh,34px) auto clamp(18px,3vh,28px);background:radial-gradient(circle at 34% 30%,#fff 0 3%,var(--c1) 22%,var(--c2) 64%,#0a0912 100%);box-shadow:0 30px 70px -18px var(--c1),inset -18px -26px 50px rgba(0,0,0,.45)}
 .zg-ing h3{font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(30px,2.6vw,36px);line-height:1}
@@ -214,8 +214,8 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-footer a:hover{color:var(--ink)}
 
 /* Toast */
-.zg-toast{position:fixed;left:50%;bottom:24px;z-index:60;max-width:calc(100% - 32px);transform:translate(-50%,140%);padding:14px 20px;border-radius:16px;border:1px solid var(--line2);background:rgba(16,14,24,.86);backdrop-filter:blur(16px);font-size:14px;transition:transform .5s var(--ease)}
-.zg-toast.is-on{transform:translate(-50%,0)}
+.zg-toast{position:fixed;left:50%;bottom:24px;z-index:60;max-width:calc(100% - 32px);transform:translate(-50%,calc(100% + 40px));visibility:hidden;padding:14px 20px;border-radius:16px;border:1px solid var(--line2);background:rgba(16,14,24,.86);backdrop-filter:blur(16px);font-size:14px;transition:transform .5s var(--ease),visibility 0s .5s}
+.zg-toast.is-on{transform:translate(-50%,0);visibility:visible;transition:transform .5s var(--ease)}
 
 /* Scroll-driven layout, only when scripts run */
 .zg-js .zg-notes{height:360vh}
@@ -230,7 +230,7 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-steps__labels span.is-active{color:var(--ink)}
 .zg-steps__bar{display:block;height:2px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
 .zg-steps__bar b{display:block;height:100%;background:linear-gradient(90deg,var(--tide),var(--bloom),var(--amber));transform-origin:0 50%;transform:scaleX(0)}
-.zg-js .zg-atlas__sticky{position:sticky;top:0;height:100vh;height:100svh;padding:0;overflow:hidden}
+.zg-js .zg-atlas__sticky{position:sticky;top:0;height:100vh;height:100svh;padding:84px 0 20px;overflow:hidden}
 .zg-js .zg-atlas__viewport{overflow:visible}
 .zg-js .zg-atlas--native{height:auto!important}
 .zg-js .zg-atlas--native .zg-atlas__sticky{position:relative;height:auto;padding:clamp(90px,14vh,150px) 0}
@@ -656,13 +656,13 @@ main,.zg-footer{position:relative;z-index:2}
   // Where the bottle sits in each section. fx/fy are fractions of the half-viewport,
   // s is scale. Sections with hide:1 send the bottle below the fold.
   var LAYOUT = {
-    hero:    { d: [.5, -.02, 1],   m: [0, .44, .62], pal: 0,   dim: 1 },
-    notes:   { d: [.52, 0, 1.06],  m: [0, .5, .56],  pal: -1,  dim: 1.05 },
+    hero:    { d: [.62, -.02, .8],  m: [0, .42, .5],  pal: 0,   dim: .85 },
+    notes:   { d: [.56, 0, .88],   m: [0, .44, .48], pal: -1,  dim: .95 },
     marquee: { hide: 1, pal: 2, dim: .75 },
     atlas:   { hide: 1, pal: 1.3, dim: .62 },
     stats:   { hide: 1, pal: 1, dim: .7 },
     bento:   { hide: 1, pal: .6, dim: .58 },
-    reserve: { d: [-.5, 0, 1.02],  m: [0, .5, .56],  pal: 0,   dim: .95 },
+    reserve: { d: [-.52, 0, .86],  m: [0, .44, .48], pal: 0,   dim: .85 },
     faq:     { hide: 1, pal: 1, dim: .55 },
     cta:     { hide: 1, pal: 0, dim: 1.15 }
   };
@@ -683,6 +683,7 @@ main,.zg-footer{position:relative;z-index:2}
       T.fx = v[0]; T.fy = v[1]; T.s = v[2]; T.hidden = 0;
     }
     T.dim = L.dim;
+    T.face = name === 'reserve' ? 1 : 0;
     if (name === 'notes') { T.pal = zg.notesP * 2; T.rot = zg.notesP * Math.PI * 2; }
     else { T.pal = L.pal; T.rot = name === 'hero' ? 0 : Math.PI * 2; }
   });
@@ -812,6 +813,334 @@ main,.zg-footer{position:relative;z-index:2}
     } else requestAnimationFrame(waitIntro);
   })();
 })();
+</script>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const zg = window.zg || (window.zg = {});
+const root = document.documentElement;
+const canvas = document.getElementById('zg-stage');
+const T = zg.target || (zg.target = { fx: .5, fy: 0, s: 1, rot: 0, pal: 0, dim: 1, hidden: 0, size: 1 });
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobileMQ = matchMedia('(max-width: 900px)');
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+} catch (err) {
+  root.classList.add('no-webgl');
+  throw err;
+}
+canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); root.classList.add('no-webgl'); });
+const dprCap = () => (mobileMQ.matches ? 1.25 : 1.75);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, .1, 60);
+camera.position.set(0, 0, 7);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
+scene.environmentIntensity = .9;
+
+/* Palettes for top (tide), heart (bloom) and base (amber). Scroll blends between them. */
+const PAL = [
+  { a: '#2fd3c2', b: '#2c46ff', c: '#9be7ff', liquid: '#0b8f83', rim: '#6fe3d6' },
+  { a: '#a874ff', b: '#ff6f91', c: '#5a2dff', liquid: '#8b4fe6', rim: '#c49bff' },
+  { a: '#ffa53a', b: '#ff5a3c', c: '#ffd9a0', liquid: '#e08a1e', rim: '#f5c76b' }
+].map((p) => Object.fromEntries(Object.entries(p).map(([k, v]) => [k, new THREE.Color(v)])));
+function palAt(p, key, out) {
+  const x = Math.max(0, Math.min(1.9999, p)), i = Math.floor(x);
+  return out.copy(PAL[i][key]).lerp(PAL[i + 1][key], x - i);
+}
+
+/* Aura background: a full-frustum plane with an fbm-warped glow that follows the bottle.
+   It sits inside the scene so the glass refracts it. */
+const bgMat = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 }, uDim: { value: 1 }, uAspect: { value: 1 },
+    uA: { value: new THREE.Color() }, uB: { value: new THREE.Color() }, uC: { value: new THREE.Color() },
+    uFocus: { value: new THREE.Vector2(.75, .5) }
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    precision highp float;
+    varying vec2 vUv;
+    uniform float uTime, uDim, uAspect;
+    uniform vec3 uA, uB, uC;
+    uniform vec2 uFocus;
+    float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+    float noise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);
+      return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y); }
+    float fbm(vec2 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++){ v += a * noise(p); p = p * 2.03 + 17.1; a *= 0.5; } return v; }
+    void main(){
+      vec2 asp = vec2(uAspect, 1.0);
+      vec2 p = (vUv - 0.5) * asp;
+      vec2 f = (uFocus - 0.5) * asp;
+      float t = uTime * 0.05;
+      vec2 q = p + (vec2(fbm(p * 1.4 + t), fbm(p * 1.4 - t + 7.3)) - 0.5) * 0.6;   // domain warp
+      vec2 d1 = q - f;
+      float g1 = exp(-dot(d1, d1) * 2.6);                                         // glow behind the bottle
+      vec2 c2 = vec2(-0.32 * uAspect + 0.12 * sin(t * 2.3), -0.32 + 0.1 * cos(t * 1.7));
+      float g2 = exp(-dot(q - c2, q - c2) * 2.2);
+      vec2 c3 = vec2(0.18 * uAspect * cos(t * 1.3), 0.5 + 0.08 * sin(t * 2.0));
+      float g3 = exp(-dot(q - c3, q - c3) * 3.0);
+      float rays = fbm(normalize(p - f + 1e-4) * 2.2 + vec2(length(p - f) * 1.2 - t * 3.0));
+      vec3 col = vec3(0.004, 0.0035, 0.009);
+      col += uA * g1 * (0.36 + rays * 0.36);
+      col += uB * g2 * 0.2;
+      col += uC * g3 * 0.12;
+      col *= uDim;
+      col *= mix(0.35, 1.0, 1.0 - smoothstep(0.45, 1.25, length(p * vec2(0.75, 1.0))));
+      col += (hash(vUv * 1000.0 + uTime) - 0.5) * 0.004;                         // dither against banding
+      gl_FragColor = vec4(max(col, 0.0), 1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`,
+  depthWrite: false,
+  toneMapped: false
+});
+const bg = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), bgMat);
+bg.position.z = -6;
+scene.add(bg);
+
+/* The bottle: lathe profiles for glass, juice and cap, a curved label, a dip tube. */
+const v2 = (pts) => pts.map(([x, y]) => new THREE.Vector2(x, y));
+const bottle = new THREE.Group();
+const inner = new THREE.Group();
+inner.position.y = -.37;
+bottle.add(inner);
+scene.add(bottle);
+
+const glassMat = new THREE.MeshPhysicalMaterial({
+  color: 0xffffff, metalness: 0, roughness: .03, transmission: 1, thickness: 1.1, ior: 1.5,
+  dispersion: .25, attenuationColor: new THREE.Color('#effffc'), attenuationDistance: 4,
+  specularIntensity: 1, envMapIntensity: 1, side: THREE.DoubleSide
+});
+const glass = new THREE.Mesh(new THREE.LatheGeometry(v2([
+  [0, -1.2], [.62, -1.2], [.78, -1.19], [.86, -1.16], [.895, -1.1], [.9, -1], [.9, .5], [.89, .62],
+  [.85, .72], [.76, .82], [.6, .9], [.42, .95], [.3, .98], [.26, 1], [.26, 1.13], [0, 1.13]
+]), 128), glassMat);
+inner.add(glass);
+
+const liquidMat = new THREE.MeshPhysicalMaterial({
+  color: '#0b8f83', roughness: .16, metalness: 0, clearcoat: .45, clearcoatRoughness: .2,
+  emissive: '#0b8f83', emissiveIntensity: .14
+});
+const liquid = new THREE.Mesh(new THREE.LatheGeometry(v2([
+  [0, -1.08], [.7, -1.08], [.8, -1.06], [.835, -1], [.84, -.9], [.84, .3], [0, .3]
+]), 96), liquidMat);
+inner.add(liquid);
+
+const tube = new THREE.Mesh(new THREE.CylinderGeometry(.016, .016, 2.1, 12),
+  new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: .2, transmission: .6, transparent: true, opacity: .55 }));
+tube.position.y = .02;
+inner.add(tube);
+
+// 48 vertical flutes on the cap from a 1D cosine bump map.
+const fl = document.createElement('canvas');
+fl.width = 512; fl.height = 4;
+const fctx = fl.getContext('2d');
+for (let x = 0; x < 512; x++) {
+  const v = Math.round((.5 + .5 * Math.cos(x / 512 * Math.PI * 2 * 48)) * 255);
+  fctx.fillStyle = `rgb(${v},${v},${v})`;
+  fctx.fillRect(x, 0, 1, 4);
+}
+const fluteTex = new THREE.CanvasTexture(fl);
+fluteTex.wrapS = THREE.RepeatWrapping;
+const brass = new THREE.MeshPhysicalMaterial({ color: '#e7c27f', metalness: 1, roughness: .24, bumpMap: fluteTex, bumpScale: 2.5, clearcoat: .5, clearcoatRoughness: .2 });
+const cap = new THREE.Mesh(new THREE.LatheGeometry(v2([
+  [0, 1.1], [.4, 1.1], [.44, 1.12], [.455, 1.17], [.455, 1.86], [.44, 1.92], [.4, 1.95], [0, 1.95]
+]), 128), brass);
+inner.add(cap);
+const collar = new THREE.Mesh(new THREE.TorusGeometry(.285, .03, 16, 96),
+  new THREE.MeshPhysicalMaterial({ color: '#c99c52', metalness: 1, roughness: .3 }));
+collar.rotation.x = Math.PI / 2;
+collar.position.y = 1.1;
+inner.add(collar);
+
+// Curved label drawn on a canvas; redrawn when the size or engraving changes.
+const lc = document.createElement('canvas');
+lc.width = 1024; lc.height = 690;
+const labelTex = new THREE.CanvasTexture(lc);
+labelTex.colorSpace = THREE.SRGBColorSpace;
+labelTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+const label = new THREE.Mesh(
+  new THREE.CylinderGeometry(.906, .906, 1, 96, 1, true, -.82, 1.64),
+  new THREE.MeshPhysicalMaterial({ map: labelTex, transparent: true, roughness: .35, metalness: .1, side: THREE.DoubleSide, depthWrite: false })
+);
+label.position.y = -.25;
+inner.add(label);
+
+function spaced(c, text, x, y, gap) {
+  const chars = [...text], w = chars.map((ch) => c.measureText(ch).width);
+  let cx = x - (w.reduce((a, b) => a + b, 0) + gap * (chars.length - 1)) / 2;
+  c.textAlign = 'left';
+  chars.forEach((ch, i) => { c.fillText(ch, cx, y); cx += w[i] + gap; });
+  c.textAlign = 'center';
+}
+function drawLabel() {
+  const c = lc.getContext('2d'), W = lc.width;
+  c.clearRect(0, 0, W, lc.height);
+  c.fillStyle = 'rgba(255,255,255,.94)';
+  c.textAlign = 'center';
+  c.font = '500 30px "Inter Tight", sans-serif';
+  spaced(c, 'ILURA', W / 2, 140, 16);
+  c.font = 'italic 140px "Instrument Serif", Georgia, serif';
+  c.fillText('Tidal Bloom', W / 2, 320);
+  c.font = '400 26px "Inter Tight", sans-serif';
+  spaced(c, `EAU DE PARFUM  ·  ${zg.size || 50} ML`, W / 2, 400, 6);
+  c.fillRect(W / 2 - 60, 442, 120, 2);
+  if (zg.engrave) {
+    c.font = 'italic 66px "Instrument Serif", Georgia, serif';
+    c.fillText(zg.engrave, W / 2, 548);
+  }
+  labelTex.needsUpdate = true;
+}
+drawLabel();
+if (document.fonts) {
+  Promise.all([document.fonts.load('italic 140px "Instrument Serif"'), document.fonts.load('500 30px "Inter Tight"')]).then(drawLabel, drawLabel);
+}
+addEventListener('zg:label', drawLabel);
+
+// Orbit rings and drifting sparkles.
+const ringMat = new THREE.MeshBasicMaterial({ color: '#6fe3d6', transparent: true, opacity: .5, blending: THREE.AdditiveBlending, depthWrite: false });
+const ring1 = new THREE.Mesh(new THREE.TorusGeometry(1.75, .005, 8, 256), ringMat);
+ring1.rotation.set(1.25, .2, 0);
+const ringMat2 = ringMat.clone();
+ringMat2.opacity = .28;
+const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2.05, .004, 8, 256), ringMat2);
+ring2.rotation.set(1.4, -.35, .3);
+bottle.add(ring1, ring2);
+
+const N = 220, pos = new Float32Array(N * 3), seed = new Float32Array(N);
+for (let i = 0; i < N; i++) {
+  const r = 1.15 + Math.random() * 1.7, a = Math.random() * Math.PI * 2;
+  pos.set([Math.cos(a) * r, (Math.random() - .5) * 3.6, Math.sin(a) * r], i * 3);
+  seed[i] = Math.random();
+}
+const pGeo = new THREE.BufferGeometry();
+pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+pGeo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
+const pMat = new THREE.ShaderMaterial({
+  uniforms: { uTime: { value: 0 }, uPx: { value: 1 }, uColor: { value: new THREE.Color('#bff7f0') } },
+  vertexShader: `
+    attribute float aSeed; uniform float uTime, uPx; varying float vA;
+    void main(){
+      vec3 p = position;
+      p.y = mod(p.y + 1.8 + uTime * 0.12 * (0.4 + aSeed), 3.6) - 1.8;     // rise and wrap
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      vA = (0.35 + 0.65 * (sin(uTime * 2.0 + aSeed * 40.0) * 0.5 + 0.5)) * smoothstep(1.8, 1.2, abs(p.y));
+      gl_PointSize = (1.5 + aSeed * 3.0) * uPx * (7.0 / -mv.z);
+      gl_Position = projectionMatrix * mv;
+    }`,
+  fragmentShader: `
+    uniform vec3 uColor; varying float vA;
+    void main(){
+      float d = length(gl_PointCoord - 0.5);
+      gl_FragColor = vec4(uColor, smoothstep(0.5, 0.0, d) * vA * 0.8);
+      #include <colorspace_fragment>
+    }`,
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+});
+bottle.add(new THREE.Points(pGeo, pMat));
+
+const key = new THREE.DirectionalLight('#ffffff', 2.2);
+key.position.set(3, 4, 5);
+scene.add(key);
+const rim = new THREE.PointLight('#6fe3d6', 28, 14, 2);
+rim.position.set(-2.4, 1.6, -2.2);
+bottle.add(rim);
+
+/* Sizing */
+function halfExtents() {
+  const hh = camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  return [hh * camera.aspect, hh];
+}
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, dprCap()));
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  const d = camera.position.z - bg.position.z;
+  const ph = 2 * d * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * 1.04;
+  bg.scale.set(ph * camera.aspect, ph, 1);
+  bgMat.uniforms.uAspect.value = camera.aspect;
+  pMat.uniforms.uPx.value = renderer.getPixelRatio();
+}
+resize();
+addEventListener('resize', resize);
+
+/* Loop: ease every value toward the target the scroll script sets on window.zg.target */
+const cur = { fx: T.fx, fy: T.fy, s: T.s, rot: 0, pal: 0, dim: 1, hidden: 0, size: 1 };
+const KEYS = Object.keys(cur);
+const ptr = { x: 0, y: 0 };
+const cA = new THREE.Color(), cB = new THREE.Color(), cC = new THREE.Color(), cL = new THREE.Color(), cR = new THREE.Color();
+const clock = new THREE.Clock();
+const TAU = Math.PI * 2;
+let time = 0, spin = 0, started = false;
+
+function frame() {
+  const dt = Math.min(clock.getDelta(), 1 / 20);
+  time += dt;
+  const k = 1 - Math.exp(-dt * 3.4);
+  if (!started) {
+    // First frame: start where the layout wants the bottle, slightly small, so it grows in place.
+    for (const key of KEYS) if (typeof T[key] === 'number') cur[key] = T[key];
+    cur.s *= .72;
+  }
+  for (const key of KEYS) if (typeof T[key] === 'number') cur[key] += (T[key] - cur[key]) * k;
+  const p = zg.pointer || { x: 0, y: 0 };
+  ptr.x += (p.x - ptr.x) * k;
+  ptr.y += (p.y - ptr.y) * k;
+
+  const [hw, hh] = halfExtents();
+  bottle.position.x = cur.fx * hw;
+  bottle.position.y = cur.fy * hh + (reduce ? 0 : Math.sin(time * 1.1) * .05) - cur.hidden * hh * 2.7;
+  bottle.scale.setScalar(Math.max(.001, cur.s * cur.size * (1 - cur.hidden * .3)));
+  bottle.visible = cur.hidden < .985;
+
+  if (T.face) {
+    // Configurator: turn the label to face the viewer, nudged by the pointer.
+    const total = spin + cur.rot;
+    spin += (Math.round(total / TAU) * TAU + ptr.x * .45 - total) * k;
+  } else if (!reduce) {
+    spin += dt * .22 + Math.min(Math.abs(zg.velocity || 0), 40) * dt * .02;
+  }
+  inner.rotation.y = spin + cur.rot;
+  bottle.rotation.x = ptr.y * .12 + (reduce ? 0 : Math.sin(time * .6) * .03);
+  bottle.rotation.z = -ptr.x * .06;
+  if (!reduce) { ring1.rotation.z += dt * .15; ring2.rotation.z -= dt * .1; }
+
+  palAt(cur.pal, 'a', cA); palAt(cur.pal, 'b', cB); palAt(cur.pal, 'c', cC);
+  palAt(cur.pal, 'liquid', cL); palAt(cur.pal, 'rim', cR);
+  const u = bgMat.uniforms;
+  u.uA.value.copy(cA); u.uB.value.copy(cB); u.uC.value.copy(cC);
+  u.uDim.value = cur.dim;
+  u.uTime.value = reduce ? 4 : time;
+  u.uFocus.value.set(.5 + bottle.position.x / hw * .5 / 1.04, .5 + bottle.position.y / hh * .5 / 1.04);
+  liquidMat.color.copy(cL);
+  liquidMat.emissive.copy(cL);
+  rim.color.copy(cR);
+  ringMat.color.copy(cR);
+  ringMat2.color.copy(cR);
+  pMat.uniforms.uTime.value = reduce ? 0 : time;
+
+  renderer.render(scene, camera);
+  if (!started) {
+    started = true;
+    zg.ready3D = true;
+    root.classList.remove('no-webgl');
+    root.classList.add('is-3d');
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
 </script>
 </body>
 </html>
