@@ -71,6 +71,9 @@ Pages must work when someone downloads the file and double-clicks it. No hosting
 - Custom classes start with `zg-`. Shared JS state lives on `window.zg`.
 - CSS custom properties for the palette on `:root`.
 - Comment the non-obvious parts (shader maths, scroll maps), not every line.
+- A `.zg-wrap` placed inside a flex parent shrinks to its content and drifts to the centre on wide screens. Give it `width:100%`.
+- Position a fixed 3D product from the layout, not from fixed viewport fractions. Put an empty slot element in the column where it should sit and centre on that, so it stays balanced from 900px to ultra-wide.
+- Check short laptop screens (around 1536x700) as well as 1920x1080. The hero should fit above the fold there.
 
 ## 6. Done means
 
