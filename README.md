@@ -1,6 +1,6 @@
 # Showcase Lab
 
-Interactive, scroll-animated showcase pages for invented products, built twice a day. Most are product pages: 3D product scenes, pinned scroll stories, horizontal galleries, live configurators. Some are SaaS, event or editorial landing pages.
+Interactive, scroll-animated showcase pages for invented products, built once a day. Most are product pages: 3D product scenes, pinned scroll stories, horizontal galleries, live configurators. Some are SaaS, event or editorial landing pages.
 
 **Every page is a single HTML file that works without hosting.** Download it (or clone the repo) and double-click it. It needs an internet connection for the animation libraries and fonts, which load from public CDNs at pinned versions.
 
