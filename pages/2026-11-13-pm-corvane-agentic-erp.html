@@ -1128,7 +1128,7 @@ main,.zg-footer{position:relative;z-index:2}
 
   var lenis = null;
   if (!zg.reduce && window.Lenis) {
-    lenis = new Lenis({ lerp: .09, smoothWheel: true });
+    lenis = zg.lenis = new Lenis({ lerp: .09, smoothWheel: true });
     lenis.on('scroll', function (e) { zg.velocity = e.velocity; ScrollTrigger.update(); });
     gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
     gsap.ticker.lagSmoothing(0);
