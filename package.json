@@ -1,0 +1,15 @@
+{
+  "name": "zg-showcase",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive, scroll-animated HTML showcase pages. Each page is one file that opens straight from disk.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
