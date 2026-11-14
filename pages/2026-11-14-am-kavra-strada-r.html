@@ -135,7 +135,7 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-tag{display:inline-flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line2);border-radius:8px;background:rgba(255,255,255,.03);font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
 .zg-tag i{width:7px;height:7px;border-radius:2px;background:var(--red);box-shadow:0 0 12px var(--red)}
 .zg-kicker{margin-bottom:16px;font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
-.zg-display{font-weight:700;font-stretch:112%;font-size:clamp(42px,4.9vw,80px);line-height:.98;letter-spacing:-.04em}
+.zg-display{font-weight:700;font-stretch:112%;font-size:clamp(42px,4.9vw,75px);line-height:.98;letter-spacing:-.04em}
 .zg-h2{font-weight:700;font-stretch:110%;font-size:clamp(32px,3.9vw,58px);line-height:1.02;letter-spacing:-.035em}
 .zg-display em,.zg-h2 em{font-family:var(--serif);font-style:italic;font-weight:500;font-stretch:100%;letter-spacing:-.02em;color:var(--red);padding-right:.05em}
 .zg-lede{max-width:46ch;font-size:clamp(16px,1.35vw,18px);color:var(--mut)}
@@ -394,7 +394,7 @@ main,.zg-footer{position:relative;z-index:2}
   .zg-co{display:none}
   .zg-js .zg-scrollcue{display:none}
   .zg-js .zg-home__grid{justify-content:space-between;gap:12px;padding-bottom:max(14px,env(safe-area-inset-bottom))}
-  .zg-js .zg-slot{flex:1 1 auto;aspect-ratio:auto}
+  .zg-js .zg-slot{flex:1 1 auto;aspect-ratio:auto;min-height:max(150px,24svh)}
   .zg-js .zg-home__copy{flex:none;padding:20px;border:1px solid var(--line);border-radius:20px;background:rgba(14,14,16,.62);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
   .zg-js .zg-stage--intro .zg-display{margin:14px 0 12px;font-size:clamp(36px,10vw,52px)}
   .zg-js .zg-home .zg-h2{font-size:clamp(28px,7.6vw,40px);margin-bottom:10px}
@@ -404,6 +404,14 @@ main,.zg-footer{position:relative;z-index:2}
   .zg-js .zg-home .zg-cta-row{margin-top:16px}
   .zg-js .zg-meta{display:none}
   .zg-js .zg-steps{max-width:none;margin-top:16px}
+}
+@media (max-width:900px) and (max-height:760px){
+  .zg-js .zg-home .zg-chips,.zg-js .zg-home .zg-kicker{display:none}
+  .zg-js .zg-home .zg-lede{font-size:14px;line-height:1.5}
+  .zg-js .zg-home__copy{padding:16px}
+  .zg-js .zg-stage--intro .zg-display{font-size:clamp(30px,8.4vw,42px)}
+  .zg-js .zg-home .zg-h2{font-size:clamp(24px,6.6vw,32px)}
+  .zg-js .zg-home .zg-btn{height:44px}
 }
 @media (max-width:560px){
   .zg-bag span{display:none}
@@ -1269,7 +1277,7 @@ addEventListener('DOMContentLoaded', function () {
       var w = Math.min(r.width, r.height * AR) * S.fit * rig.size;
       tgt.x = r.left + (r.width - w) / 2;
       // Exploded, the wider framing shrinks the parts; on desktop let the bike grow into the empty margin on the right.
-      if (name === 'home' && !mobileMQ.matches) w = Math.min(w * (1 + .24 * rig.view), innerWidth - tgt.x - 12, r.height * AR);
+      if (name === 'home' && !mobileMQ.matches) w = Math.min(w * (1 + .24 * rig.view), root.clientWidth - tgt.x - 24, r.height * AR);
       tgt.y = r.top + (r.height - w / AR) / 2; tgt.w = w;
     }
     var show = S ? 1 : 0;
