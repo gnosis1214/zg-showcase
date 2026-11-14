@@ -167,6 +167,7 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-screen canvas{position:absolute;inset:0;width:100%;height:100%}
 .zg-screen__read{position:absolute;left:14px;top:10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
 .zg-screen__read b{font-size:22px;font-weight:500;letter-spacing:-.03em;color:var(--ink);margin:0 3px 0 6px;font-variant-numeric:tabular-nums}
+.zg-screen__read span{text-transform:none;letter-spacing:0}
 .zg-play{display:flex;align-items:center;gap:14px;width:100%;padding:9px 18px 9px 9px;margin-bottom:18px;border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:border-color .3s,background .3s}
 .zg-play:hover{border-color:rgba(255,255,255,.3)}
 .zg-play i{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--ice);color:#0c0d10}
@@ -259,7 +260,7 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-stat{padding:clamp(22px,4vh,36px) 0 0;border-top:1px solid var(--line2)}
 .zg-stat strong{display:block;font-weight:500;font-size:clamp(48px,5.6vw,86px);line-height:1;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
 .zg-stat strong small{font-size:.38em;letter-spacing:-.02em;margin-left:.12em;font-family:var(--serif);font-style:italic;font-weight:300;color:var(--ice)}
-.zg-stat span{display:block;margin-top:14px;font-size:14px;color:var(--mut);max-width:24ch}
+.zg-stat>span{display:block;margin-top:14px;font-size:14px;color:var(--mut);max-width:24ch}
 
 /* Buy / configurator */
 .zg-buy{padding:clamp(60px,10vh,110px) 0}
@@ -369,7 +370,7 @@ main,.zg-footer{position:relative;z-index:2}
   .zg-faq__grid{grid-template-columns:1fr}
 }
 @media (max-width:520px){
-  .zg-cta-row .zg-btn{flex:1}
+  .zg-cta-row .zg-btn{flex:1;padding:0 14px;font-size:14px;white-space:nowrap}
   .zg-hero__meta b{font-size:17px}
   .zg-hero__meta span{padding:0 12px}
   .zg-a p{padding-right:0}
@@ -414,7 +415,7 @@ main,.zg-footer{position:relative;z-index:2}
     <div class="zg-fallback" aria-hidden="true"><div class="zg-fb-lid"></div><div class="zg-fb-base"></div></div>
     <div class="zg-wrap">
       <div class="zg-hero__copy">
-        <span class="zg-tag"><i aria-hidden="true"><b></b><b></b><b></b></i>Wireless earbuds · Adaptive noise cancelling</span>
+        <span class="zg-tag"><i aria-hidden="true"><b></b><b></b><b></b></i>Wireless earbuds · Adaptive ANC</span>
         <h1 class="zg-display" id="zg-hero-title" data-split>Quiet that fits in your <em>pocket</em>.</h1>
         <p class="zg-lede" data-reveal>Sonra Air listens to the room 48,000 times a second and plays the exact opposite wave into your ears. Trains, engines and open offices drop away. The voices you want stay.</p>
         <div class="zg-cta-row" data-reveal>
@@ -498,7 +499,7 @@ main,.zg-footer{position:relative;z-index:2}
         <p class="zg-lede">Play a synthesized city street, then slide the cancelling up and watch the foam wall behind the buds go still.</p>
         <div class="zg-screen">
           <canvas id="zg-spec" aria-hidden="true"></canvas>
-          <p class="zg-screen__read" aria-live="polite">In your ears <b id="zg-lab-db">42</b>dB</p>
+          <p class="zg-screen__read" aria-live="polite">In your ears <b id="zg-lab-db">42</b><span>dB</span></p>
         </div>
         <button type="button" class="zg-play" id="zg-play" aria-pressed="false">
           <i aria-hidden="true"><svg class="zg-ico-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg><svg class="zg-ico-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4.5v16H6zM13.5 4H18v16h-4.5z"/></svg></i>
@@ -895,7 +896,7 @@ addEventListener('DOMContentLoaded', function () {
     ScrollTrigger.create({ trigger: '.zg-eq', start: 'top bottom', end: 'bottom top', onToggle: function (s) { eqOn = s.isActive; } });
     gsap.ticker.add(function (t) {
       if (!eqOn) return;
-      eqLvl += (.3 + Math.min(Math.abs(zg.velocity || 0), 40) / 40 * .7 - eqLvl) * .08;
+      eqLvl += (.42 + Math.min(Math.abs(zg.velocity || 0), 40) / 40 * .58 - eqLvl) * .08;
       eqDraw(t);
     });
   }
@@ -1295,7 +1296,7 @@ const wallMat = new THREE.ShaderMaterial({
               + sin(c.x * 1.3 + uTime * 1.1) * sin(c.y * 1.9 - uTime * 0.8) * 0.45
               + sin((c.x - c.y) * 3.7 + uTime * 3.3) * 0.18;
       // Calm circle: the radius grows with uAnc and the edge is soft, so sound fades out rather than stops.
-      float r = uAnc * 5.2;
+      float r = uAnc * 3.4;
       float calm = (1.0 - smoothstep(r * 0.5, r + 1.3, d)) * min(1.0, uAnc * 2.5);
       float amp = uNoise * (1.0 - calm);
       vec3 p = position;
