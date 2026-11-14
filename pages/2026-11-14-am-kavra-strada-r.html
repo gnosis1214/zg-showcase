@@ -104,12 +104,12 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-co__name{fill:var(--red);font:600 32px var(--mono);letter-spacing:3px}
 .zg-co__spec{fill:var(--ink);font:400 27px var(--mono)}
 .zg-part{transition:opacity .5s}
-.zg-part.is-dim{opacity:.2}
+.zg-part.is-dim{opacity:.32}
 .zg-part.is-focus .zg-ol{stroke:var(--red)}
 /* Draw-on: every outline traces itself, then the paint and parts fade in */
 .zg-js .zg-bike :is(.zg-ol,.zg-dim[pathLength]):not(.zg-rim--low){stroke-dasharray:1 1;stroke-dashoffset:1;animation:zgDraw 1.3s cubic-bezier(.55,.1,.3,1) calc(1.2s + var(--i,0) * 38ms) forwards}
 .zg-js .zg-bike .zg-dim[pathLength]{animation-delay:2.8s}
-.zg-js .zg-bike :is(.zg-fl,.zg-sh,.zg-decal,.zg-badge,.zg-chain,.zg-links,.zg-bar,.zg-cog,.zg-rimtxt,.zg-rotor,.zg-pedal,.zg-axle,.zg-bolt,.zg-pulley,.zg-dimtxt,.zg-road):not(.zg-rim--low){opacity:0;animation:zgPaint .9s ease calc(2.4s + var(--j,0) * 34ms) forwards}
+.zg-js .zg-bike :is(.zg-fl,.zg-sh,.zg-decal,.zg-badge,.zg-chain,.zg-links,.zg-bar,.zg-cog,.zg-rimtxt,.zg-rotor,.zg-pedal,.zg-axle,.zg-bolt,.zg-pulley,.zg-dimtxt,.zg-road__line,.zg-road__dash):not(.zg-rim--low){opacity:0;animation:zgPaint .9s ease calc(2.4s + var(--j,0) * 34ms) forwards}
 @keyframes zgDraw{to{stroke-dashoffset:0}}
 @keyframes zgPaint{to{opacity:1}}
 
@@ -314,6 +314,45 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-toast{position:fixed;left:50%;bottom:24px;z-index:60;max-width:calc(100% - 32px);padding:14px 20px;border:1px solid var(--line2);border-radius:14px;background:rgba(18,18,20,.9);backdrop-filter:blur(16px);font-size:14px;transform:translate(-50%,calc(100% + 40px));visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s}
 .zg-toast.is-on{transform:translate(-50%,0);visibility:visible;transition:transform .5s var(--ease)}
 
+/* Scroll-driven layout, only when scripts run */
+.zg-js .zg-bike{position:fixed;left:0;top:0;right:auto;width:600px;opacity:0;visibility:hidden}
+.zg-js .zg-home{height:560vh}
+.zg-js .zg-home__sticky{position:sticky;top:0;height:100vh;height:100svh;min-height:0;padding:64px 0 0;overflow:hidden}
+.zg-js .zg-home__grid{height:100%}
+.zg-js .zg-stages{display:grid}
+.zg-js .zg-stage{grid-area:1/1;align-self:center;margin:0;opacity:0;visibility:hidden;transform:translateY(24px);transition:opacity .5s var(--ease),transform .7s var(--ease),visibility 0s .7s}
+.zg-js .zg-stage.is-active{opacity:1;visibility:visible;transform:none;transition:opacity .7s var(--ease) .1s,transform .8s var(--ease) .1s,visibility 0s}
+.zg-js .zg-steps{display:block;max-width:380px;margin-top:28px;opacity:0;transition:opacity .5s}
+.zg-js .zg-steps.is-on{opacity:1}
+.zg-steps__labels{display:flex;justify-content:space-between;margin-bottom:10px;font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.zg-steps__labels span{transition:color .4s}
+.zg-steps__labels span.is-active{color:var(--red)}
+.zg-steps__bar{display:block;height:2px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+.zg-steps__bar b{display:block;height:100%;background:var(--red);transform-origin:0 50%;transform:scaleX(0)}
+.zg-scrollcue{display:none}
+.zg-js .zg-scrollcue{position:absolute;left:50%;bottom:22px;display:flex;align-items:center;gap:12px;font:500 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);transform:translateX(-50%);transition:opacity .5s}
+.zg-scrollcue i{position:relative;width:22px;height:34px;border:1px solid var(--line2);border-radius:11px}
+.zg-scrollcue i::after{content:"";position:absolute;left:50%;top:7px;width:2px;height:7px;margin-left:-1px;border-radius:2px;background:var(--red);animation:zgCue 1.8s var(--ease) infinite}
+@keyframes zgCue{0%{transform:translateY(0);opacity:1}70%{transform:translateY(11px);opacity:0}100%{opacity:0}}
+.zg-js .zg-range__sticky{position:sticky;top:0;height:100vh;height:100svh;padding:84px 0 24px;overflow:hidden}
+.zg-js .zg-range__viewport{overflow:visible}
+.zg-js .zg-range--native{height:auto!important}
+.zg-js .zg-range--native .zg-range__sticky{position:relative;height:auto;padding:clamp(90px,14vh,150px) 0}
+.zg-js .zg-range--native .zg-range__viewport{overflow-x:auto}
+.zg-js .zg-mini__l,.zg-js .zg-prof__line{stroke-dasharray:1 1}
+@media (min-width:901px){
+  .zg-js .zg-parts__slot{position:sticky;top:64px;align-self:start;height:calc(100vh - 64px);height:calc(100svh - 64px)}
+}
+.zg-line{padding-bottom:.08em}
+
+/* Short laptop screens: keep the whole home section above the fold */
+@media (min-width:901px) and (max-height:780px){
+  .zg-stage--intro .zg-display{margin:16px 0}
+  .zg-cta-row{margin-top:22px}
+  .zg-meta{margin-top:26px;padding-top:16px}
+  .zg-js .zg-scrollcue{display:none}
+}
+
 /* Below 900px: stacked layouts, the bike sits above the copy */
 @media (max-width:900px){
   .zg-nav ul,.zg-km{display:none}
@@ -332,6 +371,19 @@ main,.zg-footer{position:relative;z-index:2}
   .zg-svc__grid{grid-template-columns:1fr 1fr}
   .zg-faq__grid{grid-template-columns:1fr}
   .zg-prof__lbl{display:none}
+  .zg-co{display:none}
+  .zg-js .zg-scrollcue{display:none}
+  .zg-js .zg-home__grid{justify-content:space-between;gap:12px;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+  .zg-js .zg-slot{flex:1 1 auto;aspect-ratio:auto}
+  .zg-js .zg-home__copy{flex:none;padding:20px;border:1px solid var(--line);border-radius:20px;background:rgba(14,14,16,.62);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  .zg-js .zg-stage--intro .zg-display{margin:14px 0 12px;font-size:clamp(36px,10vw,52px)}
+  .zg-js .zg-home .zg-h2{font-size:clamp(28px,7.6vw,40px);margin-bottom:10px}
+  .zg-js .zg-home .zg-lede{font-size:15px}
+  .zg-js .zg-home .zg-kicker{margin-bottom:10px}
+  .zg-js .zg-home .zg-chips{margin-top:12px}
+  .zg-js .zg-home .zg-cta-row{margin-top:16px}
+  .zg-js .zg-meta{display:none}
+  .zg-js .zg-steps{max-width:none;margin-top:16px}
 }
 @media (max-width:560px){
   .zg-bag span{display:none}
@@ -348,8 +400,9 @@ main,.zg-footer{position:relative;z-index:2}
 }
 @media (prefers-reduced-motion:reduce){
   .zg-intro{display:none}
+  .zg-scrollcue i::after{animation:none}
   .zg-js .zg-bike :is(.zg-ol,.zg-dim[pathLength]){stroke-dashoffset:0;animation:none}
-  .zg-js .zg-bike :is(.zg-fl,.zg-sh,.zg-decal,.zg-badge,.zg-chain,.zg-links,.zg-bar,.zg-cog,.zg-rimtxt,.zg-rotor,.zg-pedal,.zg-axle,.zg-bolt,.zg-pulley,.zg-dimtxt,.zg-road){opacity:1;animation:none}
+  .zg-js .zg-bike :is(.zg-fl,.zg-sh,.zg-decal,.zg-badge,.zg-chain,.zg-links,.zg-bar,.zg-cog,.zg-rimtxt,.zg-rotor,.zg-pedal,.zg-axle,.zg-bolt,.zg-pulley,.zg-dimtxt,.zg-road__line,.zg-road__dash){opacity:1;animation:none}
   .zg-seg__pill,.zg-tabs__ink,.zg-a,.zg-toast,.zg-swatches button,.zg-swatches button::after{transition:none}
 }
 </style>
@@ -415,12 +468,12 @@ main,.zg-footer{position:relative;z-index:2}
             <div class="zg-stage zg-stage--intro is-active" data-stage="intro">
               <span class="zg-tag"><i aria-hidden="true"></i>Kavra Cycles · Bikes and parts</span>
               <h1 class="zg-display" id="zg-hero-title" data-split>Ride the long way <em>home</em>.</h1>
-              <p class="zg-lede">Complete road bikes and every part that goes into them, built and shipped from one small workshop. Scroll to take the Strada R apart.</p>
-              <div class="zg-cta-row">
+              <p class="zg-lede" data-reveal>Complete road bikes and every part that goes into them, built and shipped from one small workshop. Scroll to take the Strada R apart.</p>
+              <div class="zg-cta-row" data-reveal>
                 <a class="zg-btn zg-btn--primary" href="#zg-range" data-magnetic>Shop bikes</a>
                 <a class="zg-btn zg-btn--ghost" href="#zg-parts">Shop parts</a>
               </div>
-              <dl class="zg-meta">
+              <dl class="zg-meta" data-reveal>
                 <div><dt>Strada R</dt><dd>from $4,290</dd></div>
                 <div><dt>Complete bike</dt><dd>7.1 kg</dd></div>
                 <div><dt>Parts dispatch</dt><dd>48 h</dd></div>
@@ -467,6 +520,7 @@ main,.zg-footer{position:relative;z-index:2}
         </div>
         <div class="zg-slot" data-slot="home" aria-hidden="true"></div>
       </div>
+      <div class="zg-scrollcue" id="zg-cue" aria-hidden="true"><i></i>Scroll to take it apart</div>
     </div>
   </section>
 
@@ -482,7 +536,7 @@ main,.zg-footer{position:relative;z-index:2}
           <p class="zg-kicker">The range</p>
           <h2 class="zg-h2" id="zg-range-title" data-split>Six bikes, <em>one</em> workshop.</h2>
         </div>
-        <p class="zg-lede">Every frame is designed, painted and built in the same room. Pick the road you ride most.</p>
+        <p class="zg-lede" data-reveal>Every frame is designed, painted and built in the same room. Pick the road you ride most.</p>
       </div>
       <div class="zg-range__viewport">
         <div class="zg-range__track" id="zg-track">
@@ -539,7 +593,7 @@ main,.zg-footer{position:relative;z-index:2}
       <div class="zg-parts__shop">
         <p class="zg-kicker">Parts shop</p>
         <h2 class="zg-h2" id="zg-parts-title" data-split>Every part, sold <em>on its own</em>.</h2>
-        <p class="zg-lede">The same parts we build the Strada R with, boxed and ready for your bike. Pick a group and watch it come off the frame.</p>
+        <p class="zg-lede" data-reveal>The same parts we build the Strada R with, boxed and ready for your bike. Pick a group and watch it come off the frame.</p>
         <div class="zg-tabs" role="tablist" aria-label="Part groups">
           <button type="button" role="tab" id="zg-tab-frame" aria-selected="true" aria-controls="zg-panel-frame" data-focus="frame">Frameset</button>
           <button type="button" role="tab" id="zg-tab-drive" aria-selected="false" aria-controls="zg-panel-drive" data-focus="drive">Drivetrain</button>
@@ -590,7 +644,7 @@ main,.zg-footer{position:relative;z-index:2}
         <h2 class="zg-h2" id="zg-ride-title" data-split>142 km, <em>one</em> long day.</h2>
         <p class="zg-lede">Before a part goes on sale, it goes round this loop. Scroll to ride the profile.</p>
       </header>
-      <div class="zg-profile" id="zg-profile">
+      <div class="zg-profile" id="zg-profile" data-reveal>
         <svg viewBox="0 0 1000 250" aria-hidden="true" focusable="false">
           <defs><linearGradient id="zg-prof-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff3b2f" stop-opacity=".28"/><stop offset="1" stop-color="#ff3b2f" stop-opacity="0"/></linearGradient><clipPath id="zg-prof-clip"><rect id="zg-prof-rect" x="0" y="-20" width="1000" height="290"/></clipPath></defs>
           <path class="zg-prof__grid" d="M0,157H1000M0,77.5H1000"/>
@@ -603,7 +657,7 @@ main,.zg-footer{position:relative;z-index:2}
         </svg>
         <p class="zg-profile__read" aria-hidden="true">km <b id="zg-prof-km">142</b> · <b id="zg-prof-m">40</b> m</p>
       </div>
-      <ol class="zg-stops" id="zg-stops">
+      <ol class="zg-stops" id="zg-stops" data-reveal>
         <li data-km="32"><span>km 32</span><h3>The flats</h3><p>Dropped stays and 45 mm rims save 6 watts at 40 km/h against our old round-tube frame.</p></li>
         <li data-km="61"><span>km 61</span><h3>The climb</h3><p>11.4 km at 7.6%. A 7.1 kg bike and a stiff bottom bracket turn every stroke into height.</p></li>
         <li data-km="78"><span>km 78</span><h3>The descent</h3><p>A 990 mm wheelbase and 160 mm rotors keep the front planted through wet hairpins.</p></li>
@@ -615,16 +669,16 @@ main,.zg-footer{position:relative;z-index:2}
 
   <section class="zg-sec zg-stats" data-scene="stats" aria-label="Kavra in numbers">
     <div class="zg-wrap zg-stats__grid">
-      <div class="zg-stat"><strong><span data-count="7.1" data-dec="1">7.1</span><small>kg</small></strong><span>Strada R complete, size 54, electronic build</span></div>
-      <div class="zg-stat"><strong><span data-count="1400">1,400</span><small>+</small></strong><span>parts on the shelf, ready to ship on their own</span></div>
-      <div class="zg-stat"><strong><span data-count="48">48</span><small>h</small></strong><span>from order to dispatch, for bikes and for parts</span></div>
-      <div class="zg-stat"><strong><span data-count="34">34</span><small>mm</small></strong><span>tyre clearance on the Strada R, with 6 mm to spare</span></div>
+      <div class="zg-stat" data-reveal><strong><span data-count="7.1" data-dec="1">7.1</span><small>kg</small></strong><span>Strada R complete, size 54, electronic build</span></div>
+      <div class="zg-stat" data-reveal><strong><span data-count="1400">1,400</span><small>+</small></strong><span>parts on the shelf, ready to ship on their own</span></div>
+      <div class="zg-stat" data-reveal><strong><span data-count="48">48</span><small>h</small></strong><span>from order to dispatch, for bikes and for parts</span></div>
+      <div class="zg-stat" data-reveal><strong><span data-count="34">34</span><small>mm</small></strong><span>tyre clearance on the Strada R, with 6 mm to spare</span></div>
     </div>
   </section>
 
   <section class="zg-config" id="zg-build" data-scene="config" aria-labelledby="zg-config-title">
     <div class="zg-wrap zg-config__grid">
-      <form class="zg-form" id="zg-form">
+      <form class="zg-form" id="zg-form" data-reveal>
         <p class="zg-kicker">Build yours</p>
         <h2 class="zg-h2" id="zg-config-title">Your <em>Strada R</em>.</h2>
         <fieldset class="zg-field">
@@ -672,22 +726,22 @@ main,.zg-footer{position:relative;z-index:2}
         <h2 class="zg-h2" id="zg-service-title" data-split>Bought here, <em>looked after</em> here.</h2>
       </header>
       <div class="zg-svc__grid">
-        <article class="zg-card" data-tilt>
+        <article class="zg-card" data-tilt data-reveal>
           <div class="zg-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg></div>
           <h3>Fit by video</h3>
           <p>A 30-minute call with a fitter before your bike ships. We set the stem length and saddle height in the workshop.</p>
         </article>
-        <article class="zg-card" data-tilt>
+        <article class="zg-card" data-tilt data-reveal>
           <div class="zg-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4a5 5 0 0 0-4.6 6.9L4 17.3V20h2.7l6.4-6.4A5 5 0 0 0 20 9l-3 1-2-2 1-3z"/></svg></div>
           <h3>Service plan</h3>
           <p>$14 a month covers two workshop services a year, a new chain every 4,000 km and collection from your door.</p>
         </article>
-        <article class="zg-card" data-tilt>
+        <article class="zg-card" data-tilt data-reveal>
           <div class="zg-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
           <h3>Crash replacement</h3>
           <p>Break a Kavra frame in a crash and a new one costs 40% of the list price, for as long as you own the bike.</p>
         </article>
-        <article class="zg-card" data-tilt>
+        <article class="zg-card" data-tilt data-reveal>
           <div class="zg-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></div>
           <h3>Parts that fit</h3>
           <p>Not sure a part suits your bike? Send a photo of it and we check the standards before you order.</p>
@@ -702,7 +756,7 @@ main,.zg-footer{position:relative;z-index:2}
         <p class="zg-kicker">Questions</p>
         <h2 class="zg-h2" id="zg-faq-title" data-split>Before you <em>ride</em>.</h2>
       </header>
-      <div class="zg-faq__list">
+      <div class="zg-faq__list" data-reveal>
         <div class="zg-q"><h3><button type="button" id="zg-q1" aria-expanded="true" aria-controls="zg-a1">Can I buy parts without a bike?<i aria-hidden="true"></i></button></h3>
           <div class="zg-a" id="zg-a1" role="region" aria-labelledby="zg-q1"><div><p>Yes. Every part on the Strada R is sold on its own, and most fit any road bike with 12 mm thru-axles and flat-mount brakes. Each listing says what it fits.</p></div></div></div>
         <div class="zg-q"><h3><button type="button" id="zg-q2" aria-expanded="true" aria-controls="zg-a2">How does a bike arrive?<i aria-hidden="true"></i></button></h3>
@@ -718,8 +772,8 @@ main,.zg-footer{position:relative;z-index:2}
   <section class="zg-cta" data-scene="cta" aria-labelledby="zg-cta-title">
     <div class="zg-wrap">
       <h2 class="zg-display" id="zg-cta-title" data-split>See you at the <em>top</em>.</h2>
-      <p class="zg-lede">Pick a colour and a size, or start with a single part. Either way it leaves the workshop within 48 hours.</p>
-      <div class="zg-cta-row">
+      <p class="zg-lede" data-reveal>Pick a colour and a size, or start with a single part. Either way it leaves the workshop within 48 hours.</p>
+      <div class="zg-cta-row" data-reveal>
         <a class="zg-btn zg-btn--primary" href="#zg-build" data-magnetic>Build yours</a>
         <a class="zg-btn zg-btn--ghost" href="#zg-parts">Shop parts</a>
       </div>
@@ -736,5 +790,364 @@ main,.zg-footer{position:relative;z-index:2}
 </footer>
 
 <div class="zg-toast" id="zg-toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer></script>
+<script>
+// Runs after the deferred libraries. If they fail to load, the page falls back to its static layout.
+addEventListener('DOMContentLoaded', function () {
+  'use strict';
+  var root = document.documentElement;
+  var zg = window.zg = window.zg || {};
+  zg.reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  zg.pointer = { x: 0, y: 0 };
+  zg.velocity = 0;
+  var mobileMQ = matchMedia('(max-width: 900px)');
+  var finePointer = matchMedia('(pointer: fine)').matches;
+  var hasGsap = !!(window.gsap && window.ScrollTrigger);
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var sstep = function (a, b, v) { var t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+
+  addEventListener('pointermove', function (e) {
+    zg.pointer.x = e.clientX / innerWidth * 2 - 1;
+    zg.pointer.y = e.clientY / innerHeight * 2 - 1;
+  }, { passive: true });
+
+  if (!hasGsap) { root.classList.remove('zg-js'); return; }
+
+  /* ---------- Smooth scroll and nav ---------- */
+  gsap.registerPlugin(ScrollTrigger);
+  if (window.SplitText) gsap.registerPlugin(SplitText);
+  var lenis = null;
+  if (!zg.reduce && window.Lenis) {
+    lenis = new Lenis({ lerp: .09, smoothWheel: true });
+    lenis.on('scroll', function (e) { zg.velocity = e.velocity; ScrollTrigger.update(); });
+    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+  zg.lenis = lenis;
+  $$('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href'), el = id.length > 1 && document.querySelector(id);
+      if (!el) return;
+      e.preventDefault();
+      if (lenis) lenis.scrollTo(el, { duration: 1.6 });
+      else el.scrollIntoView();
+    });
+  });
+
+  // Reading progress, plus a km counter that rides the 142 km test loop as you scroll.
+  var nav = $('#zg-nav'), bar = $('#zg-progress'), kmEl = $('#zg-km'), lastKm = -1;
+  ScrollTrigger.create({ start: 0, end: 'max', onUpdate: function (s) {
+    bar.style.transform = 'scaleX(' + s.progress.toFixed(4) + ')';
+    nav.classList.toggle('is-scrolled', s.scroll() > 40);
+    var km = Math.round(s.progress * 142);
+    if (km !== lastKm) { kmEl.textContent = km; lastKm = km; }
+  } });
+
+  /* ---------- The bike rig ---------- */
+  var bikeEl = $('#zg-bike'), svg = $('#zg-bikesvg');
+  var AR = 1830 / 1131;
+  // Two framings with the same aspect: tight around the whole bike, and wide enough for the exploded parts.
+  var TIGHT = [-400, -730, 1830, 1131], WIDE = [-620, -880, 2270, 1403];
+  // Where each part sits when the bike is fully apart, in SVG units. The callouts in the SVG are drawn at these spots.
+  var OFF = { rear: [-260, 40], front: [300, 40], fork: [120, -20], frame: [0, -60], drive: [60, 250], seat: [-120, -200], cockpit: [140, -200] };
+  var GROUPS = { frame: ['frame', 'fork'], drive: ['drive'], wheels: ['rear', 'front'], cockpit: ['cockpit', 'seat'] };
+  var ANCHOR = { frame: 'frame', drive: 'drive', wheels: 'rear', cockpit: 'cockpit' };
+  var KEYS = Object.keys(OFF);
+  var parts = {}, offCur = {}, offStr = {};
+  $$('[data-part]', svg).forEach(function (g) { var k = g.getAttribute('data-part'); (parts[k] = parts[k] || []).push(g); });
+  KEYS.forEach(function (k) { offCur[k] = [0, 0]; offStr[k] = ''; });
+  var callouts = {};
+  $$('.zg-co', svg).forEach(function (c) { callouts[c.getAttribute('data-co')] = c; });
+  var spinR = $('#zg-spin-rear'), spinF = $('#zg-spin-front'), crankG = $('#zg-crank'), pedalG = $('#zg-pedal');
+  var crankND = $('#zg-crank-nd'), pedalND = $('#zg-pedal-nd'), links = $('#zg-links'), roadDash = $('#zg-road-dash');
+  var roadG = $('#zg-road'), dimsG = $('#zg-dims');
+  var vb = TIGHT.slice(), vbStr = '';
+
+  var rig = zg.rig = { e: 0, eT: 0, focusT: null, pullT: 0, view: 0, dims: 1, dimsT: 1, size: 1, sizeT: 1 };
+  var wheel = zg.wheel = { a: 0, v: 0 };
+  var drag = zg.drag = zg.drag || { on: false, yaw: .35, vel: 0, used: false, idle: 9 };
+
+  var focusNow = 'none';
+  function applyFocus(f) {
+    if (f === focusNow) return;
+    focusNow = f;
+    var on = f ? GROUPS[f] : null;
+    KEYS.forEach(function (k) {
+      var hit = !!on && on.indexOf(k) > -1;
+      parts[k].forEach(function (g) { g.classList.toggle('is-focus', hit); g.classList.toggle('is-dim', !!on && !hit); });
+    });
+  }
+
+  // Sections that show the bike, and the empty slot element it centres on in each.
+  var SCENES = { home: { slot: 'home', fit: 1 }, parts: { slot: 'parts', fit: 1 }, config: { slot: 'config', fit: .94 } };
+  var slots = {};
+  $$('[data-slot]').forEach(function (el) { slots[el.getAttribute('data-slot')] = el; });
+  var scenes = $$('[data-scene]');
+  function currentScene() {
+    var mid = innerHeight * .5;
+    for (var i = 0; i < scenes.length; i++) {
+      var r = scenes[i].getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) return scenes[i].getAttribute('data-scene');
+    }
+    return 'cta';
+  }
+  var place = { x: 0, y: 0, w: 0, o: 0 }, tgt = { x: 0, y: 0, w: 0 };
+
+  // Colour fields behind everything: [glow A x, y, glow B x, y] in vw/vh per section.
+  var GLOW = { home: [72, 42, 12, 88], divider: [50, 50, 86, 20], range: [22, 30, 86, 80], parts: [30, 52, 88, 18], ride: [62, 72, 12, 22],
+    stats: [50, 46, 20, 82], config: [74, 50, 12, 30], service: [24, 40, 82, 82], faq: [86, 30, 14, 72], cta: [50, 62, 50, 18] };
+  var glowA = $('#zg-glow-a'), glowB = $('#zg-glow-b'), gl = GLOW.home.slice();
+
+  var ridgeSvg = $('#zg-ridges'), ridgeG = $$('.zg-ridge'), ridgeO = 1, ridgeX = 0, ptr = { x: 0, y: 0 };
+  var DEPTH = [.12, .24, .42, .7];
+
+  /* ---------- Home: pinned while the bike comes apart and goes back together ---------- */
+  var home = $('#zg-home'), stages = $$('.zg-stage', home);
+  var steps = $('.zg-steps', home), stepLabels = $$('.zg-steps__labels span', home), stepFill = $('#zg-steps-fill'), cue = $('#zg-cue');
+  var FOCUS = ['frame', 'drive', 'wheels', 'cockpit'];
+  var homeP = 0, stageNow = 'intro';
+  if (document.fonts) document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+  // Scroll map for the home section (0 to 1 across its 560vh):
+  // 0 to .14 assembled with the headline, .08 to .2 it comes apart, four part chapters to .82, .8 to .93 it goes back together.
+  function stageFor(p) { return p < .14 ? 'intro' : p >= .82 ? '4' : String(Math.min(3, Math.floor((p - .14) / .17))); }
+  ScrollTrigger.create({
+    trigger: home, start: 'top top', end: 'bottom bottom',
+    onUpdate: function (s) {
+      homeP = s.progress;
+      var st = stageFor(homeP);
+      if (st !== stageNow) {
+        stageNow = st;
+        stages.forEach(function (el) { el.classList.toggle('is-active', el.getAttribute('data-stage') === st); });
+        stepLabels.forEach(function (l, j) { l.classList.toggle('is-active', String(j) === st); });
+      }
+      steps.classList.toggle('is-on', st !== 'intro' && st !== '4');
+      stepFill.style.transform = 'scaleX(' + clamp((homeP - .14) / .68, 0, 1).toFixed(4) + ')';
+      cue.style.opacity = homeP > .02 ? 0 : 1;
+    }
+  });
+
+  /* ---------- One loop moves the bike, its parts, wheels, ridges and glows ---------- */
+  var last = performance.now(), t0 = last, lastScene = '';
+  var wheelStr = '', crankStr = '';
+  gsap.ticker.add(function () {
+    var now = performance.now(), dt = Math.min((now - last) / 1000, 1 / 20), t = (now - t0) / 1000;
+    last = now;
+    var name = currentScene(), S = SCENES[name];
+    zg.scene = name;
+    var k = zg.reduce ? 1 : 1 - Math.exp(-dt * 7);
+
+    if (name === 'home') {
+      rig.eT = sstep(.08, .2, homeP) * (1 - sstep(.8, .93, homeP));
+      rig.focusT = stageNow !== 'intro' && stageNow !== '4' ? FOCUS[+stageNow] : null;
+      rig.pullT = 0; rig.dimsT = homeP < .05 ? 1 : 0; rig.sizeT = 1;
+    } else if (name === 'parts') {
+      rig.eT = 0; rig.focusT = zg.partsFocus || 'frame'; rig.pullT = 1; rig.dimsT = 0; rig.sizeT = 1;
+    } else if (name === 'config') {
+      rig.eT = 0; rig.focusT = null; rig.pullT = 0; rig.dimsT = 1; rig.sizeT = zg.sizeScale || 1;
+    }
+    if (S) applyFocus(rig.focusT);
+    rig.e += (rig.eT - rig.e) * k;
+    rig.view += (Math.max(rig.eT, rig.pullT * .5) - rig.view) * k;
+    rig.dims += (rig.dimsT - rig.dims) * k;
+    rig.size += (rig.sizeT - rig.size) * k;
+
+    // Parts: the whole bike explodes in the home section; in the parts shop only the chosen group slides out.
+    var on = rig.focusT ? GROUPS[rig.focusT] : null;
+    KEYS.forEach(function (key) {
+      var amt = rig.eT + (on && on.indexOf(key) > -1 ? rig.pullT * .55 : 0), c = offCur[key];
+      c[0] += (OFF[key][0] * amt - c[0]) * k;
+      c[1] += (OFF[key][1] * amt - c[1]) * k;
+      var str = 'translate(' + c[0].toFixed(1) + ' ' + c[1].toFixed(1) + ')';
+      if (str !== offStr[key]) { offStr[key] = str; parts[key].forEach(function (g) { g.setAttribute('transform', str); }); }
+    });
+    for (var i = 0; i < 4; i++) vb[i] = TIGHT[i] + (WIDE[i] - TIGHT[i]) * rig.view;
+    var vs = vb.map(function (v) { return v.toFixed(1); }).join(' ');
+    if (vs !== vbStr) { vbStr = vs; svg.setAttribute('viewBox', vs); }
+
+    // Callouts are drawn at the fully exploded spots; shift each one by how far its part has actually travelled.
+    Object.keys(callouts).forEach(function (key) {
+      var a = ANCHOR[key], c = offCur[a], el = callouts[key], op;
+      if (name === 'home') op = sstep(.55, .95, rig.e) * (rig.focusT ? (key === rig.focusT ? 1 : .3) : .85);
+      else if (name === 'parts') op = key === rig.focusT ? sstep(.35, .5, Math.hypot(c[0], c[1]) / Math.hypot(OFF[a][0], OFF[a][1])) : 0;
+      else op = 0;
+      el.style.opacity = op.toFixed(3);
+      if (op > 0) el.setAttribute('transform', 'translate(' + (c[0] - OFF[a][0]).toFixed(1) + ' ' + (c[1] - OFF[a][1]).toFixed(1) + ')');
+    });
+    roadG.style.opacity = (1 - Math.min(1, rig.view * 1.8)).toFixed(3);
+    dimsG.style.opacity = rig.dims.toFixed(3);
+
+    // Wheels follow the cranks through a 50/16 gear and coast when the cranks stop, like a freewheel.
+    if (!zg.reduce && t > 4.2 && !zg.rolled) { zg.rolled = true; wheel.v = Math.max(wheel.v, 4.2); }
+    if (!drag.on) { drag.yaw += drag.vel * dt; drag.vel *= Math.exp(-dt * 4); }
+    var driveV = Math.max(0, drag.vel) * 3.125;
+    if (driveV > wheel.v) wheel.v += (driveV - wheel.v) * Math.min(1, dt * 8);
+    else wheel.v *= Math.exp(-dt * .45);
+    if (S && !zg.reduce) wheel.v = Math.min(wheel.v + Math.min(Math.abs(zg.velocity), 60) * dt * .04, 40);
+    if (wheel.v < .002) wheel.v = 0;
+    wheel.a += wheel.v * dt;
+    var wd = ((wheel.a * 180 / Math.PI) % 360).toFixed(2), cd = (drag.yaw * 180 / Math.PI) % 360;
+    if (wd !== wheelStr) {
+      wheelStr = wd;
+      spinR.setAttribute('transform', 'rotate(' + wd + ')');
+      spinF.setAttribute('transform', 'rotate(' + wd + ')');
+      roadDash.setAttribute('transform', 'translate(' + (-((wheel.a * 340) % 120)).toFixed(1) + ' 0)');
+    }
+    if (cd.toFixed(2) !== crankStr) {
+      crankStr = cd.toFixed(2);
+      crankG.setAttribute('transform', 'rotate(' + crankStr + ' 404 72)');
+      pedalG.setAttribute('transform', 'rotate(' + (-cd).toFixed(2) + ' 577 72)');
+      crankND.setAttribute('transform', 'rotate(' + (cd + 180).toFixed(2) + ' 404 72)');
+      pedalND.setAttribute('transform', 'rotate(' + (-cd - 180).toFixed(2) + ' 577 72)');
+      links.style.strokeDashoffset = (-(drag.yaw * 101) % 10).toFixed(2);
+    }
+
+    // Place the bike on the slot of the current section; fade it out between sections.
+    if (S) {
+      var r = slots[S.slot].getBoundingClientRect();
+      var w = Math.min(r.width, r.height * AR) * S.fit * rig.size;
+      tgt.x = r.left + (r.width - w) / 2;
+      // Exploded, the wider framing shrinks the parts; on desktop let the bike grow into the empty margin on the right.
+      if (name === 'home' && !mobileMQ.matches) w = Math.min(w * (1 + .24 * rig.view), innerWidth - tgt.x - 12, r.height * AR);
+      tgt.y = r.top + (r.height - w / AR) / 2; tgt.w = w;
+    }
+    var show = S ? 1 : 0;
+    if (place.o < .02 && show) { place.x = tgt.x; place.y = tgt.y; place.w = tgt.w; }
+    var kp = zg.reduce ? 1 : 1 - Math.exp(-dt * 10), ko = zg.reduce ? 1 : 1 - Math.exp(-dt * 6);
+    place.x += (tgt.x - place.x) * kp; place.y += (tgt.y - place.y) * kp; place.w += (tgt.w - place.w) * kp;
+    place.o += (show - place.o) * ko;
+    bikeEl.style.transform = 'translate3d(' + place.x.toFixed(1) + 'px,' + (place.y + (1 - place.o) * 40).toFixed(1) + 'px,0)';
+    bikeEl.style.width = place.w.toFixed(1) + 'px';
+    bikeEl.style.opacity = place.o.toFixed(3);
+    bikeEl.style.visibility = place.o < .01 ? 'hidden' : 'visible';
+
+    // Ridgelines loop with the distance the wheels cover, with a little pointer parallax.
+    ridgeO += ((name === 'home' ? 1 - rig.e * .5 : 0) - ridgeO) * (1 - Math.exp(-dt * 4));
+    ridgeSvg.style.opacity = ridgeO.toFixed(3);
+    if (ridgeO > .01) {
+      ridgeX += wheel.v * dt * 190;
+      if (!zg.reduce) { ptr.x += (zg.pointer.x - ptr.x) * k * .5; ptr.y += (zg.pointer.y - ptr.y) * k * .5; }
+      ridgeG.forEach(function (g, j) {
+        var x = -(((ridgeX + ptr.x * 60) * DEPTH[j]) % 1600 + 1600) % 1600;
+        g.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + (ptr.y * 14 * DEPTH[j]).toFixed(1) + ')');
+      });
+    }
+    var G = GLOW[name] || GLOW.home, kg = zg.reduce ? 1 : 1 - Math.exp(-dt * 2);
+    for (var g = 0; g < 4; g++) gl[g] += (G[g] - gl[g]) * kg;
+    glowA.style.transform = 'translate(' + gl[0].toFixed(2) + 'vw,' + gl[1].toFixed(2) + 'vh)';
+    glowB.style.transform = 'translate(' + gl[2].toFixed(2) + 'vw,' + gl[3].toFixed(2) + 'vh)';
+    if (name !== lastScene) { lastScene = name; root.setAttribute('data-scene', name); }
+  });
+
+  /* ---------- Range: vertical scroll drives a horizontal track ---------- */
+  var range = $('.zg-range'), track = $('#zg-track');
+  if (zg.reduce) range.classList.add('zg-range--native');
+  else {
+    var dist = function () { return Math.max(0, track.scrollWidth - innerWidth); };
+    var sizeRange = function () { range.style.height = (innerHeight + dist()) + 'px'; };
+    sizeRange();
+    ScrollTrigger.addEventListener('refreshInit', sizeRange);
+    var slide = gsap.to(track, {
+      x: function () { return -dist(); }, ease: 'none',
+      scrollTrigger: { trigger: range, start: 'top top', end: 'bottom bottom', scrub: true, invalidateOnRefresh: true }
+    });
+    $$('.zg-model', track).forEach(function (card) {
+      // Each line bike draws itself as its card slides in.
+      gsap.fromTo($$('.zg-mini__l', card), { strokeDashoffset: 1 }, {
+        strokeDashoffset: 0, ease: 'none', stagger: .05,
+        scrollTrigger: { trigger: card, containerAnimation: slide, start: 'left 96%', end: 'left 40%', scrub: true }
+      });
+      gsap.fromTo($('.zg-mini', card), { xPercent: 9 }, {
+        xPercent: -9, ease: 'none',
+        scrollTrigger: { trigger: card, containerAnimation: slide, start: 'left right', end: 'right left', scrub: true }
+      });
+    });
+  }
+
+  /* ---------- Divider rows drift in opposite directions ---------- */
+  if (!zg.reduce) {
+    var divST = { trigger: '.zg-divider', start: 'top bottom', end: 'bottom top', scrub: true };
+    gsap.fromTo('#zg-kin-a', { xPercent: 0 }, { xPercent: -20, ease: 'none', scrollTrigger: divST });
+    gsap.fromTo('#zg-kin-b', { xPercent: -12 }, { xPercent: 8, ease: 'none', scrollTrigger: Object.assign({}, divST) });
+  }
+
+  /* ---------- Ride profile draws as you scroll, with a rider dot and live km and altitude ---------- */
+  var profBase = $('.zg-prof__base'), profLine = $('#zg-prof-line'), profRect = $('#zg-prof-rect'), profDot = $('#zg-prof-dot');
+  var profKm = $('#zg-prof-km'), profM = $('#zg-prof-m'), stops = $$('#zg-stops li');
+  var LUT = [], PL = profBase.getTotalLength();
+  for (var li = 0; li <= 240; li++) { var pp = profBase.getPointAtLength(PL * li / 240); LUT.push([pp.x, pp.y, li / 240]); }
+  function atX(x) {
+    for (var i = 1; i < LUT.length; i++) {
+      if (LUT[i][0] >= x) {
+        var a = LUT[i - 1], b = LUT[i], u = (x - a[0]) / Math.max(.001, b[0] - a[0]);
+        return { y: a[1] + (b[1] - a[1]) * u, f: a[2] + (b[2] - a[2]) * u };
+      }
+    }
+    return { y: LUT[LUT.length - 1][1], f: 1 };
+  }
+  function setProfile(q) {
+    var x = q * 1000, p = atX(x), km = Math.round(q * 142);
+    profLine.style.strokeDashoffset = (1 - p.f).toFixed(4);
+    profRect.setAttribute('width', x.toFixed(1));
+    profDot.setAttribute('transform', 'translate(' + x.toFixed(1) + ' ' + p.y.toFixed(1) + ')');
+    profKm.textContent = km;
+    profM.textContent = Math.max(0, Math.round((236 - p.y) / 206 * 1300)).toLocaleString('en-US');
+    stops.forEach(function (s) { s.classList.toggle('is-on', km >= +s.getAttribute('data-km')); });
+  }
+  if (zg.reduce) setProfile(1);
+  else {
+    setProfile(0);
+    ScrollTrigger.create({ trigger: '#zg-profile', start: 'top 82%', end: 'bottom 28%', onUpdate: function (s) { setProfile(s.progress); } });
+  }
+
+  /* ---------- Count-ups ---------- */
+  $$('[data-count]').forEach(function (el) {
+    if (zg.reduce) return;
+    var end = +el.getAttribute('data-count'), dec = +(el.getAttribute('data-dec') || 0), o = { v: 0 };
+    var fmt = function (v) { return dec ? v.toFixed(dec) : Math.round(v).toLocaleString('en-US'); };
+    el.textContent = fmt(0);
+    ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: function () {
+      gsap.to(o, { v: end, duration: 1.8, ease: 'power3.out', onUpdate: function () { el.textContent = fmt(o.v); } });
+    } });
+  });
+
+  /* ---------- Text reveals, after the intro wipe ---------- */
+  function reveals() {
+    if (zg.reduce) return;
+    if (window.SplitText) {
+      $$('[data-split]').forEach(function (el) {
+        SplitText.create(el, {
+          type: 'lines', mask: 'lines', linesClass: 'zg-line', autoSplit: true,
+          onSplit: function (self) {
+            return gsap.from(self.lines, { yPercent: 115, duration: 1.15, ease: 'expo.out', stagger: .09,
+              scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
+          }
+        });
+      });
+    }
+    var items = $$('[data-reveal]');
+    gsap.set(items, { y: 30, autoAlpha: 0 });
+    ScrollTrigger.batch(items, { start: 'top 92%', once: true, onEnter: function (batch) {
+      gsap.to(batch, { y: 0, autoAlpha: 1, duration: 1.05, ease: 'power3.out', stagger: .09, delay: .1 });
+    } });
+  }
+  var intro = $('.zg-intro');
+  if (zg.reduce || !intro) { if (intro) intro.remove(); reveals(); }
+  else {
+    if (lenis) lenis.stop();
+    setTimeout(function () {
+      if (lenis) lenis.start();
+      reveals();
+      ScrollTrigger.refresh();
+    }, 1150);
+    setTimeout(function () { intro.remove(); }, 2000);
+  }
+});
+</script>
 </body>
 </html>
