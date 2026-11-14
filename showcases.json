@@ -79,5 +79,32 @@
       "Live builder",
       "Scroll-drawn profile"
     ]
+  },
+  {
+    "file": "2026-11-14-pm-sonra-air.html",
+    "date": "2026-11-14",
+    "slot": "pm",
+    "type": "product",
+    "brand": "Sonra",
+    "title": "Sonra Air",
+    "category": "Wireless earbuds",
+    "summary": "Noise-cancelling earbuds in front of a foam wall that ripples with street noise. Scroll opens the case, ride through four loud places as the anti-noise flattens the wave, then play a synthesized street in the noise lab.",
+    "palette": [
+      "#a6e1ff",
+      "#ff4f8b",
+      "#c9ced8"
+    ],
+    "hero": "Three.js charging case with a hinged lid over an instanced anechoic wedge wall that ripples with noise",
+    "scrollStory": "Pinned noise map that scrubs the anti-noise wave in across four loud places until the sum line goes flat",
+    "control": "Drag or click to rotate the case, WebAudio noise lab with mode switch and cancelling slider, finish and case configurator",
+    "techniques": [
+      "Instanced foam wall",
+      "Drag to rotate",
+      "Pinned noise map",
+      "WebAudio noise lab",
+      "Hinged lid scroll",
+      "Horizontal battery day",
+      "Scroll-reactive EQ"
+    ]
   }
 ]
