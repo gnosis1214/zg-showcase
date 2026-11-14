@@ -49,7 +49,7 @@ ul{list-style:none}
 .zg-hint svg{width:16px;height:16px;flex:none;animation:zgNudge 2.4s ease-in-out infinite}
 @keyframes zgNudge{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
 .zg-grain{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.zg-ripple{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:1px solid var(--ice);pointer-events:none;z-index:80;animation:zgRipple .9s var(--ease) forwards}
+.zg-ripple{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:1px solid var(--ice);pointer-events:none;z-index:80;animation:zgRipple .9s var(--ease) both}
 .zg-ripple+.zg-ripple{border-color:var(--pulse)}
 @keyframes zgRipple{from{transform:scale(.3);opacity:.9}to{transform:scale(4.6);opacity:0}}
 main,.zg-footer{position:relative;z-index:2}
@@ -162,12 +162,12 @@ main,.zg-footer{position:relative;z-index:2}
 /* Noise lab */
 .zg-lab__grid,.zg-buy__grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
 .zg-panel{border:1px solid var(--line2);border-radius:26px;padding:clamp(24px,3vw,40px);background:rgba(16,18,23,.62);backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);box-shadow:0 40px 120px -40px rgba(0,0,0,.85)}
-.zg-panel .zg-h2{margin-bottom:14px}
-.zg-screen{position:relative;height:clamp(120px,18vh,160px);margin:24px 0 18px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.35);overflow:hidden}
+.zg-panel .zg-h2{margin-bottom:14px;font-size:clamp(32px,3.6vw,54px)}
+.zg-screen{position:relative;height:clamp(104px,14vh,150px);margin:20px 0 16px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.35);overflow:hidden}
 .zg-screen canvas{position:absolute;inset:0;width:100%;height:100%}
 .zg-screen__read{position:absolute;left:14px;top:10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
 .zg-screen__read b{font-size:22px;font-weight:500;letter-spacing:-.03em;color:var(--ink);margin:0 3px 0 6px;font-variant-numeric:tabular-nums}
-.zg-play{display:flex;align-items:center;gap:14px;width:100%;padding:9px 18px 9px 9px;margin-bottom:22px;border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:border-color .3s,background .3s}
+.zg-play{display:flex;align-items:center;gap:14px;width:100%;padding:9px 18px 9px 9px;margin-bottom:18px;border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:border-color .3s,background .3s}
 .zg-play:hover{border-color:rgba(255,255,255,.3)}
 .zg-play i{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--ice);color:#0c0d10}
 .zg-play svg{width:18px;height:18px}
@@ -177,7 +177,7 @@ main,.zg-footer{position:relative;z-index:2}
 .zg-play[aria-pressed="true"] i{background:var(--pulse)}
 .zg-play span{font-weight:500}
 .zg-play small{display:block;font-weight:400;font-size:13px;color:var(--dim)}
-.zg-field{border:0;margin-bottom:20px}
+.zg-field{border:0;margin-bottom:18px}
 .zg-field legend,.zg-field label{display:flex;justify-content:space-between;width:100%;font-size:13px;color:var(--mut);margin-bottom:10px}
 .zg-field legend span,.zg-field label span{color:var(--ink);font-variant-numeric:tabular-nums}
 .zg-seg{--n:3;position:relative;display:grid;grid-template-columns:repeat(var(--n),1fr);padding:4px;border:1px solid var(--line2);border-radius:14px;background:rgba(255,255,255,.03)}
@@ -331,6 +331,13 @@ main,.zg-footer{position:relative;z-index:2}
   .zg-quiet .zg-h2{font-size:clamp(30px,3.6vw,46px)}
   .zg-js .zg-meter,.zg-js .zg-steps{margin-top:16px}
   .zg-meter__nums b{font-size:36px}
+}
+@media (min-width:901px) and (max-height:880px){
+  .zg-panel{padding:24px 30px}
+  .zg-panel .zg-lede{font-size:15px}
+  .zg-panel .zg-kicker{margin-bottom:12px}
+  .zg-note{margin-top:8px}
+  .zg-total{padding:12px 0;margin:10px 0 14px}
 }
 
 /* Below 900px: product in the top half, copy below it */
@@ -488,7 +495,7 @@ main,.zg-footer{position:relative;z-index:2}
       <div class="zg-panel" data-reveal>
         <p class="zg-kicker">Noise lab</p>
         <h2 class="zg-h2" id="zg-lab-title">Hear the <em>difference</em>.</h2>
-        <p class="zg-lede">Press play for a synthesized city street, then slide the cancelling up. Watch the foam wall behind the buds go still.</p>
+        <p class="zg-lede">Play a synthesized city street, then slide the cancelling up and watch the foam wall behind the buds go still.</p>
         <div class="zg-screen">
           <canvas id="zg-spec" aria-hidden="true"></canvas>
           <p class="zg-screen__read" aria-live="polite">In your ears <b id="zg-lab-db">42</b>dB</p>
@@ -976,6 +983,250 @@ addEventListener('DOMContentLoaded', function () {
       ScrollTrigger.refresh();
     } else requestAnimationFrame(waitIntro);
   })();
+});
+</script>
+<script>
+// Controls and micro-interactions. These work with or without GSAP.
+addEventListener('DOMContentLoaded', function () {
+  'use strict';
+  var zg = window.zg = window.zg || {};
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = matchMedia('(pointer: fine)').matches;
+  var hasGsap = !!window.gsap;
+
+  var toastEl = $('#zg-toast'), toastT;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('is-on');
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { toastEl.classList.remove('is-on'); }, 3400);
+  }
+
+  // Segmented controls and swatches share one radiogroup helper with arrow-key support.
+  function radioGroup(group, onPick) {
+    var items = $$('[role="radio"]', group), pill = $('.zg-seg__pill', group);
+    function pick(btn, focus) {
+      items.forEach(function (b, i) {
+        var on = b === btn;
+        b.setAttribute('aria-checked', String(on));
+        b.tabIndex = on ? 0 : -1;
+        if (on && pill) pill.style.transform = 'translateX(' + (i * 100) + '%)';
+      });
+      onPick(btn);
+      if (focus) btn.focus();
+    }
+    items.forEach(function (b) { b.addEventListener('click', function () { pick(b); }); });
+    group.addEventListener('keydown', function (e) {
+      var i = items.indexOf(document.activeElement);
+      var step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (i < 0 || !step) return;
+      e.preventDefault();
+      pick(items[(i + step + items.length) % items.length], true);
+    });
+    pick(items.filter(function (b) { return b.getAttribute('aria-checked') === 'true'; })[0] || items[0]);
+  }
+
+  /* ---------- Noise lab: synthesized street noise, a mode switch and a cancelling slider ---------- */
+  var depth = $('#zg-depth'), depthOut = $('#zg-depth-out'), labDb = $('#zg-lab-db');
+  var playBtn = $('#zg-play'), playLabel = $('#zg-play-label');
+  var audio = null, playing = false;
+  zg.depth = depth.value / 100;
+  function earDb() { return zg.mode === 'off' ? 66 : zg.mode === 'aware' ? 72 : Math.round(66 - zg.depth * 34); }
+  function applyLab() {
+    zg.labAnc = zg.mode === 'anc' ? zg.depth : 0;          // the foam wall's calm circle follows the slider
+    zg.labNoise = zg.mode === 'aware' ? 1.15 : 1;
+    depth.disabled = zg.mode !== 'anc';
+    depthOut.textContent = Math.round(zg.depth * 100) + '%';
+    depth.style.setProperty('--p', depth.value + '%');
+    labDb.textContent = earDb();
+    if (audio) audio.update();
+  }
+  radioGroup($('#zg-modes'), function (b) { zg.mode = b.getAttribute('data-mode'); applyLab(); });
+  depth.addEventListener('input', function () { zg.depth = depth.value / 100; applyLab(); });
+
+  // Street noise: a looping pink + brown noise bed and a swelling engine drone, then three EQ bands
+  // that stand in for the cancelling (deep cut in the lows, less in the mids, a lift in Aware mode).
+  function makeAudio() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    var ac = new AC(), sr = ac.sampleRate, len = sr * 4, F = 4096;
+    var buf = ac.createBuffer(2, len, sr);
+    for (var ch = 0; ch < 2; ch++) {
+      var raw = new Float32Array(len + F), d = buf.getChannelData(ch), b0 = 0, b1 = 0, b2 = 0, br = 0, i, w;
+      for (i = 0; i < len + F; i++) {
+        w = Math.random() * 2 - 1;
+        b0 = .99765 * b0 + w * .099046; b1 = .963 * b1 + w * .2965164; b2 = .57 * b2 + w * 1.0526913;
+        br = (br + .02 * w) / 1.02;
+        raw[i] = (b0 + b1 + b2 + w * .1848) * .05 + br * 2.4;
+      }
+      // Crossfade the tail into the head so the 4-second loop has no seam.
+      for (i = 0; i < len; i++) d[i] = i < F ? raw[i] * (i / F) + raw[len + i] * (1 - i / F) : raw[i];
+    }
+    var src = ac.createBufferSource();
+    src.buffer = buf; src.loop = true;
+    var o1 = ac.createOscillator(), o2 = ac.createOscillator(), lp = ac.createBiquadFilter(), drone = ac.createGain();
+    var lfo = ac.createOscillator(), lfoGain = ac.createGain();
+    o1.type = o2.type = 'sawtooth'; o1.frequency.value = 52; o2.frequency.value = 77.5;
+    lp.type = 'lowpass'; lp.frequency.value = 260;
+    drone.gain.value = .05; lfo.frequency.value = .13; lfoGain.gain.value = .035;
+    lfo.connect(lfoGain); lfoGain.connect(drone.gain);
+    o1.connect(lp); o2.connect(lp); lp.connect(drone);
+    var mix = ac.createGain();
+    src.connect(mix); drone.connect(mix);
+    var low = ac.createBiquadFilter(), mid = ac.createBiquadFilter(), high = ac.createBiquadFilter();
+    low.type = 'lowshelf'; low.frequency.value = 320;
+    mid.type = 'peaking'; mid.frequency.value = 1100; mid.Q.value = .7;
+    high.type = 'highshelf'; high.frequency.value = 3800;
+    var master = ac.createGain(), an = ac.createAnalyser();
+    master.gain.value = 0;
+    an.fftSize = 1024; an.smoothingTimeConstant = .78;
+    mix.connect(low); low.connect(mid); mid.connect(high); high.connect(master); master.connect(an); an.connect(ac.destination);
+    src.start(); o1.start(); o2.start(); lfo.start();
+    function update() {
+      var t = ac.currentTime, anc = zg.mode === 'anc' ? zg.depth : 0, aware = zg.mode === 'aware';
+      low.gain.setTargetAtTime(-anc * 30, t, .08);
+      mid.gain.setTargetAtTime(-anc * 14 + (aware ? 3 : 0), t, .08);
+      high.gain.setTargetAtTime(aware ? 6 : -anc * 6, t, .08);
+      master.gain.setTargetAtTime(playing ? (zg.mode === 'off' ? .16 : .2) : 0, t, .12);
+    }
+    return { ac: ac, an: an, data: new Uint8Array(an.frequencyBinCount), update: update };
+  }
+  function setPlaying(on) {
+    if (on && !audio) {
+      try { audio = makeAudio(); } catch (err) { audio = null; }
+      if (!audio) { toast('This browser cannot play generated sound, but the visual still responds.'); return; }
+    }
+    playing = on;
+    playBtn.setAttribute('aria-pressed', String(on));
+    playLabel.textContent = on ? 'Pause street noise' : 'Play street noise';
+    if (audio) {
+      if (on && audio.ac.state === 'suspended') audio.ac.resume();
+      audio.update();
+    }
+  }
+  playBtn.addEventListener('click', function () { setPlaying(!playing); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden && playing) setPlaying(false); });
+
+  // Spectrum: live from the analyser while playing, otherwise a simulated street that the mode and slider carve into.
+  var spec = $('#zg-spec'), sctx = spec.getContext('2d'), BARS = 40, shown = new Float32Array(BARS), specOn = false, sdpr = 1;
+  function sizeSpec() {
+    var r = spec.getBoundingClientRect();
+    sdpr = Math.min(devicePixelRatio || 1, 2);
+    spec.width = Math.max(1, Math.round(r.width * sdpr));
+    spec.height = Math.max(1, Math.round(r.height * sdpr));
+  }
+  function cut(f) {
+    if (zg.mode === 'aware') return f > .55 ? -.15 : 0;
+    if (zg.mode === 'off') return .12;
+    return zg.depth * Math.max(.2, f < .35 ? .92 : .92 - (f - .35) * 1.2);
+  }
+  function drawSpec(t) {
+    var W = spec.width, H = spec.height, top = 40 * sdpr, gap = Math.max(1, W * .006), bw = (W - gap * (BARS - 1)) / BARS;
+    var live = playing && audio, grad = sctx.createLinearGradient(0, H, 0, top);
+    grad.addColorStop(0, '#a6e1ff'); grad.addColorStop(1, '#ff4f8b');
+    sctx.clearRect(0, 0, W, H);
+    if (live) audio.an.getByteFrequencyData(audio.data);
+    for (var i = 0; i < BARS; i++) {
+      var f = i / (BARS - 1), v;
+      if (live) v = audio.data[Math.min(audio.data.length - 1, 1 + Math.floor(Math.pow(f, 2.2) * audio.data.length * .5))] / 255;
+      else {
+        var street = (1 - f * .55) * (.6 + .22 * Math.sin(i * .9 + t * 2.3) * Math.sin(i * .31 - t * 1.1) + .12 * Math.sin(t * 7 + i * 1.7));
+        v = Math.max(.03, street * (1 - cut(f)));
+      }
+      shown[i] += (v - shown[i]) * (reduce ? 1 : .22);
+      var h = Math.max(2 * sdpr, shown[i] * (H - top - 8 * sdpr));
+      sctx.fillStyle = grad;
+      sctx.fillRect(i * (bw + gap), H - h, bw, h);
+    }
+  }
+  sizeSpec();
+  addEventListener('resize', sizeSpec);
+  drawSpec(0);
+  (function loop(t) {
+    if (specOn && !reduce) drawSpec(t / 1000);
+    requestAnimationFrame(loop);
+  })(0);
+  if (reduce) $$('input,button', $('.zg-lab')).forEach(function (el) { el.addEventListener('input', function () { drawSpec(0); }); el.addEventListener('click', function () { setTimeout(function () { drawSpec(0); }, 0); }); });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) {
+      specOn = en[0].isIntersecting;
+      if (!specOn && playing) setPlaying(false);   // the sound stops when you scroll away
+    }).observe($('#zg-lab'));
+  } else specOn = true;
+
+  /* ---------- Configurator: finish recolours the 3D case, case type rolls the price ---------- */
+  var priceEl = $('#zg-price'), price = { v: 189 }, extra = 0, finishName = $('#zg-finish-name');
+  function setPrice() {
+    var to = 189 + extra;
+    if (hasGsap && !reduce) {
+      gsap.to(price, { v: to, duration: .8, ease: 'power3.out', overwrite: true,
+        onUpdate: function () { priceEl.textContent = '$' + Math.round(price.v); } });
+    } else { price.v = to; priceEl.textContent = '$' + to; }
+  }
+  radioGroup($('#zg-swatches'), function (b) { zg.finish = +b.getAttribute('data-finish'); finishName.textContent = b.getAttribute('data-name'); });
+  radioGroup($('#zg-case'), function (b) { extra = +b.getAttribute('data-case'); setPrice(); });
+  $('#zg-config').addEventListener('submit', function (e) {
+    e.preventDefault();
+    toast('Concept page: Sonra is fictional, so there is no checkout.');
+  });
+
+  /* ---------- FAQ accordion (first answer open) ---------- */
+  var faq = $('#zg-faq-list');
+  faq.classList.add('zg-acc');
+  $$('.zg-q', faq).forEach(function (q, i) {
+    var b = $('button', q);
+    function set(open) { q.classList.toggle('is-open', open); b.setAttribute('aria-expanded', String(open)); }
+    set(i === 0);
+    b.addEventListener('click', function () {
+      set(!q.classList.contains('is-open'));
+      if (window.ScrollTrigger) setTimeout(function () { ScrollTrigger.refresh(); }, 600);
+    });
+  });
+
+  /* ---------- Micro-interactions ---------- */
+  // Live room meter in the hero.
+  var room = $('#zg-live-room'), ear = $('#zg-live-ear');
+  if (!reduce) setInterval(function () {
+    if (document.hidden) return;
+    room.textContent = 60 + Math.round(Math.random() * 8);
+    ear.textContent = 29 + Math.round(Math.random() * 3);
+  }, 1100);
+  // Spotlight that follows the pointer across cards.
+  $$('.zg-cell').forEach(function (el) {
+    el.addEventListener('pointermove', function (e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+  if (fine && !reduce) {
+    // Magnetic buttons.
+    if (hasGsap) $$('[data-magnetic]').forEach(function (el) {
+      var xTo = gsap.quickTo(el, 'x', { duration: .55, ease: 'power3.out' });
+      var yTo = gsap.quickTo(el, 'y', { duration: .55, ease: 'power3.out' });
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        xTo((e.clientX - r.left - r.width / 2) * .28);
+        yTo((e.clientY - r.top - r.height / 2) * .4);
+      });
+      el.addEventListener('pointerleave', function () { xTo(0); yTo(0); });
+    });
+    // Every click sends out two sound rings.
+    addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      for (var k = 0; k < 2; k++) {
+        var r = document.createElement('span');
+        r.className = 'zg-ripple';
+        r.style.left = e.clientX + 'px';
+        r.style.top = e.clientY + 'px';
+        if (k) r.style.animationDelay = '.12s';
+        r.addEventListener('animationend', function () { this.remove(); });
+        document.body.appendChild(r);
+      }
+    });
+  }
 });
 </script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
