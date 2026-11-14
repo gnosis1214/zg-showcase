@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kavra Cycles | Strada R road bike and parts</title>
+<meta name="description" content="Kavra Cycles builds carbon road bikes and sells every part on its own. Scroll to take the Strada R apart, browse the range and the parts shop, then build your own. Concept page.">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0b0c;--ink:#efeae0;--mut:rgba(239,234,224,.72);--dim:rgba(239,234,224,.56);
+  --line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.16);--glass:rgba(22,22,24,.5);
+  --red:#ff3b2f;--chalk:#e6dfd0;--steel:#8fb3c4;--onred:#140a09;--glowA:rgba(255,59,47,.2);
+  --sans:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Bodoni Moda",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --gut:clamp(16px,4vw,48px);--max:1240px;--r:20px;--ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color-scheme:dark;-webkit-text-size-adjust:100%}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit;color:inherit}
+ul,ol{list-style:none}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:8px}
+::selection{background:var(--red);color:var(--onred)}
+
+/* Backdrop: drafting grid and two colour fields that move per section */
+.zg-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;background:var(--bg)}
+.zg-backdrop::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(70% 60% at 60% 45%,#000,transparent);mask-image:radial-gradient(70% 60% at 60% 45%,#000,transparent)}
+.zg-glow{position:absolute;left:0;top:0;width:90vmax;height:90vmax;margin:-45vmax 0 0 -45vmax;border-radius:50%;pointer-events:none}
+.zg-glow--a{background:radial-gradient(closest-side,var(--glowA),transparent);transform:translate(72vw,40vh);transition:background 1s}
+.zg-glow--b{background:radial-gradient(closest-side,rgba(143,179,196,.12),transparent);transform:translate(10vw,90vh)}
+.zg-grain{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+main,.zg-footer{position:relative;z-index:2}
+
+/* Nav: full-width bar with a km counter and a red progress line */
+.zg-nav{position:fixed;top:0;left:0;right:0;z-index:50;border-bottom:1px solid var(--line);background:rgba(11,11,12,.55);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);transition:background .4s}
+.zg-nav.is-scrolled{background:rgba(11,11,12,.84)}
+.zg-nav__inner{max-width:var(--max);margin:0 auto;padding:0 var(--gut);height:64px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.zg-brand{font-weight:800;font-stretch:125%;font-size:15px;letter-spacing:.3em;white-space:nowrap}
+.zg-brand i{font-style:normal;color:var(--red)}
+.zg-nav ul{display:flex;gap:2px}
+.zg-nav ul a{display:block;padding:8px 13px;border-radius:8px;font-size:14px;color:var(--mut);transition:color .25s,background .25s}
+.zg-nav ul a:hover{color:var(--ink);background:rgba(255,255,255,.05)}
+.zg-nav__end{display:flex;align-items:center;gap:10px}
+.zg-km{min-width:64px;text-align:right;font:500 12px/1 var(--mono);letter-spacing:.06em;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+.zg-km b{font-weight:500;color:var(--ink)}
+.zg-bag{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 12px 0 14px;border:1px solid var(--line2);border-radius:10px;background:rgba(255,255,255,.03);cursor:pointer;font-size:14px;transition:border-color .25s}
+.zg-bag:hover{border-color:rgba(255,255,255,.34)}
+.zg-bag b{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--red);color:var(--onred);font:600 11px/1 var(--mono)}
+.zg-progress{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--red);transform-origin:0 50%;transform:scaleX(0)}
+
+/* Shared type and buttons */
+.zg-wrap{position:relative;width:100%;max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+.zg-tag{display:inline-flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line2);border-radius:8px;background:rgba(255,255,255,.03);font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.zg-tag i{width:7px;height:7px;border-radius:2px;background:var(--red);box-shadow:0 0 12px var(--red)}
+.zg-kicker{margin-bottom:16px;font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.zg-display{font-weight:700;font-stretch:112%;font-size:clamp(42px,4.9vw,80px);line-height:.98;letter-spacing:-.04em}
+.zg-h2{font-weight:700;font-stretch:110%;font-size:clamp(32px,3.9vw,58px);line-height:1.02;letter-spacing:-.035em}
+.zg-display em,.zg-h2 em{font-family:var(--serif);font-style:italic;font-weight:500;font-stretch:100%;letter-spacing:-.02em;color:var(--red);padding-right:.05em}
+.zg-lede{max-width:46ch;font-size:clamp(16px,1.35vw,18px);color:var(--mut)}
+.zg-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.zg-chips li{padding:8px 11px;border:1px solid var(--line2);border-radius:7px;background:rgba(255,255,255,.03);font:500 12px/1 var(--mono);letter-spacing:.03em;color:var(--mut)}
+.zg-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:52px;padding:0 24px;border:1px solid transparent;border-radius:12px;font-size:15px;font-weight:600;font-stretch:106%;cursor:pointer;transition:background .3s,border-color .3s,box-shadow .3s,color .3s}
+.zg-btn--primary{background:var(--red);color:var(--onred);box-shadow:0 14px 40px -14px rgba(255,59,47,.85)}
+.zg-btn--primary:hover{background:#ff5348;box-shadow:0 16px 50px -12px rgba(255,59,47,.95)}
+.zg-btn--ghost{border-color:var(--line2);background:rgba(255,255,255,.03);backdrop-filter:blur(10px)}
+.zg-btn--ghost:hover{border-color:rgba(255,255,255,.36)}
+.zg-btn--sm{height:40px;padding:0 16px;font-size:14px}
+.zg-btn--block{width:100%}
+.zg-sec{padding:clamp(90px,15vh,160px) 0}
+.zg-sec-head{max-width:760px;margin-bottom:clamp(36px,6vh,60px)}
+.zg-sec-head .zg-lede{margin-top:18px}
+
+/* Home: copy column and an empty slot the bike centres on */
+.zg-home{position:relative}
+.zg-home__sticky{position:relative;min-height:100vh;min-height:100svh;padding:120px 0 80px;display:flex;align-items:center}
+.zg-home__grid{display:flex;align-items:center;gap:clamp(24px,3vw,48px)}
+.zg-home__copy{position:relative;flex:0 1 500px;min-width:0}
+.zg-slot{flex:1 1 0;min-width:0;align-self:stretch;min-height:320px}
+.zg-stage{margin-bottom:64px}
+.zg-stage .zg-h2{margin-bottom:16px}
+.zg-stage--intro .zg-display{margin:22px 0}
+.zg-cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.zg-meta{display:flex;gap:30px;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
+.zg-meta div{display:flex;flex-direction:column-reverse;gap:4px}
+.zg-meta dt{font:500 11px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.zg-meta dd{font-weight:650;font-stretch:110%;font-size:18px;letter-spacing:-.01em}
+.zg-steps{display:none}
+
+/* Divider: two rows of wide type */
+.zg-divider{padding:clamp(50px,9vh,100px) 0;overflow:hidden;border-block:1px solid var(--line)}
+.zg-kin{display:flex;align-items:center;gap:.35em;width:max-content;white-space:nowrap;font-weight:800;font-stretch:125%;font-size:clamp(48px,9vw,150px);line-height:1;letter-spacing:-.03em;text-transform:uppercase}
+.zg-kin+.zg-kin{margin-top:.1em}
+.zg-kin--b{margin-left:-32vw}
+.zg-kin span:nth-of-type(even){color:transparent;-webkit-text-stroke:1.5px rgba(239,234,224,.55)}
+.zg-kin i{font-style:normal;font-weight:400;color:var(--red)}
+
+/* Range: horizontal track of line-drawn bikes */
+.zg-range{position:relative}
+.zg-range__sticky{position:relative;padding:clamp(90px,14vh,150px) 0;display:flex;flex-direction:column;justify-content:center;gap:clamp(24px,4.5vh,48px)}
+.zg-range__head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px 40px}
+.zg-range__head .zg-lede{max-width:36ch}
+.zg-range__viewport{overflow-x:auto;scrollbar-width:none}
+.zg-range__viewport::-webkit-scrollbar{display:none}
+.zg-range__track{display:flex;gap:16px;width:max-content;padding:0 var(--gut)}
+.zg-model{--mx:50%;--my:50%;position:relative;flex:none;width:clamp(280px,27vw,360px);padding:20px;border:1px solid var(--line);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
+.zg-model__top{display:flex;justify-content:space-between;gap:12px;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.zg-model__type{color:var(--c)}
+.zg-model__art{position:relative;height:clamp(130px,21vh,190px);margin:clamp(12px,3vh,26px) -4px clamp(10px,2vh,20px);display:grid;place-items:center;color:var(--ink)}
+.zg-model__art::before{content:"";position:absolute;left:12%;right:12%;bottom:4%;height:42%;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,var(--c),transparent);opacity:.22;filter:blur(14px)}
+.zg-mini{width:100%;height:100%}
+.zg-mini__l{fill:none;stroke:currentColor;stroke-width:var(--mw);stroke-linecap:round;stroke-linejoin:round}
+.zg-mini__l--soft{opacity:.42}
+.zg-mini__disc{fill:rgba(255,255,255,.07)}
+.zg-model h3{font-weight:700;font-stretch:112%;font-size:26px;letter-spacing:-.03em;line-height:1.1}
+.zg-model p{margin-top:6px;font-size:14px;color:var(--mut)}
+.zg-model__foot{margin-top:auto;padding-top:18px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px;color:var(--mut)}
+.zg-model__foot b{font-weight:600;color:var(--ink)}
+
+/* Spotlight cards (range, service) */
+.zg-model::before,.zg-card::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(360px circle at var(--mx) var(--my),rgba(255,255,255,.07),transparent 60%);opacity:0;transition:opacity .35s}
+.zg-model::after,.zg-card::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:radial-gradient(240px circle at var(--mx) var(--my),rgba(255,59,47,.75),transparent 65%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .35s;pointer-events:none}
+.zg-model:hover::before,.zg-model:hover::after,.zg-card:hover::before,.zg-card:hover::after{opacity:1}
+
+/* Parts shop */
+.zg-parts{position:relative;padding:clamp(90px,14vh,150px) 0}
+.zg-parts__grid{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(24px,4vw,64px);align-items:stretch;min-height:76vh}
+.zg-parts__slot{min-height:320px}
+.zg-parts__shop{align-self:center}
+.zg-tabs{position:relative;display:flex;gap:4px;margin:28px 0 6px;padding:4px;border:1px solid var(--line2);border-radius:12px;background:rgba(255,255,255,.03);overflow-x:auto;scrollbar-width:none}
+.zg-tabs::-webkit-scrollbar{display:none}
+.zg-tabs button{position:relative;z-index:1;flex:1 0 auto;height:42px;padding:0 14px;border:0;border-radius:9px;background:none;cursor:pointer;font-size:14px;font-weight:500;color:var(--mut);white-space:nowrap;transition:color .3s}
+.zg-tabs__ink{display:none;position:absolute;z-index:0;top:4px;bottom:4px;left:0;width:0;border-radius:9px;background:var(--ink);transition:transform .5s var(--ease),width .5s var(--ease)}
+.zg-panel+.zg-panel{margin-top:22px}
+.zg-panel__name{padding:12px 0 4px;font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.zg-prod{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px 18px;padding:18px 0;border-bottom:1px solid var(--line)}
+.zg-prod h3{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.zg-prod p{margin-top:2px;font-size:13px;color:var(--dim)}
+.zg-prod>b{font:500 15px/1 var(--mono);font-variant-numeric:tabular-nums}
+.zg-add{min-width:78px;height:38px;padding:0 14px;border:1px solid var(--line2);border-radius:9px;background:rgba(255,255,255,.04);cursor:pointer;font-size:13px;font-weight:600;transition:background .25s,border-color .25s,color .25s}
+.zg-add:hover{border-color:var(--red);color:var(--red)}
+.zg-add.is-added{background:var(--red);border-color:var(--red);color:var(--onred)}
+
+/* Ride profile */
+.zg-profile{position:relative;padding:clamp(16px,2.4vw,28px);border:1px solid var(--line);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:hidden}
+.zg-profile svg{display:block;width:100%;height:auto;overflow:visible}
+.zg-prof__grid{fill:none;stroke:rgba(255,255,255,.08);stroke-width:1;stroke-dasharray:4 6}
+.zg-prof__lbl{fill:var(--dim);font:500 11px var(--mono)}
+.zg-prof__area{fill:url(#zg-prof-g)}
+.zg-prof__base{fill:none;stroke:rgba(239,234,224,.2);stroke-width:2}
+.zg-prof__line{fill:none;stroke:var(--red);stroke-width:3;stroke-linecap:round}
+.zg-prof__dot{fill:var(--red)}
+.zg-prof__halo{fill:none;stroke:var(--red);stroke-width:1.5;opacity:.5}
+.zg-profile__read{position:absolute;top:clamp(14px,2vw,24px);right:clamp(16px,2.4vw,28px);font:500 13px/1 var(--mono);color:var(--mut)}
+.zg-profile__read b{font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.zg-stops{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:14px}
+.zg-stops li{padding:18px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02);transition:border-color .6s,background .6s}
+.zg-stops li.is-on{border-color:rgba(255,59,47,.5);background:rgba(255,59,47,.06)}
+.zg-stops span{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--red)}
+.zg-stops h3{margin:10px 0 6px;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.zg-stops p{font-size:13.5px;line-height:1.5;color:var(--mut)}
+
+/* Stats */
+.zg-stats__grid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.zg-stat{padding:clamp(26px,4.5vh,46px) clamp(14px,2vw,26px) 0;border-left:1px solid var(--line)}
+.zg-stat:first-child{padding-left:0;border-left:0}
+.zg-stat strong{display:block;font-weight:700;font-stretch:118%;font-size:clamp(44px,5.4vw,82px);line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.zg-stat strong small{font-size:.42em;font-weight:600;letter-spacing:0;color:var(--red);margin-left:.12em}
+.zg-stat span{display:block;max-width:22ch;margin-top:12px;font-size:14px;color:var(--mut)}
+
+/* Configurator */
+.zg-config{position:relative;padding:clamp(80px,12vh,130px) 0}
+.zg-config__grid{display:grid;grid-template-columns:minmax(0,440px) 1fr;gap:clamp(24px,4vw,64px);align-items:center;min-height:86vh}
+.zg-config__slot{min-height:340px;align-self:stretch}
+.zg-form{padding:clamp(22px,2.6vw,34px);border:1px solid var(--line2);border-radius:24px;background:rgba(16,16,18,.62);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);box-shadow:0 40px 120px -40px rgba(0,0,0,.8)}
+.zg-form .zg-h2{margin-bottom:24px}
+.zg-field{margin-bottom:20px;border:0}
+.zg-field legend,.zg-field label{display:flex;justify-content:space-between;width:100%;margin-bottom:10px;font-size:13px;color:var(--mut)}
+.zg-field legend span,.zg-field label span{font:500 12px/1.6 var(--mono);color:var(--ink)}
+.zg-swatches{display:flex;gap:12px}
+.zg-swatches button{position:relative;width:44px;height:44px;border:1px solid var(--line2);border-radius:12px;background:var(--sw);cursor:pointer;transition:transform .3s var(--ease)}
+.zg-swatches button::after{content:"";position:absolute;inset:-6px;border:1.5px solid var(--ink);border-radius:16px;opacity:0;transform:scale(.9);transition:opacity .3s,transform .4s var(--ease)}
+.zg-swatches button[aria-checked="true"]::after{opacity:1;transform:none}
+.zg-swatches button:hover{transform:translateY(-2px)}
+.zg-slider{width:100%;height:28px;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none}
+.zg-slider::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(90deg,var(--red) var(--p,56%),rgba(255,255,255,.14) var(--p,56%))}
+.zg-slider::-webkit-slider-thumb{width:22px;height:22px;margin-top:-9px;border:4px solid var(--bg);border-radius:50%;background:var(--ink);box-shadow:0 0 0 1px var(--line2);-webkit-appearance:none}
+.zg-slider::-moz-range-track{height:4px;border-radius:4px;background:rgba(255,255,255,.14)}
+.zg-slider::-moz-range-progress{height:4px;border-radius:4px;background:var(--red)}
+.zg-slider::-moz-range-thumb{width:14px;height:14px;border:4px solid var(--bg);border-radius:50%;background:var(--ink)}
+.zg-fit{margin-top:6px;font:500 12px/1.5 var(--mono);color:var(--dim)}
+.zg-fit b{font-weight:500;color:var(--ink)}
+.zg-seg{position:relative;display:grid;grid-template-columns:repeat(2,1fr);padding:4px;border:1px solid var(--line2);border-radius:12px;background:rgba(255,255,255,.03)}
+.zg-seg button{position:relative;z-index:1;height:42px;border:0;border-radius:9px;background:none;cursor:pointer;font-size:14px;font-weight:500;color:var(--mut);transition:color .3s}
+.zg-seg button[aria-checked="true"]{color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2)}
+.zg-seg__pill{display:none;position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/2);border-radius:9px;background:var(--ink);transition:transform .5s var(--ease)}
+.zg-total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:4px 0 16px;padding:18px 0;border-top:1px solid var(--line)}
+.zg-total span{font:500 13px/1.4 var(--mono);color:var(--mut)}
+.zg-total strong{font-weight:700;font-stretch:115%;font-size:40px;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.zg-note{margin-top:12px;font-size:12.5px;color:var(--dim);text-align:center}
+
+/* Service cards */
+.zg-svc__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.zg-card{--mx:50%;--my:50%;position:relative;min-height:290px;padding:24px;border:1px solid var(--line);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
+.zg-card__icon{width:48px;height:48px;margin-bottom:auto;border:1px solid var(--line2);border-radius:12px;display:grid;place-items:center;color:var(--red)}
+.zg-card__icon svg{width:24px;height:24px}
+.zg-card h3{margin-top:40px;font-size:20px;font-weight:650;font-stretch:108%;letter-spacing:-.02em}
+.zg-card p{margin-top:8px;font-size:14.5px;color:var(--mut)}
+
+/* FAQ */
+.zg-faq__grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,90px);align-items:start}
+.zg-q{border-bottom:1px solid var(--line)}
+.zg-q:first-child{border-top:1px solid var(--line)}
+.zg-q h3{font-size:inherit;font-weight:inherit}
+.zg-q button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 0;border:0;background:none;cursor:pointer;text-align:left;font-size:clamp(17px,1.6vw,20px);font-weight:600;letter-spacing:-.01em}
+.zg-q button i{position:relative;flex:none;width:30px;height:30px;border:1px solid var(--line2);border-radius:9px;transition:transform .5s var(--ease),background .3s}
+.zg-q button i::before,.zg-q button i::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:1.5px;background:var(--ink);transform:translate(-50%,-50%)}
+.zg-q button i::after{transform:translate(-50%,-50%) rotate(90deg)}
+.zg-q.is-open button i{transform:rotate(45deg);background:rgba(255,59,47,.18)}
+.zg-a{display:grid;grid-template-rows:1fr;transition:grid-template-rows .55s var(--ease)}
+.zg-a>div{overflow:hidden}
+.zg-a p{padding:0 50px 24px 0;color:var(--mut)}
+
+/* Closing CTA, footer, toast */
+.zg-cta{padding:clamp(120px,24vh,230px) 0;text-align:center}
+.zg-cta .zg-display{margin-bottom:24px}
+.zg-cta .zg-lede{margin:0 auto 34px}
+.zg-cta .zg-cta-row{justify-content:center}
+.zg-footer{padding:34px 0 44px;border-top:1px solid var(--line);background:rgba(11,11,12,.7);backdrop-filter:blur(10px);font-size:13px;color:var(--dim)}
+.zg-footer__inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 32px}
+.zg-footer a{color:var(--mut);border-bottom:1px solid var(--line2);transition:color .25s}
+.zg-footer a:hover{color:var(--ink)}
+.zg-toast{position:fixed;left:50%;bottom:24px;z-index:60;max-width:calc(100% - 32px);padding:14px 20px;border:1px solid var(--line2);border-radius:14px;background:rgba(18,18,20,.9);backdrop-filter:blur(16px);font-size:14px;transform:translate(-50%,calc(100% + 40px));visibility:hidden;transition:transform .5s var(--ease),visibility 0s .5s}
+.zg-toast.is-on{transform:translate(-50%,0);visibility:visible;transition:transform .5s var(--ease)}
+
+/* Below 900px: stacked layouts, the bike sits above the copy */
+@media (max-width:900px){
+  .zg-nav ul,.zg-km{display:none}
+  .zg-home__grid{flex-direction:column;align-items:stretch}
+  .zg-home__copy{flex-basis:auto}
+  .zg-slot{order:-1;flex:none;width:100%;min-height:0;aspect-ratio:1.62}
+  .zg-parts__grid,.zg-config__grid{grid-template-columns:1fr;min-height:0}
+  .zg-parts__slot,.zg-config__slot{min-height:0;aspect-ratio:1.62}
+  .zg-config__slot{order:-1}
+  .zg-stops{grid-template-columns:1fr 1fr}
+  .zg-stats__grid{grid-template-columns:repeat(2,1fr)}
+  .zg-stat:nth-child(3){padding-left:0;border-left:0}
+  .zg-stat:nth-child(n+3){margin-top:28px}
+  .zg-svc__grid{grid-template-columns:1fr 1fr}
+  .zg-faq__grid{grid-template-columns:1fr}
+  .zg-prof__lbl{display:none}
+}
+@media (max-width:560px){
+  .zg-bag span{display:none}
+  .zg-nav__end .zg-btn{padding:0 12px}
+  .zg-meta{gap:20px}
+  .zg-cta-row .zg-btn{flex:1}
+  .zg-stops,.zg-svc__grid{grid-template-columns:1fr}
+  .zg-card{min-height:0}
+  .zg-card h3{margin-top:28px}
+  .zg-a p{padding-right:0}
+  .zg-prod{grid-template-columns:1fr auto;gap:10px 14px}
+  .zg-prod>b{grid-row:2;grid-column:1}
+  .zg-add{grid-row:1/3;grid-column:2}
+}
+@media (prefers-reduced-motion:reduce){
+  .zg-seg__pill,.zg-tabs__ink,.zg-a,.zg-toast,.zg-swatches button,.zg-swatches button::after{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="zg-backdrop" aria-hidden="true"><i class="zg-glow zg-glow--a" id="zg-glow-a"></i><i class="zg-glow zg-glow--b" id="zg-glow-b"></i></div>
+<div class="zg-grain" aria-hidden="true"></div>
+
+<header class="zg-nav" id="zg-nav">
+  <div class="zg-nav__inner">
+    <a class="zg-brand" href="#zg-top" aria-label="Kavra Cycles, back to top">KAVRA<i>.</i></a>
+    <nav aria-label="Page sections">
+      <ul>
+        <li><a href="#zg-range">Bikes</a></li>
+        <li><a href="#zg-parts">Parts</a></li>
+        <li><a href="#zg-build">Build</a></li>
+        <li><a href="#zg-service">Service</a></li>
+      </ul>
+    </nav>
+    <div class="zg-nav__end">
+      <span class="zg-km" aria-hidden="true">km <b id="zg-km">0</b></span>
+      <button class="zg-bag" type="button" id="zg-bag" aria-label="Bag, 0 items"><span>Bag</span><b id="zg-bag-n">0</b></button>
+      <a class="zg-btn zg-btn--primary zg-btn--sm" href="#zg-build" data-magnetic>Build yours</a>
+    </div>
+  </div>
+  <span class="zg-progress" id="zg-progress" aria-hidden="true"></span>
+</header>
+
+<main id="zg-top">
+  <section class="zg-home" id="zg-home" data-scene="home" aria-labelledby="zg-hero-title">
+    <div class="zg-home__sticky">
+      <div class="zg-wrap zg-home__grid">
+        <div class="zg-home__copy" id="zg-home-copy">
+          <div class="zg-stages">
+            <div class="zg-stage zg-stage--intro is-active" data-stage="intro">
+              <span class="zg-tag"><i aria-hidden="true"></i>Kavra Cycles · Bikes and parts</span>
+              <h1 class="zg-display" id="zg-hero-title" data-split>Ride the long way <em>home</em>.</h1>
+              <p class="zg-lede">Complete road bikes and every part that goes into them, built and shipped from one small workshop. Scroll to take the Strada R apart.</p>
+              <div class="zg-cta-row">
+                <a class="zg-btn zg-btn--primary" href="#zg-range" data-magnetic>Shop bikes</a>
+                <a class="zg-btn zg-btn--ghost" href="#zg-parts">Shop parts</a>
+              </div>
+              <dl class="zg-meta">
+                <div><dt>Strada R</dt><dd>from $4,290</dd></div>
+                <div><dt>Complete bike</dt><dd>7.1 kg</dd></div>
+                <div><dt>Parts dispatch</dt><dd>48 h</dd></div>
+              </dl>
+            </div>
+            <article class="zg-stage" data-stage="0">
+              <p class="zg-kicker">Frameset · from $2,390</p>
+              <h2 class="zg-h2">790 grams of <em>carbon</em>.</h2>
+              <p class="zg-lede">412 pieces of high-modulus carbon, each laid by hand in a heated mould. Dropped seat stays give a few millimetres over broken road, then stay straight when you stand to sprint.</p>
+              <ul class="zg-chips"><li>High-modulus carbon</li><li>Dropped seat stays</li><li>Threaded BB</li></ul>
+            </article>
+            <article class="zg-stage" data-stage="1">
+              <p class="zg-kicker">Drivetrain · $1,180</p>
+              <h2 class="zg-h2">Twelve gears, <em>by wire</em>.</h2>
+              <p class="zg-lede">A 2x12 electronic groupset with a 50/34 crankset and a 10 to 33 cassette. Shifts land in a quarter of a second, and the battery hides inside the seat post.</p>
+              <ul class="zg-chips"><li>50/34 crankset</li><li>10-33 cassette</li><li>900 km per charge</li></ul>
+            </article>
+            <article class="zg-stage" data-stage="2">
+              <p class="zg-kicker">Wheelset · $1,450</p>
+              <h2 class="zg-h2">Deep enough for wind, light enough to <em>climb</em>.</h2>
+              <p class="zg-lede">45 mm carbon rims on 24 straight-pull spokes, with a 21 mm inner width that shapes a 30 mm tyre into a wide, steady contact patch. The pair weighs 1,390 g.</p>
+              <ul class="zg-chips"><li>45 mm rims</li><li>1,390 g pair</li><li>Tubeless ready</li></ul>
+            </article>
+            <article class="zg-stage" data-stage="3">
+              <p class="zg-kicker">Cockpit and saddle · from $420</p>
+              <h2 class="zg-h2">Where you <em>touch</em> the bike.</h2>
+              <p class="zg-lede">A one-piece carbon bar and stem with a little flex built into the tops, and a short-nose saddle cut for riding in the drops. Five stem lengths, so the fit is right before the first ride.</p>
+              <ul class="zg-chips"><li>One-piece cockpit</li><li>Short-nose saddle</li><li>5 stem lengths</li></ul>
+            </article>
+            <article class="zg-stage" data-stage="4">
+              <p class="zg-kicker">Back together</p>
+              <h2 class="zg-h2">Or take it <em>whole</em>.</h2>
+              <p class="zg-lede">Every Strada R is built, torqued and test-ridden in the workshop, then shipped 95% assembled. Fit the bar, set the saddle and ride.</p>
+              <div class="zg-cta-row">
+                <a class="zg-btn zg-btn--primary" href="#zg-build" data-magnetic>Build yours</a>
+                <a class="zg-btn zg-btn--ghost" href="#zg-range">See the range</a>
+              </div>
+            </article>
+          </div>
+          <div class="zg-steps" aria-hidden="true">
+            <div class="zg-steps__labels"><span>Frame</span><span>Drive</span><span>Wheels</span><span>Cockpit</span></div>
+            <i class="zg-steps__bar"><b id="zg-steps-fill"></b></i>
+          </div>
+        </div>
+        <div class="zg-slot" data-slot="home" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-divider" data-scene="divider" aria-label="What Kavra does">
+    <p class="zg-kin" id="zg-kin-a"><span>Bikes</span><i aria-hidden="true">/</i><span>Parts</span><i aria-hidden="true">/</i><span>Service</span><i aria-hidden="true">/</i><span>Bikes</span><i aria-hidden="true">/</i><span>Parts</span></p>
+    <p class="zg-kin zg-kin--b" id="zg-kin-b" aria-hidden="true"><span>Climb</span><i>/</i><span>Descend</span><i>/</i><span>Repeat</span><i>/</i><span>Climb</span><i>/</i><span>Descend</span></p>
+  </section>
+
+  <section class="zg-range" id="zg-range" data-scene="range" aria-labelledby="zg-range-title">
+    <div class="zg-range__sticky">
+      <div class="zg-wrap zg-range__head">
+        <div>
+          <p class="zg-kicker">The range</p>
+          <h2 class="zg-h2" id="zg-range-title" data-split>Six bikes, <em>one</em> workshop.</h2>
+        </div>
+        <p class="zg-lede">Every frame is designed, painted and built in the same room. Pick the road you ride most.</p>
+      </div>
+      <div class="zg-range__viewport">
+        <div class="zg-range__track" id="zg-track">
+          <article class="zg-model" style="--c:#ff3b2f">
+            <div class="zg-model__top"><span class="zg-model__type">Endurance race</span><span>7.1 kg</span></div>
+            <div class="zg-model__art"><svg class="zg-mini" viewBox="-420 -760 1850 1160" aria-hidden="true" focusable="false" style="--mw:9"><path class="zg-mini__l" pathLength="1" d="M-340,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0ZM650,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0Z"/><path class="zg-mini__l" pathLength="1" d="M0,0L404,72L256,-427L285.6,-327.2L0,0"/><path class="zg-mini__l" pathLength="1" d="M256,-427L789,-488L833,-345L404,72"/><path class="zg-mini__l" pathLength="1" d="M833,-345Q933,-125 990,0"/><path class="zg-mini__l" pathLength="1" d="M256,-427L202,-609.2M107,-623.2L302,-617.2"/><path class="zg-mini__l" pathLength="1" d="M777.2,-526.2L877.2,-534.2C947.2,-536.2 953.2,-436.2 897.2,-408.2"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M304,72a100,100 0 1 0 200,0a100,100 0 1 0 -200,0ZM404,72L464,236"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-60,0a60,60 0 1 0 120,0a60,60 0 1 0 -120,0Z"/></svg></div>
+            <h3>Strada R</h3>
+            <p>Fast enough to race, calm enough for a 200 km day. The bike at the top of this page.</p>
+            <div class="zg-model__foot"><span>from <b>$4,290</b></span><button type="button" class="zg-btn zg-btn--ghost zg-btn--sm" data-buy="Strada R">View bike</button></div>
+          </article>
+          <article class="zg-model" style="--c:#f2c14e">
+            <div class="zg-model__top"><span class="zg-model__type">Climbing</span><span>6.6 kg</span></div>
+            <div class="zg-model__art"><svg class="zg-mini" viewBox="-420 -760 1850 1160" aria-hidden="true" focusable="false" style="--mw:7.5"><path class="zg-mini__l" pathLength="1" d="M-340,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0ZM650,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0Z"/><path class="zg-mini__l" pathLength="1" d="M0,0L404,72L262,-400L290.4,-305.6L0,0"/><path class="zg-mini__l" pathLength="1" d="M262,-400L786,-500L830,-360L404,72"/><path class="zg-mini__l" pathLength="1" d="M830,-360Q930,-140 990,0"/><path class="zg-mini__l" pathLength="1" d="M262,-400L207.3,-581.9M112.3,-595.9L307.3,-589.9"/><path class="zg-mini__l" pathLength="1" d="M774,-538.2L874,-546.2C944,-548.2 950,-448.2 894,-420.2"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M304,72a100,100 0 1 0 200,0a100,100 0 1 0 -200,0ZM404,72L464,236"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-60,0a60,60 0 1 0 120,0a60,60 0 1 0 -120,0Z"/></svg></div>
+            <h3>Strada SL</h3>
+            <p>Thinner tubes, a lighter layup and the same calm handling, for riders who count the metres up.</p>
+            <div class="zg-model__foot"><span>from <b>$6,450</b></span><button type="button" class="zg-btn zg-btn--ghost zg-btn--sm" data-buy="Strada SL">View bike</button></div>
+          </article>
+          <article class="zg-model" style="--c:#8fb3c4">
+            <div class="zg-model__top"><span class="zg-model__type">Aero race</span><span>7.6 kg</span></div>
+            <div class="zg-model__art"><svg class="zg-mini" viewBox="-420 -760 1850 1160" aria-hidden="true" focusable="false" style="--mw:13"><path class="zg-mini__l" pathLength="1" d="M-340,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0ZM650,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0Z"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-248,0a248,248 0 1 0 496,0a248,248 0 1 0 -496,0ZM742,0a248,248 0 1 0 496,0a248,248 0 1 0 -496,0Z"/><path class="zg-mini__l" pathLength="1" d="M0,0L404,72L262,-400L290.4,-305.6L0,0"/><path class="zg-mini__l" pathLength="1" d="M262,-400L800,-462L840,-330L404,72"/><path class="zg-mini__l" pathLength="1" d="M840,-330Q940,-110 990,0"/><path class="zg-mini__l" pathLength="1" d="M262,-400L207.3,-581.9M112.3,-595.9L307.3,-589.9"/><path class="zg-mini__l" pathLength="1" d="M788.4,-500.3L888.4,-508.3C958.4,-510.3 964.4,-410.3 908.4,-382.3"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M304,72a100,100 0 1 0 200,0a100,100 0 1 0 -200,0ZM404,72L464,236"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-60,0a60,60 0 1 0 120,0a60,60 0 1 0 -120,0Z"/></svg></div>
+            <h3>Corsa Aero</h3>
+            <p>Deep tubes, 60 mm rims and a low front end. Built for fast group rides and flat time trials.</p>
+            <div class="zg-model__foot"><span>from <b>$5,890</b></span><button type="button" class="zg-btn zg-btn--ghost zg-btn--sm" data-buy="Corsa Aero">View bike</button></div>
+          </article>
+          <article class="zg-model" style="--c:#b7c97a">
+            <div class="zg-model__top"><span class="zg-model__type">Gravel</span><span>8.9 kg</span></div>
+            <div class="zg-model__art"><svg class="zg-mini" viewBox="-420 -760 1895 1160" aria-hidden="true" focusable="false" style="--mw:10"><path class="zg-mini__l" pathLength="1" d="M-362,0a362,362 0 1 0 724,0a362,362 0 1 0 -724,0ZM673,0a362,362 0 1 0 724,0a362,362 0 1 0 -724,0Z"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-336,0a336,336 0 1 0 672,0a336,336 0 1 0 -672,0ZM699,0a336,336 0 1 0 672,0a336,336 0 1 0 -672,0Z"/><path class="zg-mini__l" pathLength="1" d="M0,0L404,72L250,-420L280.8,-321.6L0,0"/><path class="zg-mini__l" pathLength="1" d="M250,-420L812,-500L856,-350L404,72"/><path class="zg-mini__l" pathLength="1" d="M856,-350Q956,-130 1035,0"/><path class="zg-mini__l" pathLength="1" d="M250,-420L193.2,-601.3M98.2,-615.3L293.2,-609.3"/><path class="zg-mini__l" pathLength="1" d="M800.7,-538.4L890.7,-544.4C960.7,-546.4 982.7,-442.4 940.7,-402.4"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M304,72a100,100 0 1 0 200,0a100,100 0 1 0 -200,0ZM404,72L464,236"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-60,0a60,60 0 1 0 120,0a60,60 0 1 0 -120,0Z"/></svg></div>
+            <h3>Terra G</h3>
+            <p>Room for 45 mm tyres, a flared bar and mounts for three bottles and a frame bag.</p>
+            <div class="zg-model__foot"><span>from <b>$3,640</b></span><button type="button" class="zg-btn zg-btn--ghost zg-btn--sm" data-buy="Terra G">View bike</button></div>
+          </article>
+          <article class="zg-model" style="--c:#e6dfd0">
+            <div class="zg-model__top"><span class="zg-model__type">Track</span><span>7.4 kg</span></div>
+            <div class="zg-model__art"><svg class="zg-mini" viewBox="-420 -760 1850 1160" aria-hidden="true" focusable="false" style="--mw:9"><path class="zg-mini__l" pathLength="1" d="M-340,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0ZM650,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0Z"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-280,0a280,280 0 1 0 560,0a280,280 0 1 0 -560,0ZM710,0a280,280 0 1 0 560,0a280,280 0 1 0 -560,0Z"/><path class="zg-mini__disc" d="M-314,0a314,314 0 1 0 628,0a314,314 0 1 0 -628,0Z"/><path class="zg-mini__l" pathLength="1" d="M0,0L404,72L262,-470L290.4,-361.6L0,0"/><path class="zg-mini__l" pathLength="1" d="M262,-470L800,-470L838,-330L404,72"/><path class="zg-mini__l" pathLength="1" d="M838,-330Q938,-110 990,0"/><path class="zg-mini__l" pathLength="1" d="M262,-470L213.8,-653.8M118.8,-667.8L313.8,-661.8"/><path class="zg-mini__l" pathLength="1" d="M789.5,-508.6L899.5,-508.6C959.5,-508.6 975.5,-538.6 985.5,-574.6"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M324,72a80,80 0 1 0 160,0a80,80 0 1 0 -160,0ZM404,72L464,236"/></svg></div>
+            <h3>Pista T</h3>
+            <p>One gear, no brakes, a disc rear wheel. Made for the velodrome and nothing else.</p>
+            <div class="zg-model__foot"><span>from <b>$2,180</b></span><button type="button" class="zg-btn zg-btn--ghost zg-btn--sm" data-buy="Pista T">View bike</button></div>
+          </article>
+          <article class="zg-model" style="--c:#ff8a5c">
+            <div class="zg-model__top"><span class="zg-model__type">City</span><span>10.8 kg</span></div>
+            <div class="zg-model__art"><svg class="zg-mini" viewBox="-420 -760 1850 1160" aria-hidden="true" focusable="false" style="--mw:9"><path class="zg-mini__l" pathLength="1" d="M-340,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0ZM650,0a340,340 0 1 0 680,0a340,340 0 1 0 -680,0Z"/><path class="zg-mini__l" pathLength="1" d="M0,0L404,72L250,-430L280.8,-329.6L0,0"/><path class="zg-mini__l" pathLength="1" d="M250,-430L770,-520L820,-360L404,72"/><path class="zg-mini__l" pathLength="1" d="M820,-360Q920,-140 990,0"/><path class="zg-mini__l" pathLength="1" d="M250,-430L194.3,-611.6M99.3,-625.6L294.3,-619.6"/><path class="zg-mini__l" pathLength="1" d="M758.1,-558.2L788.1,-648.2L858.1,-654.2"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M304,72a100,100 0 1 0 200,0a100,100 0 1 0 -200,0ZM404,72L464,236"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-60,0a60,60 0 1 0 120,0a60,60 0 1 0 -120,0Z"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-370,-40A372 372 0 0 1 238,-265.2M718,-244.8A372 372 0 0 1 1356,-60"/><path class="zg-mini__l zg-mini__l--soft" pathLength="1" d="M-260,-400H140M-200,-400L-60,-60M110,-400L280.8,-329.6"/></svg></div>
+            <h3>Città</h3>
+            <p>A flat bar, full mudguards and a rack that takes a laptop bag. Our frames, made for Monday.</p>
+            <div class="zg-model__foot"><span>from <b>$1,290</b></span><button type="button" class="zg-btn zg-btn--ghost zg-btn--sm" data-buy="Città">View bike</button></div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-parts" id="zg-parts" data-scene="parts" aria-labelledby="zg-parts-title">
+    <div class="zg-wrap zg-parts__grid">
+      <div class="zg-parts__slot" data-slot="parts" aria-hidden="true"></div>
+      <div class="zg-parts__shop">
+        <p class="zg-kicker">Parts shop</p>
+        <h2 class="zg-h2" id="zg-parts-title" data-split>Every part, sold <em>on its own</em>.</h2>
+        <p class="zg-lede">The same parts we build the Strada R with, boxed and ready for your bike. Pick a group and watch it come off the frame.</p>
+        <div class="zg-tabs" role="tablist" aria-label="Part groups">
+          <button type="button" role="tab" id="zg-tab-frame" aria-selected="true" aria-controls="zg-panel-frame" data-focus="frame">Frameset</button>
+          <button type="button" role="tab" id="zg-tab-drive" aria-selected="false" aria-controls="zg-panel-drive" data-focus="drive">Drivetrain</button>
+          <button type="button" role="tab" id="zg-tab-wheels" aria-selected="false" aria-controls="zg-panel-wheels" data-focus="wheels">Wheels</button>
+          <button type="button" role="tab" id="zg-tab-cockpit" aria-selected="false" aria-controls="zg-panel-cockpit" data-focus="cockpit">Cockpit</button>
+          <i class="zg-tabs__ink" aria-hidden="true"></i>
+        </div>
+        <div class="zg-panel" role="tabpanel" id="zg-panel-frame" aria-labelledby="zg-tab-frame">
+          <p class="zg-panel__name">Frameset</p>
+          <ul>
+            <li class="zg-prod"><div><h3>Strada R frameset</h3><p>Frame, fork, seat post and headset · 1,390 g</p></div><b>$2,390</b><button type="button" class="zg-add" data-add="Strada R frameset">Add</button></li>
+            <li class="zg-prod"><div><h3>Strada SL frameset</h3><p>Lighter climbing layup · 1,210 g</p></div><b>$3,190</b><button type="button" class="zg-add" data-add="Strada SL frameset">Add</button></li>
+            <li class="zg-prod"><div><h3>Terra G frameset</h3><p>Gravel frame, 45 mm clearance · 1,640 g</p></div><b>$1,890</b><button type="button" class="zg-add" data-add="Terra G frameset">Add</button></li>
+          </ul>
+        </div>
+        <div class="zg-panel" role="tabpanel" id="zg-panel-drive" aria-labelledby="zg-tab-drive">
+          <p class="zg-panel__name">Drivetrain</p>
+          <ul>
+            <li class="zg-prod"><div><h3>2x12 electronic groupset</h3><p>Shifters, derailleurs, crank, cassette, chain</p></div><b>$1,180</b><button type="button" class="zg-add" data-add="2x12 electronic groupset">Add</button></li>
+            <li class="zg-prod"><div><h3>2x12 mechanical groupset</h3><p>Cable shifting, same gear range</p></div><b>$640</b><button type="button" class="zg-add" data-add="2x12 mechanical groupset">Add</button></li>
+            <li class="zg-prod"><div><h3>12-speed chain</h3><p>Nickel plated, quick link included</p></div><b>$46</b><button type="button" class="zg-add" data-add="12-speed chain">Add</button></li>
+          </ul>
+        </div>
+        <div class="zg-panel" role="tabpanel" id="zg-panel-wheels" aria-labelledby="zg-tab-wheels">
+          <p class="zg-panel__name">Wheels</p>
+          <ul>
+            <li class="zg-prod"><div><h3>Strada 45 carbon wheelset</h3><p>45 mm deep, 24 spokes · 1,390 g</p></div><b>$1,450</b><button type="button" class="zg-add" data-add="Strada 45 carbon wheelset">Add</button></li>
+            <li class="zg-prod"><div><h3>Strada 30 alloy wheelset</h3><p>Hand built, winter ready · 1,640 g</p></div><b>$560</b><button type="button" class="zg-add" data-add="Strada 30 alloy wheelset">Add</button></li>
+            <li class="zg-prod"><div><h3>Road tyre, 30 mm</h3><p>Tubeless, tan or black wall</p></div><b>$68</b><button type="button" class="zg-add" data-add="Road tyre, 30 mm">Add</button></li>
+          </ul>
+        </div>
+        <div class="zg-panel" role="tabpanel" id="zg-panel-cockpit" aria-labelledby="zg-tab-cockpit">
+          <p class="zg-panel__name">Cockpit and saddle</p>
+          <ul>
+            <li class="zg-prod"><div><h3>One-piece bar and stem</h3><p>Carbon, 5 lengths, internal routing</p></div><b>$420</b><button type="button" class="zg-add" data-add="One-piece bar and stem">Add</button></li>
+            <li class="zg-prod"><div><h3>Short-nose saddle</h3><p>Carbon rails, two widths · 168 g</p></div><b>$190</b><button type="button" class="zg-add" data-add="Short-nose saddle">Add</button></li>
+            <li class="zg-prod"><div><h3>Bar tape, 3 mm</h3><p>Grippy in the wet, six colours</p></div><b>$32</b><button type="button" class="zg-add" data-add="Bar tape, 3 mm">Add</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-sec zg-ride" id="zg-ride" data-scene="ride" aria-labelledby="zg-ride-title">
+    <div class="zg-wrap">
+      <header class="zg-sec-head">
+        <p class="zg-kicker">Test loop</p>
+        <h2 class="zg-h2" id="zg-ride-title" data-split>142 km, <em>one</em> long day.</h2>
+        <p class="zg-lede">Before a part goes on sale, it goes round this loop. Scroll to ride the profile.</p>
+      </header>
+      <div class="zg-profile" id="zg-profile">
+        <svg viewBox="0 0 1000 250" aria-hidden="true" focusable="false">
+          <defs><linearGradient id="zg-prof-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff3b2f" stop-opacity=".28"/><stop offset="1" stop-color="#ff3b2f" stop-opacity="0"/></linearGradient><clipPath id="zg-prof-clip"><rect id="zg-prof-rect" x="0" y="-20" width="1000" height="290"/></clipPath></defs>
+          <path class="zg-prof__grid" d="M0,157H1000M0,77.5H1000"/>
+          <text class="zg-prof__lbl" x="4" y="150">500 m</text>
+          <text class="zg-prof__lbl" x="4" y="70">1,000 m</text>
+          <path class="zg-prof__base" d="M0,233.1C7,232.5 28.2,231.1 42.3,229.3C56.3,227.6 70.4,223.1 84.5,222.5C98.6,221.9 112.7,225.2 126.8,225.9C140.8,226.5 154.9,227.3 169,226.5C183.1,225.6 197.2,222.9 211.3,220.8C225.4,218.7 239.4,216.8 253.5,213.8C267.6,210.8 280.5,210.1 295.8,202.7C311,195.3 332.2,180.8 345.1,169.4C358,158.1 363.8,148.1 373.2,134.6C382.6,121.1 392,105.6 401.4,88.6C410.8,71.6 421.4,40.2 429.6,32.5C437.8,24.9 442.5,34.1 450.7,42.7C458.9,51.2 468.3,68.6 478.9,83.9C489.4,99.2 502.3,119.3 514.1,134.6C525.8,149.9 536.4,166.8 549.3,175.8C562.2,184.8 577.5,185.3 591.5,188.5C605.6,191.6 619.7,195.6 633.8,194.8C647.9,194 659.6,185 676.1,183.7C692.5,182.4 716,184.5 732.4,186.9C748.8,189.3 758.2,194.5 774.6,198C791.1,201.4 814.6,205.1 831,207.5C847.4,209.9 859.2,210.6 873.2,212.2C887.3,213.8 901.4,215.1 915.5,217C929.6,218.8 943.7,221.2 957.7,223.3C971.8,225.4 993,228.6 1000,229.7"/>
+          <path class="zg-prof__area" clip-path="url(#zg-prof-clip)" d="M0,233.1C7,232.5 28.2,231.1 42.3,229.3C56.3,227.6 70.4,223.1 84.5,222.5C98.6,221.9 112.7,225.2 126.8,225.9C140.8,226.5 154.9,227.3 169,226.5C183.1,225.6 197.2,222.9 211.3,220.8C225.4,218.7 239.4,216.8 253.5,213.8C267.6,210.8 280.5,210.1 295.8,202.7C311,195.3 332.2,180.8 345.1,169.4C358,158.1 363.8,148.1 373.2,134.6C382.6,121.1 392,105.6 401.4,88.6C410.8,71.6 421.4,40.2 429.6,32.5C437.8,24.9 442.5,34.1 450.7,42.7C458.9,51.2 468.3,68.6 478.9,83.9C489.4,99.2 502.3,119.3 514.1,134.6C525.8,149.9 536.4,166.8 549.3,175.8C562.2,184.8 577.5,185.3 591.5,188.5C605.6,191.6 619.7,195.6 633.8,194.8C647.9,194 659.6,185 676.1,183.7C692.5,182.4 716,184.5 732.4,186.9C748.8,189.3 758.2,194.5 774.6,198C791.1,201.4 814.6,205.1 831,207.5C847.4,209.9 859.2,210.6 873.2,212.2C887.3,213.8 901.4,215.1 915.5,217C929.6,218.8 943.7,221.2 957.7,223.3C971.8,225.4 993,228.6 1000,229.7L1000,250L0,250Z"/>
+          <path class="zg-prof__line" id="zg-prof-line" pathLength="1" d="M0,233.1C7,232.5 28.2,231.1 42.3,229.3C56.3,227.6 70.4,223.1 84.5,222.5C98.6,221.9 112.7,225.2 126.8,225.9C140.8,226.5 154.9,227.3 169,226.5C183.1,225.6 197.2,222.9 211.3,220.8C225.4,218.7 239.4,216.8 253.5,213.8C267.6,210.8 280.5,210.1 295.8,202.7C311,195.3 332.2,180.8 345.1,169.4C358,158.1 363.8,148.1 373.2,134.6C382.6,121.1 392,105.6 401.4,88.6C410.8,71.6 421.4,40.2 429.6,32.5C437.8,24.9 442.5,34.1 450.7,42.7C458.9,51.2 468.3,68.6 478.9,83.9C489.4,99.2 502.3,119.3 514.1,134.6C525.8,149.9 536.4,166.8 549.3,175.8C562.2,184.8 577.5,185.3 591.5,188.5C605.6,191.6 619.7,195.6 633.8,194.8C647.9,194 659.6,185 676.1,183.7C692.5,182.4 716,184.5 732.4,186.9C748.8,189.3 758.2,194.5 774.6,198C791.1,201.4 814.6,205.1 831,207.5C847.4,209.9 859.2,210.6 873.2,212.2C887.3,213.8 901.4,215.1 915.5,217C929.6,218.8 943.7,221.2 957.7,223.3C971.8,225.4 993,228.6 1000,229.7"/>
+          <g id="zg-prof-dot" transform="translate(1000 230)"><circle class="zg-prof__halo" r="14"/><circle class="zg-prof__dot" r="6"/></g>
+        </svg>
+        <p class="zg-profile__read" aria-hidden="true">km <b id="zg-prof-km">142</b> · <b id="zg-prof-m">40</b> m</p>
+      </div>
+      <ol class="zg-stops" id="zg-stops">
+        <li data-km="32"><span>km 32</span><h3>The flats</h3><p>Dropped stays and 45 mm rims save 6 watts at 40 km/h against our old round-tube frame.</p></li>
+        <li data-km="61"><span>km 61</span><h3>The climb</h3><p>11.4 km at 7.6%. A 7.1 kg bike and a stiff bottom bracket turn every stroke into height.</p></li>
+        <li data-km="78"><span>km 78</span><h3>The descent</h3><p>A 990 mm wheelbase and 160 mm rotors keep the front planted through wet hairpins.</p></li>
+        <li data-km="104"><span>km 104</span><h3>Broken road</h3><p>Room for 34 mm tyres at low pressure, so patched tarmac and short gravel feel smooth.</p></li>
+        <li data-km="142"><span>km 142</span><h3>The sprint</h3><p>Oversized chainstays send everything to the rear wheel when the town sign comes into view.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="zg-sec zg-stats" data-scene="stats" aria-label="Kavra in numbers">
+    <div class="zg-wrap zg-stats__grid">
+      <div class="zg-stat"><strong><span data-count="7.1" data-dec="1">7.1</span><small>kg</small></strong><span>Strada R complete, size 54, electronic build</span></div>
+      <div class="zg-stat"><strong><span data-count="1400">1,400</span><small>+</small></strong><span>parts on the shelf, ready to ship on their own</span></div>
+      <div class="zg-stat"><strong><span data-count="48">48</span><small>h</small></strong><span>from order to dispatch, for bikes and for parts</span></div>
+      <div class="zg-stat"><strong><span data-count="34">34</span><small>mm</small></strong><span>tyre clearance on the Strada R, with 6 mm to spare</span></div>
+    </div>
+  </section>
+
+  <section class="zg-config" id="zg-build" data-scene="config" aria-labelledby="zg-config-title">
+    <div class="zg-wrap zg-config__grid">
+      <form class="zg-form" id="zg-form">
+        <p class="zg-kicker">Build yours</p>
+        <h2 class="zg-h2" id="zg-config-title">Your <em>Strada R</em>.</h2>
+        <fieldset class="zg-field">
+          <legend>Colourway <span id="zg-colour-name">Signal red</span></legend>
+          <div class="zg-swatches" role="radiogroup" aria-label="Colourway">
+            <button type="button" role="radio" aria-checked="true" data-colour="signal" data-name="Signal red" style="--sw:#e5362b" aria-label="Signal red"></button>
+            <button type="button" role="radio" aria-checked="false" data-colour="raw" data-name="Raw carbon" style="--sw:#25262a" aria-label="Raw carbon"></button>
+            <button type="button" role="radio" aria-checked="false" data-colour="chalk" data-name="Chalk" style="--sw:#e7e0d1" aria-label="Chalk"></button>
+            <button type="button" role="radio" aria-checked="false" data-colour="col" data-name="Col blue" style="--sw:#5f8495" aria-label="Col blue"></button>
+          </div>
+        </fieldset>
+        <div class="zg-field">
+          <label for="zg-height">Your height <span id="zg-height-out">178 cm</span></label>
+          <input class="zg-slider" id="zg-height" name="height" type="range" min="150" max="200" step="1" value="178">
+          <p class="zg-fit">Size <b id="zg-size">56</b> · stack <b id="zg-stack">578</b> mm · reach <b id="zg-reach">391</b> mm</p>
+        </div>
+        <fieldset class="zg-field">
+          <legend>Groupset</legend>
+          <div class="zg-seg" role="radiogroup" aria-label="Groupset" data-key="group">
+            <button type="button" role="radio" aria-checked="false" data-val="mech">Mechanical</button>
+            <button type="button" role="radio" aria-checked="true" data-val="elec">Electronic</button>
+            <i class="zg-seg__pill" aria-hidden="true"></i>
+          </div>
+        </fieldset>
+        <fieldset class="zg-field">
+          <legend>Wheels</legend>
+          <div class="zg-seg" role="radiogroup" aria-label="Wheels" data-key="wheel">
+            <button type="button" role="radio" aria-checked="false" data-val="alloy">Alloy 30</button>
+            <button type="button" role="radio" aria-checked="true" data-val="carbon">Carbon 45</button>
+            <i class="zg-seg__pill" aria-hidden="true"></i>
+          </div>
+        </fieldset>
+        <div class="zg-total"><span><b id="zg-weight">7.2</b> kg · ships in 48 h</span><strong id="zg-price">$5,720</strong></div>
+        <button type="submit" class="zg-btn zg-btn--primary zg-btn--block" data-magnetic>Reserve this build</button>
+        <p class="zg-note">Concept page. Nothing here is for sale.</p>
+      </form>
+      <div class="zg-config__slot" data-slot="config" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="zg-sec zg-service" id="zg-service" data-scene="service" aria-labelledby="zg-service-title">
+    <div class="zg-wrap">
+      <header class="zg-sec-head">
+        <p class="zg-kicker">After the box</p>
+        <h2 class="zg-h2" id="zg-service-title" data-split>Bought here, <em>looked after</em> here.</h2>
+      </header>
+      <div class="zg-svc__grid">
+        <article class="zg-card" data-tilt>
+          <div class="zg-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg></div>
+          <h3>Fit by video</h3>
+          <p>A 30-minute call with a fitter before your bike ships. We set the stem length and saddle height in the workshop.</p>
+        </article>
+        <article class="zg-card" data-tilt>
+          <div class="zg-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4a5 5 0 0 0-4.6 6.9L4 17.3V20h2.7l6.4-6.4A5 5 0 0 0 20 9l-3 1-2-2 1-3z"/></svg></div>
+          <h3>Service plan</h3>
+          <p>$14 a month covers two workshop services a year, a new chain every 4,000 km and collection from your door.</p>
+        </article>
+        <article class="zg-card" data-tilt>
+          <div class="zg-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3>Crash replacement</h3>
+          <p>Break a Kavra frame in a crash and a new one costs 40% of the list price, for as long as you own the bike.</p>
+        </article>
+        <article class="zg-card" data-tilt>
+          <div class="zg-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></div>
+          <h3>Parts that fit</h3>
+          <p>Not sure a part suits your bike? Send a photo of it and we check the standards before you order.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-sec zg-faq" id="zg-faq" data-scene="faq" aria-labelledby="zg-faq-title">
+    <div class="zg-wrap zg-faq__grid">
+      <header>
+        <p class="zg-kicker">Questions</p>
+        <h2 class="zg-h2" id="zg-faq-title" data-split>Before you <em>ride</em>.</h2>
+      </header>
+      <div class="zg-faq__list">
+        <div class="zg-q"><h3><button type="button" id="zg-q1" aria-expanded="true" aria-controls="zg-a1">Can I buy parts without a bike?<i aria-hidden="true"></i></button></h3>
+          <div class="zg-a" id="zg-a1" role="region" aria-labelledby="zg-q1"><div><p>Yes. Every part on the Strada R is sold on its own, and most fit any road bike with 12 mm thru-axles and flat-mount brakes. Each listing says what it fits.</p></div></div></div>
+        <div class="zg-q"><h3><button type="button" id="zg-q2" aria-expanded="true" aria-controls="zg-a2">How does a bike arrive?<i aria-hidden="true"></i></button></h3>
+          <div class="zg-a" id="zg-a2" role="region" aria-labelledby="zg-q2"><div><p>In one box, 95% built: wheels on, gears indexed, brakes bled. You fit the bar and pedals and set the saddle height. It takes about 20 minutes, and the tools are in the box.</p></div></div></div>
+        <div class="zg-q"><h3><button type="button" id="zg-q3" aria-expanded="true" aria-controls="zg-a3">Which size should I ride?<i aria-hidden="true"></i></button></h3>
+          <div class="zg-a" id="zg-a3" role="region" aria-labelledby="zg-q3"><div><p>Start with the height slider in the builder. If you sit between two sizes, the fit call settles it, and we swap the stem for free before the bike ships.</p></div></div></div>
+        <div class="zg-q"><h3><button type="button" id="zg-q4" aria-expanded="true" aria-controls="zg-a4">Is Kavra a real brand?<i aria-hidden="true"></i></button></h3>
+          <div class="zg-a" id="zg-a4" role="region" aria-labelledby="zg-q4"><div><p>No. Kavra Cycles is a concept brand made for this showcase page. The bikes, parts, prices and numbers are invented, and nothing here is for sale.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-cta" data-scene="cta" aria-labelledby="zg-cta-title">
+    <div class="zg-wrap">
+      <h2 class="zg-display" id="zg-cta-title" data-split>See you at the <em>top</em>.</h2>
+      <p class="zg-lede">Pick a colour and a size, or start with a single part. Either way it leaves the workshop within 48 hours.</p>
+      <div class="zg-cta-row">
+        <a class="zg-btn zg-btn--primary" href="#zg-build" data-magnetic>Build yours</a>
+        <a class="zg-btn zg-btn--ghost" href="#zg-parts">Shop parts</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="zg-footer" data-zg-concept>
+  <div class="zg-wrap zg-footer__inner">
+    <span class="zg-brand">KAVRA<i>.</i></span>
+    <p>Concept page. Kavra Cycles and the Strada R are fictional, and nothing on this page is for sale.</p>
+    <p><a href="../index.html">All showcase pages</a> · Designed and coded by <a href="https://zana-g.com">Zana-G</a></p>
+  </div>
+</footer>
+
+<div class="zg-toast" id="zg-toast" role="status" aria-live="polite"></div>
+</body>
+</html>
