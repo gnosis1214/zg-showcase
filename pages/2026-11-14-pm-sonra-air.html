@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Fraunces:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('zg-js')</script>
 <style>
 :root{
   --bg:#0c0d10;--ink:#eef0f4;--mut:rgba(238,240,244,.72);--dim:rgba(238,240,244,.52);
@@ -671,6 +672,311 @@ main,.zg-footer{position:relative;z-index:2}
   zg.mode = 'anc';
   setTimeout(function () { if (!zg.ready3D) document.documentElement.classList.add('no-webgl'); }, 6000);
 })();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js" defer></script>
+<script>
+// Scroll choreography. Runs after the deferred libraries; if they fail, the page keeps its static layout.
+addEventListener('DOMContentLoaded', function () {
+  'use strict';
+  var root = document.documentElement;
+  var zg = window.zg = window.zg || {};
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mobileMQ = matchMedia('(max-width: 900px)');
+  zg.reduce = reduce;
+  zg.pointer = zg.pointer || { x: 0, y: 0 };
+  zg.velocity = 0;
+  zg.quietAnc = 0; zg.quietNoise = 1; zg.quietP = 0; zg.heroP = 0;
+
+  addEventListener('pointermove', function (e) {
+    zg.pointer.x = e.clientX / innerWidth * 2 - 1;
+    zg.pointer.y = e.clientY / innerHeight * 2 - 1;
+  }, { passive: true });
+
+  if (!(window.gsap && window.ScrollTrigger)) { root.classList.remove('zg-js'); return; }
+  gsap.registerPlugin(ScrollTrigger);
+  if (window.SplitText) gsap.registerPlugin(SplitText);
+  var clamp = gsap.utils.clamp(0, 1);
+
+  var lenis = null;
+  if (!reduce && window.Lenis) {
+    lenis = new Lenis({ lerp: .09, smoothWheel: true });
+    lenis.on('scroll', function (e) { zg.velocity = e.velocity; ScrollTrigger.update(); });
+    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+  zg.lenis = lenis;
+  $$('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href');
+      var el = id.length > 1 && document.querySelector(id);
+      if (!el && id !== '#zg-top') return;
+      e.preventDefault();
+      if (lenis) lenis.scrollTo(el || 0, { duration: 1.6 });
+      else (el || document.body).scrollIntoView();
+    });
+  });
+
+  var nav = $('#zg-nav'), bar = $('#zg-progress');
+  ScrollTrigger.create({ start: 0, end: 'max', onUpdate: function (s) {
+    bar.style.transform = 'scaleX(' + s.progress.toFixed(4) + ')';
+    nav.classList.toggle('is-scrolled', s.scroll() > 30);
+  } });
+
+  /* ---------- Scene map: where the case sits in each section ----------
+     d / m = [x, y, scale] on desktop / phone. x and y are fractions of the half-viewport.
+     noise and anc drive the foam wall (street-noise level, calm radius); dim is its brightness. */
+  var LAYOUT = {
+    hero:  { d: [.56, -.02, .86], m: [0, .46, .6], dim: 1 },
+    quiet: { d: [.56, .02, .8],   m: [0, .56, .44], dim: 1 },
+    eq:    { hide: 1, noise: 1,   anc: 0,   dim: .8 },
+    lab:   { d: [-.5, 0, .82],    m: [0, .5, .5],  dim: 1 },
+    bento: { hide: 1, noise: .4,  anc: 0,   dim: .55 },
+    day:   { hide: 1, noise: .35, anc: 0,   dim: .5 },
+    stats: { hide: 1, noise: .6,  anc: 0,   dim: .6 },
+    buy:   { d: [-.52, 0, .92],   m: [0, .48, .58], noise: .7, anc: .75, dim: .9 },
+    faq:   { hide: 1, noise: .3,  anc: 0,   dim: .5 },
+    cta:   { hide: 1, noise: 1.1, anc: 0,   dim: 1 }
+  };
+  // On desktop the case centres on the empty column beside the copy (the data-slot elements),
+  // measured from the layout so it stays balanced from 900px up to ultra-wide screens.
+  function measureSlots() {
+    $$('[data-slot]').forEach(function (el) {
+      var L = LAYOUT[el.getAttribute('data-slot')], r = el.getBoundingClientRect();
+      if (L && r.width) L.d[0] = (r.left + r.right) / innerWidth - 1;
+    });
+  }
+  measureSlots();
+  addEventListener('resize', measureSlots);
+  if (document.fonts) document.fonts.ready.then(measureSlots);
+
+  var scenes = $$('[data-scene]');
+  function currentScene() {
+    var mid = innerHeight * .5;
+    for (var i = 0; i < scenes.length; i++) {
+      var r = scenes[i].getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) return scenes[i].getAttribute('data-scene');
+    }
+    return 'cta';
+  }
+  ScrollTrigger.create({ trigger: '.zg-hero', start: 'top top', end: 'bottom top', onUpdate: function (s) { zg.heroP = s.progress; } });
+  gsap.ticker.add(function () {
+    var name = currentScene(), L = LAYOUT[name], T = zg.target;
+    if (!T) return;
+    if (L.hide) T.hidden = 1;
+    else {
+      var v = mobileMQ.matches ? L.m : L.d;
+      T.fx = v[0]; T.fy = v[1]; T.s = v[2]; T.hidden = 0;
+    }
+    T.dim = L.dim;
+    T.face = name === 'buy' ? 1 : 0;
+    if (name === 'hero') {
+      // Scrolling out of the hero cracks the lid open and starts lifting the buds.
+      var hp = zg.heroP;
+      T.open = .1 + Math.min(1, hp * 1.8) * .9; T.lift = clamp(hp * 2.2 - .5);
+      T.anc = .15 + hp * .3; T.noise = 1; T.rot = 0;
+    } else if (name === 'quiet') {
+      T.open = 1; T.lift = 1; T.anc = zg.quietAnc; T.noise = zg.quietNoise; T.rot = zg.quietP * Math.PI * 1.5;
+    } else if (name === 'lab') {
+      T.open = 1; T.lift = 1; T.rot = 0;
+      T.anc = zg.labAnc == null ? .7 : zg.labAnc; T.noise = zg.labNoise == null ? 1 : zg.labNoise;
+    } else if (name === 'buy') {
+      T.open = 1; T.lift = 0; T.rot = 0; T.anc = L.anc; T.noise = L.noise;
+    } else { T.anc = L.anc; T.noise = L.noise; }
+  });
+
+  /* ---------- Noise map: pinned; scroll picks the place, then scrubs the anti-noise in ---------- */
+  var quiet = $('.zg-quiet'), places = $$('.zg-place', quiet), placesWrap = $('.zg-places', quiet);
+  var outEl = $('#zg-db-out'), inEl = $('#zg-db-in'), dbBar = $('#zg-db-bar');
+  var stepLabels = $$('.zg-steps__labels span'), stepFill = $('#zg-steps-fill');
+  var wave = $('#zg-wave'), wctx = wave.getContext('2d'), dpr = 1;
+  var place = 0, aTarget = 0, aShown = 0, quietOn = false;
+  function fitPlaces() {
+    placesWrap.style.height = Math.max.apply(null, places.map(function (p) { return p.offsetHeight; })) + 'px';
+  }
+  function sizeWave() {
+    var r = wave.getBoundingClientRect();
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    wave.width = Math.max(1, Math.round(r.width * dpr));
+    wave.height = Math.max(1, Math.round(r.height * dpr));
+  }
+  fitPlaces(); sizeWave();
+  addEventListener('resize', function () { fitPlaces(); sizeWave(); });
+  if (document.fonts) document.fonts.ready.then(fitPlaces);
+
+  // Each place has its own sound texture. x runs 0..1 across the screen.
+  function clatter(x, t) {
+    var s = 0;
+    for (var i = 0; i < 5; i++) { var d = (x - (t * .23 + i * .217) % 1) * 55; s += Math.exp(-d * d) * Math.sin(x * 420 + i * 3) * .75; }
+    return s;
+  }
+  function noiseAt(x, t, k) {
+    if (k === 0) return Math.sin(x * 19 + t * 5) * .55 + Math.sin(x * 43 - t * 8) * .25 + Math.sin(x * 97 + t * 14) * .12;          // rumble
+    if (k === 1) return Math.sin(x * 60 + t * 9) * .2 + Math.sin(x * 130 - t * 17) * .1 + clatter(x, t);                            // keys
+    if (k === 2) return Math.sin(x * 210 + t * 31) * .2 + Math.sin(x * 157 - t * 23) * .2 + Math.sin(x * 23 + t * 3) * .22 + Math.sin(x * 331 + t * 47) * .12; // rain
+    return Math.sin(x * 12 + t * 3) * .62 + Math.sin(x * 24 + t * 6) * .2;                                                          // drone
+  }
+  // Three traces: the noise (pink), its inverted copy (ice) and the sum you hear (white), which flattens as anti-noise grows.
+  function drawWave(t) {
+    var W = wave.width, H = wave.height, mid = H * .5, amp = H * .4, n = Math.min(520, Math.floor(W / 3)), a = aShown;
+    wctx.clearRect(0, 0, W, H);
+    function trace(fn, col, w) {
+      wctx.beginPath();
+      for (var i = 0; i <= n; i++) {
+        var x = i / n, edge = Math.min(1, x * 7, (1 - x) * 7), y = mid - fn(x) * amp * edge;
+        if (i) wctx.lineTo(x * W, y); else wctx.moveTo(0, y);
+      }
+      wctx.strokeStyle = col; wctx.lineWidth = w * dpr; wctx.stroke();
+    }
+    trace(function (x) { return noiseAt(x, t, place); }, 'rgba(255,79,139,.7)', 1.2);
+    trace(function (x) { return -noiseAt(x, t, place) * a; }, 'rgba(166,225,255,.7)', 1.2);
+    trace(function (x) { return noiseAt(x, t, place) * (1 - a) + Math.sin(x * 90 + t * 6) * .012; }, '#ffffff', 2.2);
+  }
+  function setPlace(i) {
+    place = i;
+    places.forEach(function (p, j) { p.classList.toggle('is-active', j === i); });
+    stepLabels.forEach(function (l, j) { l.classList.toggle('is-active', j === i); });
+  }
+  function meter() {
+    var p = places[place], out = +p.getAttribute('data-out'), inn = +p.getAttribute('data-in');
+    var now = out - (out - inn) * aShown;
+    outEl.textContent = out;
+    inEl.textContent = Math.round(now);
+    dbBar.style.transform = 'scaleX(' + (now / 100).toFixed(3) + ')';
+    zg.quietAnc = .05 + aShown * .9;
+    zg.quietNoise = out / 94;
+  }
+  ScrollTrigger.create({
+    trigger: quiet, start: 'top top', end: 'bottom bottom',
+    onToggle: function (s) { quietOn = s.isActive; },
+    onUpdate: function (s) {
+      var p = s.progress, i = Math.min(3, Math.floor(p * 4)), local = p * 4 - i;
+      zg.quietP = p;
+      stepFill.style.transform = 'scaleX(' + p.toFixed(4) + ')';
+      if (i !== place) { setPlace(i); aShown = 0; }
+      aTarget = gsap.utils.clamp(0, 1, (local - .1) / .55);   // each place starts loud, then cancels
+      if (reduce) { aShown = aTarget; meter(); drawWave(1.3); }
+    }
+  });
+  var waveT = 0;
+  gsap.ticker.add(function (t, dt) {
+    if (!quietOn || reduce) return;
+    aShown += (aTarget - aShown) * Math.min(1, dt / 1000 * 6);
+    waveT += dt / 1000;
+    meter();
+    drawWave(waveT);
+  });
+  meter(); drawWave(1.3);
+
+  /* ---------- EQ divider: bars that dance harder the faster you scroll ---------- */
+  var eqEl = $('#zg-eq'), eqBars = [], eqOn = false, eqLvl = .3;
+  for (var b = 0; b < (mobileMQ.matches ? 36 : 64); b++) eqBars.push(eqEl.appendChild(document.createElement('i')));
+  function eqDraw(t) {
+    var n = eqBars.length;
+    eqBars.forEach(function (el, i) {
+      var bell = Math.sin(i / (n - 1) * Math.PI);
+      var h = .07 + .93 * Math.abs(Math.sin(i * .37 + t * 2.1) * Math.sin(i * .13 - t * 1.4)) * eqLvl * (.35 + .65 * bell);
+      el.style.transform = 'scaleY(' + h.toFixed(3) + ')';
+    });
+  }
+  eqDraw(1);
+  if (!reduce) {
+    ScrollTrigger.create({ trigger: '.zg-eq', start: 'top bottom', end: 'bottom top', onToggle: function (s) { eqOn = s.isActive; } });
+    gsap.ticker.add(function (t) {
+      if (!eqOn) return;
+      eqLvl += (.3 + Math.min(Math.abs(zg.velocity || 0), 40) / 40 * .7 - eqLvl) * .08;
+      eqDraw(t);
+    });
+  }
+
+  /* ---------- Battery day: vertical scroll drives a horizontal track; the graph draws ahead of the middle of the screen ---------- */
+  var day = $('.zg-day'), dtrack = $('#zg-day-track'), graph = $('#zg-graph'), gsvg = $('svg', graph);
+  var budEl = $('#zg-bud-pct'), caseEl = $('#zg-case-pct');
+  var BUD = [[0, 100], [50, 92], [150, 81], [250, 46], [350, 79], [450, 52], [550, 31], [650, 100], [750, 64], [800, 60]];
+  var CASE = [[0, 100], [300, 100], [350, 84], [600, 84], [650, 52], [800, 52]];
+  function interp(pts, x) {
+    for (var i = 1; i < pts.length; i++) if (x <= pts[i][0]) {
+      var a = pts[i - 1], c = pts[i];
+      return a[1] + (c[1] - a[1]) * (x - a[0]) / (c[0] - a[0]);
+    }
+    return pts[pts.length - 1][1];
+  }
+  function dayAt(shift) {
+    var head = clamp((shift + innerWidth * .62 - graph.offsetLeft) / graph.offsetWidth);
+    gsvg.style.clipPath = 'inset(-20% ' + ((1 - head) * 100).toFixed(2) + '% -20% 0)';
+    budEl.textContent = Math.round(interp(BUD, head * 800)) + '%';
+    caseEl.textContent = Math.round(interp(CASE, head * 800)) + '%';
+  }
+  if (reduce) {
+    day.classList.add('zg-day--native');
+    var vp = $('.zg-day__viewport');
+    vp.addEventListener('scroll', function () { dayAt(vp.scrollLeft); }, { passive: true });
+    dayAt(0);
+  } else {
+    var dist = function () { return Math.max(0, dtrack.scrollWidth - innerWidth); };
+    var sizeDay = function () { day.style.height = (innerHeight + dist()) + 'px'; };
+    sizeDay();
+    ScrollTrigger.addEventListener('refreshInit', sizeDay);
+    var slide = gsap.to(dtrack, {
+      x: function () { return -dist(); }, ease: 'none',
+      scrollTrigger: { trigger: day, start: 'top top', end: 'bottom bottom', scrub: true, invalidateOnRefresh: true,
+        onUpdate: function (s) { dayAt(s.progress * dist()); }, onRefresh: function (s) { dayAt(s.progress * dist()); } }
+    });
+    $$('.zg-hour', dtrack).forEach(function (card) {
+      gsap.from(card, { yPercent: 14, opacity: .25, ease: 'power2.out',
+        scrollTrigger: { trigger: card, containerAnimation: slide, start: 'left 96%', end: 'left 62%', scrub: true } });
+    });
+    dayAt(0);
+  }
+
+  /* ---------- Count-ups ---------- */
+  $$('[data-count]').forEach(function (el) {
+    if (reduce) return;
+    var end = +el.getAttribute('data-count'), dec = +(el.getAttribute('data-dec') || 0), o = { v: 0 };
+    el.textContent = (0).toFixed(dec);
+    ScrollTrigger.create({ trigger: el, start: 'top 90%', once: true, onEnter: function () {
+      gsap.to(o, { v: end, duration: 1.8, ease: 'power3.out', onUpdate: function () { el.textContent = o.v.toFixed(dec); } });
+    } });
+  });
+
+  /* ---------- Intro, then text reveals ---------- */
+  function reveals() {
+    if (reduce) return;
+    if (window.SplitText) {
+      $$('[data-split]').forEach(function (el) {
+        SplitText.create(el, {
+          type: 'lines', mask: 'lines', linesClass: 'zg-line', autoSplit: true,
+          onSplit: function (self) {
+            return gsap.from(self.lines, { yPercent: 115, duration: 1.2, ease: 'expo.out', stagger: .09,
+              scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
+          }
+        });
+      });
+    }
+    var items = $$('[data-reveal]');
+    gsap.set(items, { y: 34, autoAlpha: 0 });
+    ScrollTrigger.batch(items, { start: 'top 92%', once: true, onEnter: function (batch) {
+      gsap.to(batch, { y: 0, autoAlpha: 1, duration: 1.1, ease: 'power3.out', stagger: .1, delay: .12 });
+    } });
+  }
+  var intro = $('.zg-intro'), t0 = performance.now();
+  if (reduce || !intro) { if (intro) intro.remove(); reveals(); return; }
+  if (lenis) lenis.stop();
+  (function waitIntro() {
+    var t = performance.now() - t0;
+    if ((zg.ready3D && t > 1000) || t > 2200) {
+      intro.style.animation = 'none';
+      gsap.to(intro, { clipPath: 'inset(0 0 100% 0)', duration: 1.1, ease: 'expo.inOut', onComplete: function () { intro.remove(); } });
+      if (lenis) lenis.start();
+      reveals();
+      ScrollTrigger.refresh();
+    } else requestAnimationFrame(waitIntro);
+  })();
+});
 </script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <script type="module">
