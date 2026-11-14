@@ -6,7 +6,6 @@ Format: **Brand Product** (category, type). Hero / scroll story / interactive co
 
 ## Open
 
-- [ ] **Kavra Strada R** (road bikes and parts, product; renamed from Velaro, a Siemens train name). SVG line-drawn bike that draws itself on load / pinned home section that takes the bike apart into priced parts and puts it back together / colourway swatches that repaint the frame, plus a parts shop that pulls parts off the bike / carbon black, signal red, chalk.
 - [ ] **Sonra Air** (wireless earbuds, product). Three.js charging case whose lid opens as you scroll and the buds float out / sticky chapters for ANC, battery and fit with a live waveform canvas / noise-cancelling slider that changes an audio-wave visual / graphite, ice blue, lilac.
 - [ ] **Quillmetric** (AI analytics SaaS, other). Shader gradient mesh behind a floating dashboard mock / scroll builds the dashboard widget by widget with charts that draw in / pricing toggle monthly to yearly with animated numbers / midnight, mint, electric violet.
 - [ ] **Keyhaven K65** (mechanical keyboard, product). CSS 3D keyboard tilted in perspective / scroll explodes it into keycaps, plate, PCB, gasket and case layers / click a switch type to hear a synthesized sound and see the travel curve / cream, sage, terracotta.
@@ -26,3 +25,4 @@ Format: **Brand Product** (category, type). Hero / scroll story / interactive co
 
 - [x] **Ilura Tidal Bloom** (fragrance, product) → `pages/2026-11-13-am-ilura-tidal-bloom.html`
 - [x] **Corvane Agentic ERP** (agentic ERP, other; requested directly, not from the open list) → `pages/2026-11-13-pm-corvane-agentic-erp.html`
+- [x] **Kavra Strada R** (road bikes and parts, product; renamed from Velaro, a Siemens train name; Zeno asked for a bikes and parts brand with a pinned take-apart home section) → `pages/2026-11-14-am-kavra-strada-r.html`
