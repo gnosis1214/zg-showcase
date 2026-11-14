@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sonra Air | Noise-cancelling wireless earbuds</title>
+<meta name="description" content="Sonra Air: wireless earbuds that cancel up to 48 dB of the outside world. Ride through four loud places, try the noise lab and pick your finish. Concept page.">
+<meta name="theme-color" content="#0c0d10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Fraunces:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0d10;--ink:#eef0f4;--mut:rgba(238,240,244,.72);--dim:rgba(238,240,244,.52);
+  --line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.16);--glass:rgba(20,22,28,.55);
+  --ice:#a6e1ff;--pulse:#ff4f8b;--chrome:#c9ced8;
+  --sans:"Sora",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Fraunces",Georgia,serif;
+  --gut:clamp(16px,4vw,48px);--max:1240px;--r:20px;--ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color-scheme:dark;-webkit-text-size-adjust:100%}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit;color:inherit}
+ul{list-style:none}
+:focus-visible{outline:2px solid var(--ice);outline-offset:3px;border-radius:8px}
+::selection{background:var(--pulse);color:#0c0d10}
+
+/* Stage: a CSS foam-wall texture that shows until (or instead of) the WebGL wall */
+.zg-backdrop{position:fixed;inset:0;z-index:0;background:
+  radial-gradient(50% 45% at 72% 48%,rgba(166,225,255,.15),transparent 70%),
+  radial-gradient(40% 40% at 8% 92%,rgba(255,79,139,.13),transparent 70%),
+  radial-gradient(120% 90% at 50% 50%,transparent 40%,rgba(0,0,0,.6)),
+  repeating-conic-gradient(from 45deg,rgba(255,255,255,.035) 0 25%,rgba(0,0,0,.2) 0 50%) 0 0/52px 52px,
+  var(--bg)}
+#zg-stage{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;opacity:0;transition:opacity 1.2s ease}
+.is-3d #zg-stage{opacity:1}
+.no-webgl #zg-stage{display:none}
+.is-grab,.is-grab *{cursor:grab}
+.is-grabbing,.is-grabbing *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
+[data-scene="hero"],[data-scene="quiet"],[data-scene="lab"],[data-scene="buy"]{touch-action:pan-y pinch-zoom}
+.zg-hint{position:fixed;left:0;top:0;z-index:1;display:flex;align-items:center;gap:8px;padding:7px 14px 7px 11px;border:1px solid var(--line2);border-radius:10px;background:rgba(14,15,19,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .6s;will-change:transform}
+.zg-hint.is-on{opacity:1}
+.zg-hint svg{width:16px;height:16px;flex:none;animation:zgNudge 2.4s ease-in-out infinite}
+@keyframes zgNudge{0%,100%{transform:translateX(-3px)}50%{transform:translateX(3px)}}
+.zg-grain{position:fixed;inset:0;z-index:70;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.zg-ripple{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:1px solid var(--ice);pointer-events:none;z-index:80;animation:zgRipple .9s var(--ease) forwards}
+.zg-ripple+.zg-ripple{border-color:var(--pulse)}
+@keyframes zgRipple{from{transform:scale(.3);opacity:.9}to{transform:scale(4.6);opacity:0}}
+main,.zg-footer{position:relative;z-index:2}
+
+/* CSS case, only when WebGL is unavailable */
+.zg-fallback{display:none;position:absolute;right:13%;top:50%;transform:translateY(-50%);width:clamp(170px,18vw,250px)}
+.no-webgl .zg-fallback{display:block}
+.zg-fb-lid,.zg-fb-base{background:linear-gradient(160deg,#4a4e57,#1b1d22 70%);border:1px solid rgba(255,255,255,.14)}
+.zg-fb-lid{height:34%;aspect-ratio:auto;border-radius:46% 46% 6px 6px/90% 90% 6px 6px;min-height:58px}
+.zg-fb-base{position:relative;margin-top:3px;aspect-ratio:2/1.05;border-radius:6px 6px 40% 40%/6px 6px 62% 62%;box-shadow:0 40px 110px -24px rgba(166,225,255,.45)}
+.zg-fb-base::after{content:"";position:absolute;left:50%;top:44%;width:16px;height:4px;margin-left:-8px;border-radius:4px;background:var(--ice);box-shadow:0 0 14px var(--ice)}
+
+/* Intro (hides itself by CSS even if scripts fail) */
+.zg-intro{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:var(--bg);animation:zgIntroOut .8s var(--ease) 2.6s forwards}
+.zg-intro div{display:grid;justify-items:center;gap:18px}
+.zg-intro span{font-weight:500;font-size:clamp(18px,2.4vw,26px);letter-spacing:.5em;padding-left:.5em;opacity:0;animation:zgIntroIn 1s var(--ease) .1s forwards}
+.zg-intro svg{width:220px;height:40px;overflow:visible;transform-origin:center;animation:zgFlatten 1.6s var(--ease) .5s forwards}
+@keyframes zgIntroIn{from{opacity:0;filter:blur(8px)}to{opacity:1;filter:blur(0)}}
+@keyframes zgFlatten{to{transform:scaleY(.04)}}
+@keyframes zgIntroOut{to{opacity:0;visibility:hidden}}
+
+/* Nav: a full-width bar that frosts over once you scroll */
+.zg-nav{position:fixed;top:0;left:0;right:0;z-index:50;border-bottom:1px solid transparent;transition:background .4s,border-color .4s}
+.zg-nav.is-scrolled{background:rgba(12,13,16,.74);border-color:var(--line);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2)}
+.zg-nav__in{height:68px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.zg-brand{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:15px;letter-spacing:.3em}
+.zg-brand svg{width:22px;height:14px;flex:none}
+.zg-nav ul{display:flex;gap:2px}
+.zg-nav ul a{display:block;padding:8px 14px;border-radius:10px;font-size:14px;color:var(--mut);transition:color .25s,background .25s}
+.zg-nav ul a:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+.zg-progress{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--ice),var(--pulse));transform-origin:0 50%;transform:scaleX(0)}
+
+/* Shared type and buttons */
+.zg-wrap{position:relative;width:100%;max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+.zg-tag{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);padding:7px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.03);backdrop-filter:blur(10px)}
+.zg-tag i{display:flex;align-items:flex-end;gap:2px;height:11px}
+.zg-tag i b{width:2px;height:100%;background:var(--ice);border-radius:2px;animation:zgBar 1.1s ease-in-out infinite alternate}
+.zg-tag i b:nth-child(2){animation-delay:-.4s}
+.zg-tag i b:nth-child(3){animation-delay:-.8s}
+@keyframes zgBar{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
+.zg-kicker{font-size:12px;font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin-bottom:18px}
+.zg-display{font-weight:500;font-size:clamp(46px,6.3vw,102px);line-height:.95;letter-spacing:-.052em}
+.zg-h2{font-weight:500;font-size:clamp(34px,4.6vw,64px);line-height:1.02;letter-spacing:-.045em}
+.zg-display em,.zg-h2 em{font-family:var(--serif);font-style:italic;font-weight:300;letter-spacing:-.02em;background:linear-gradient(96deg,var(--ice),var(--pulse));-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.08em}
+.zg-lede{font-size:clamp(16px,1.4vw,18.5px);color:var(--mut);max-width:46ch}
+.zg-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:52px;padding:0 24px;border-radius:14px;font-size:15px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:background .3s,border-color .3s,box-shadow .3s}
+.zg-btn--primary{background:var(--ice);color:#0c0d10;box-shadow:0 12px 44px -14px rgba(166,225,255,.75)}
+.zg-btn--primary:hover{background:#d4f0ff;box-shadow:0 14px 54px -10px rgba(255,79,139,.6)}
+.zg-btn--ghost{border-color:var(--line2);background:rgba(255,255,255,.04);backdrop-filter:blur(10px)}
+.zg-btn--ghost:hover{border-color:rgba(255,255,255,.34)}
+.zg-btn--sm{height:40px;padding:0 16px;font-size:14px;border-radius:11px}
+.zg-btn--block{width:100%}
+.zg-sec{padding:clamp(90px,16vh,170px) 0}
+.zg-sec-head{max-width:760px;margin-bottom:clamp(36px,6vh,64px)}
+
+/* Hero */
+.zg-hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;padding:120px 0 90px}
+.zg-hero>.zg-wrap{display:flex;align-items:center;gap:clamp(24px,4vw,64px)}
+.zg-hero__copy{flex:0 1 620px;min-width:0}
+.zg-slot{position:relative;flex:1 0 34%;min-width:0;align-self:stretch}
+.zg-hero .zg-display{margin:24px 0 24px;max-width:9.4em}
+.zg-cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.zg-hero__meta{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:0;margin-top:48px;font-size:13px;color:var(--dim)}
+.zg-hero__meta span{padding:0 26px;border-left:1px solid var(--line2)}
+.zg-hero__meta span:first-child{padding-left:0;border-left:0}
+.zg-hero__meta b{display:block;color:var(--ink);font-weight:500;font-size:20px;letter-spacing:-.03em}
+.zg-live{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:9px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(14,15,19,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:12px;letter-spacing:.06em;color:var(--dim);white-space:nowrap}
+.zg-live b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.zg-live span:last-child b{color:var(--ice)}
+.zg-live i{width:7px;height:7px;border-radius:50%;background:var(--pulse);box-shadow:0 0 12px var(--pulse);animation:zgBlink 1.6s ease-in-out infinite}
+@keyframes zgBlink{50%{opacity:.25}}
+
+/* Noise map: one day, four loud places */
+.zg-quiet{position:relative}
+.zg-quiet__sticky{position:relative;padding:clamp(90px,14vh,150px) 0}
+.zg-quiet__row{display:flex;align-items:center;gap:clamp(24px,4vw,64px)}
+.zg-quiet__panel{position:relative;flex:none;width:min(100%,500px)}
+.zg-place{margin-bottom:52px}
+.zg-place__time{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ice);margin-bottom:14px}
+.zg-place__time::before{content:"";width:18px;height:1px;background:currentColor}
+.zg-place .zg-h2{margin-bottom:16px}
+.zg-place__db{margin-top:14px;font-size:14px;color:var(--dim)}
+.zg-place__db b{color:var(--ink);font-weight:500}
+.zg-meter,.zg-wavebox,.zg-steps{display:none}
+.zg-meter__nums{display:flex;gap:34px;align-items:flex-end}
+.zg-meter__nums span{font-size:14px;color:var(--mut)}
+.zg-meter__nums small{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:2px}
+.zg-meter__nums b{font-weight:500;font-size:clamp(34px,3.4vw,50px);line-height:1.1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin-right:4px}
+.zg-meter__nums span:first-child b{color:var(--pulse)}
+.zg-meter__nums span:last-child b{color:var(--ice)}
+.zg-meter__bar{position:relative;display:block;height:8px;margin-top:14px;-webkit-mask:repeating-linear-gradient(90deg,#000 0 4px,transparent 4px 7px);mask:repeating-linear-gradient(90deg,#000 0 4px,transparent 4px 7px);background:rgba(255,255,255,.13)}
+.zg-meter__bar b{position:absolute;inset:0;background:linear-gradient(90deg,var(--ice),var(--pulse));transform-origin:0 50%;transform:scaleX(.94)}
+.zg-steps__labels{display:flex;justify-content:space-between;margin-bottom:10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.zg-steps__labels span{transition:color .4s}
+.zg-steps__labels span.is-active{color:var(--ink)}
+.zg-steps__bar{display:block;height:2px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+.zg-steps__bar b{display:block;height:100%;background:linear-gradient(90deg,var(--ice),var(--pulse));transform-origin:0 50%;transform:scaleX(0)}
+.zg-wave{display:block;width:100%;height:100%}
+.zg-legend{position:absolute;top:0;left:0;right:0;display:flex;gap:18px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.zg-legend span{display:flex;align-items:center;gap:8px}
+.zg-legend span::before{content:"";width:16px;height:2px;border-radius:2px;background:var(--c)}
+
+/* EQ divider */
+.zg-eq{position:relative;padding:clamp(60px,11vh,120px) 0;border-block:1px solid var(--line);background:rgba(12,13,16,.45);overflow:hidden}
+.zg-eq__bars{display:flex;align-items:center;gap:clamp(2px,.35vw,5px);height:clamp(70px,11vh,120px)}
+.zg-eq__bars i{flex:1;height:100%;border-radius:3px;background:linear-gradient(to top,var(--ice),var(--pulse));transform:scaleY(.08);opacity:.85;will-change:transform}
+.zg-eq__line{text-align:center;margin-top:clamp(26px,5vh,44px);font-weight:500;font-size:clamp(28px,4vw,58px);line-height:1.05;letter-spacing:-.045em}
+.zg-eq__line em{font-family:var(--serif);font-weight:300;color:var(--ice)}
+
+/* Noise lab */
+.zg-lab__grid,.zg-buy__grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.zg-panel{border:1px solid var(--line2);border-radius:26px;padding:clamp(24px,3vw,40px);background:rgba(16,18,23,.62);backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);box-shadow:0 40px 120px -40px rgba(0,0,0,.85)}
+.zg-panel .zg-h2{margin-bottom:14px}
+.zg-screen{position:relative;height:clamp(120px,18vh,160px);margin:24px 0 18px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.35);overflow:hidden}
+.zg-screen canvas{position:absolute;inset:0;width:100%;height:100%}
+.zg-screen__read{position:absolute;left:14px;top:10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.zg-screen__read b{font-size:22px;font-weight:500;letter-spacing:-.03em;color:var(--ink);margin:0 3px 0 6px;font-variant-numeric:tabular-nums}
+.zg-play{display:flex;align-items:center;gap:14px;width:100%;padding:9px 18px 9px 9px;margin-bottom:22px;border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.04);cursor:pointer;text-align:left;transition:border-color .3s,background .3s}
+.zg-play:hover{border-color:rgba(255,255,255,.3)}
+.zg-play i{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--ice);color:#0c0d10}
+.zg-play svg{width:18px;height:18px}
+.zg-play .zg-ico-pause{display:none}
+.zg-play[aria-pressed="true"] .zg-ico-play{display:none}
+.zg-play[aria-pressed="true"] .zg-ico-pause{display:block}
+.zg-play[aria-pressed="true"] i{background:var(--pulse)}
+.zg-play span{font-weight:500}
+.zg-play small{display:block;font-weight:400;font-size:13px;color:var(--dim)}
+.zg-field{border:0;margin-bottom:20px}
+.zg-field legend,.zg-field label{display:flex;justify-content:space-between;width:100%;font-size:13px;color:var(--mut);margin-bottom:10px}
+.zg-field legend span,.zg-field label span{color:var(--ink);font-variant-numeric:tabular-nums}
+.zg-seg{--n:3;position:relative;display:grid;grid-template-columns:repeat(var(--n),1fr);padding:4px;border:1px solid var(--line2);border-radius:14px;background:rgba(255,255,255,.03)}
+.zg-seg--two{--n:2}
+.zg-seg button{position:relative;z-index:1;height:44px;border:0;background:none;border-radius:10px;cursor:pointer;color:var(--mut);font-size:14px;transition:color .3s}
+.zg-seg button[aria-checked="true"]{color:#0c0d10}
+.zg-seg__pill{position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/var(--n));border-radius:10px;background:var(--ink);transition:transform .5s var(--ease)}
+.zg-range{--p:70%;-webkit-appearance:none;appearance:none;display:block;width:100%;height:28px;background:transparent;cursor:pointer}
+.zg-range::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:linear-gradient(90deg,var(--ice) 0 var(--p),rgba(255,255,255,.13) var(--p))}
+.zg-range::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-8px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 6px rgba(166,225,255,.18);transition:box-shadow .3s}
+.zg-range:active::-webkit-slider-thumb{box-shadow:0 0 0 10px rgba(166,225,255,.22)}
+.zg-range::-moz-range-track{height:6px;border-radius:6px;background:rgba(255,255,255,.13)}
+.zg-range::-moz-range-progress{height:6px;border-radius:6px;background:var(--ice)}
+.zg-range::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:var(--ink)}
+.zg-range:disabled{opacity:.4;cursor:not-allowed}
+.zg-note{margin-top:14px;font-size:13px;color:var(--dim)}
+
+/* Bento */
+.zg-bento__grid{display:grid;grid-template-columns:1.05fr 1fr 1fr;grid-auto-rows:minmax(300px,auto);gap:16px}
+.zg-cell{--mx:50%;--my:50%;position:relative;padding:clamp(22px,2.6vw,32px);border:1px solid var(--line);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:hidden;display:flex;flex-direction:column;isolation:isolate}
+.zg-cell::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(380px circle at var(--mx) var(--my),rgba(166,225,255,.09),transparent 60%);opacity:0;transition:opacity .35s}
+.zg-cell:hover::before{opacity:1}
+.zg-cell--tall{grid-row:span 2}
+.zg-cell--wide{grid-column:span 2}
+.zg-cell h3{font-size:21px;font-weight:500;letter-spacing:-.025em;margin-top:auto}
+.zg-cell p{color:var(--mut);font-size:15px;margin-top:8px;max-width:46ch}
+.zg-viz{position:relative;flex:1;min-height:150px;margin-bottom:22px;display:grid;place-items:center;color:var(--chrome)}
+.zg-mics{width:min(100%,240px);height:auto;overflow:visible}
+.zg-mics .zg-dot{fill:var(--ice)}
+.zg-mics .zg-ring{fill:none;stroke:var(--ice);stroke-width:1;transform-box:fill-box;transform-origin:center;animation:zgPing 2.8s var(--ease) infinite}
+.zg-mics .zg-ring:nth-of-type(2){animation-delay:.9s}
+.zg-mics .zg-ring:nth-of-type(3){animation-delay:1.8s;stroke:var(--pulse)}
+@keyframes zgPing{0%{transform:scale(1);opacity:.9}100%{transform:scale(7);opacity:0}}
+.zg-tips{display:flex;align-items:flex-end;gap:clamp(14px,3vw,34px)}
+.zg-tips div{display:flex;flex-direction:column;align-items:center;gap:12px;font-size:12px;letter-spacing:.14em;color:var(--dim)}
+.zg-tips i{display:block;width:var(--s);aspect-ratio:1;border-radius:50% 50% 46% 46%;background:radial-gradient(circle at 50% 42%,#0c0d10 0 18%,transparent 19%),radial-gradient(circle at 36% 30%,#5d616b,#24262c 70%);box-shadow:inset 0 -6px 14px rgba(0,0,0,.5);transition:transform .45s var(--ease)}
+.zg-tips div:hover i{transform:translateY(-8px) scale(1.06)}
+.zg-tips .is-fit{color:var(--ice)}
+.zg-tips .is-fit i{box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--ice),inset 0 -6px 14px rgba(0,0,0,.5)}
+.zg-rain{position:relative;width:170px;height:150px;display:grid;place-items:center}
+.zg-rain strong{font-weight:500;font-size:46px;letter-spacing:-.04em;color:var(--ink)}
+.zg-rain i{position:absolute;top:0;width:2px;height:16px;border-radius:2px;background:linear-gradient(transparent,var(--ice));animation:zgDrop 1.4s linear infinite;opacity:0}
+.zg-rain i:nth-child(2){left:18%;animation-delay:.2s}.zg-rain i:nth-child(3){left:38%;animation-delay:.7s}.zg-rain i:nth-child(4){left:62%;animation-delay:.4s}.zg-rain i:nth-child(5){left:84%;animation-delay:1s}.zg-rain i:nth-child(6){left:50%;animation-delay:1.2s}
+@keyframes zgDrop{0%{transform:translateY(-10px);opacity:0}15%{opacity:1}100%{transform:translateY(140px);opacity:0}}
+.zg-chirp{position:relative;width:180px;height:150px;display:grid;place-items:center}
+.zg-chirp b{position:relative;z-index:1;width:62px;height:44px;border-radius:12px 12px 22px 22px;background:linear-gradient(160deg,#4a4e57,#1b1d22);border:1px solid rgba(255,255,255,.15)}
+.zg-chirp i{position:absolute;inset:50% auto auto 50%;width:62px;height:62px;margin:-31px;border-radius:50%;border:1px solid var(--pulse);opacity:0;animation:zgChirp 2.4s var(--ease) infinite}
+.zg-chirp i:nth-child(2){animation-delay:.8s}.zg-chirp i:nth-child(3){animation-delay:1.6s}
+@keyframes zgChirp{0%{transform:scale(.8);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+
+/* Battery day: horizontal track */
+.zg-day{position:relative}
+.zg-day__sticky{position:relative;padding:clamp(90px,14vh,150px) 0;display:flex;flex-direction:column;justify-content:center;gap:clamp(20px,4vh,40px)}
+.zg-day__head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 40px;flex-wrap:wrap}
+.zg-gauge{display:flex;gap:12px}
+.zg-gauge span{min-width:126px;padding:10px 16px;border:1px solid var(--line2);border-radius:14px;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.zg-gauge b{display:block;font-size:28px;font-weight:500;letter-spacing:-.03em;text-transform:none;color:var(--ink);font-variant-numeric:tabular-nums}
+.zg-gauge span:first-child b{color:var(--ice)}
+.zg-day__viewport{overflow-x:auto;scrollbar-width:none}
+.zg-day__viewport::-webkit-scrollbar{display:none}
+.zg-day__track{position:relative;display:flex;gap:16px;width:max-content;padding:clamp(110px,17vh,150px) var(--gut) 4px;will-change:transform}
+.zg-graph{position:absolute;left:var(--gut);right:var(--gut);top:0;height:clamp(90px,14vh,124px)}
+.zg-graph svg{display:block;width:100%;height:100%;overflow:visible}
+.zg-graph__line{fill:none;stroke:url(#zg-gline);stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.zg-graph__area{fill:url(#zg-garea)}
+.zg-graph__grid{stroke:rgba(255,255,255,.07);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:3 5}
+.zg-hour{position:relative;flex:none;width:clamp(232px,21vw,290px);min-height:clamp(210px,31vh,270px);padding:20px;border:1px solid var(--line);border-radius:var(--r);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;flex-direction:column;gap:6px}
+.zg-hour::before{content:"";position:absolute;left:50%;top:-14px;width:1px;height:14px;background:var(--line2)}
+.zg-hour__t{font-size:clamp(30px,2.8vw,40px);font-weight:500;line-height:1.1;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.zg-hour h3{font-size:17px;font-weight:500;letter-spacing:-.01em}
+.zg-hour p{font-size:14px;color:var(--mut)}
+.zg-hour__foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
+.zg-mode{font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;border-radius:7px;border:1px solid var(--line2);color:var(--chrome)}
+.zg-mode[data-m="cancel"]{color:var(--ice);border-color:rgba(166,225,255,.35)}
+.zg-mode[data-m="aware"]{color:var(--pulse);border-color:rgba(255,79,139,.4)}
+
+/* Stats */
+.zg-stats__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.zg-stat{padding:clamp(22px,4vh,36px) 0 0;border-top:1px solid var(--line2)}
+.zg-stat strong{display:block;font-weight:500;font-size:clamp(48px,5.6vw,86px);line-height:1;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
+.zg-stat strong small{font-size:.38em;letter-spacing:-.02em;margin-left:.12em;font-family:var(--serif);font-style:italic;font-weight:300;color:var(--ice)}
+.zg-stat span{display:block;margin-top:14px;font-size:14px;color:var(--mut);max-width:24ch}
+
+/* Buy / configurator */
+.zg-buy{padding:clamp(60px,10vh,110px) 0}
+.zg-buy__grid{min-height:100vh;min-height:100svh}
+.zg-swatches{display:flex;gap:14px}
+.zg-swatches button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.5),transparent 42%),var(--sw);cursor:pointer;transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
+.zg-swatches button:hover{transform:translateY(-2px)}
+.zg-swatches button[aria-checked="true"]{box-shadow:0 0 0 3px #101217,0 0 0 5px var(--ice)}
+.zg-incl{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 6px}
+.zg-incl li{font-size:13px;color:var(--mut);padding:6px 11px;border:1px solid var(--line2);border-radius:9px}
+.zg-total{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0;margin:16px 0 18px;border-top:1px solid var(--line)}
+.zg-total span{color:var(--mut);font-size:14px}
+.zg-total strong{font-weight:500;font-size:44px;line-height:1;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+
+/* FAQ */
+.zg-faq__grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,90px);align-items:start}
+.zg-q{border-bottom:1px solid var(--line)}
+.zg-q:first-child{border-top:1px solid var(--line)}
+.zg-q h3{font-size:inherit;font-weight:inherit}
+.zg-q button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 0;background:none;border:0;cursor:pointer;text-align:left;font-size:clamp(17px,1.6vw,20px);font-weight:500;letter-spacing:-.015em}
+.zg-q button i{position:relative;flex:none;width:30px;height:30px;border-radius:9px;border:1px solid var(--line2);transition:transform .5s var(--ease),background .3s}
+.zg-q button i::before,.zg-q button i::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:1px;background:var(--ink);transform:translate(-50%,-50%)}
+.zg-q button i::after{transform:translate(-50%,-50%) rotate(90deg)}
+.zg-q.is-open button i{transform:rotate(45deg);background:rgba(166,225,255,.12)}
+.zg-a{display:grid;grid-template-rows:1fr;transition:grid-template-rows .55s var(--ease)}
+.zg-a>div{overflow:hidden}
+.zg-a p{padding:0 50px 24px 0;color:var(--mut)}
+.zg-acc .zg-a{grid-template-rows:0fr}
+.zg-acc .zg-q.is-open .zg-a{grid-template-rows:1fr}
+
+/* Closing CTA and footer */
+.zg-cta{text-align:center;padding:clamp(120px,24vh,240px) 0}
+.zg-cta .zg-display{margin-bottom:24px}
+.zg-cta .zg-lede{margin:0 auto 36px}
+.zg-footer{border-top:1px solid var(--line);padding:34px 0 44px;font-size:13px;color:var(--dim);background:rgba(12,13,16,.7);backdrop-filter:blur(10px)}
+.zg-footer__inner{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:center;justify-content:space-between}
+.zg-footer a{color:var(--mut);border-bottom:1px solid var(--line2);transition:color .25s}
+.zg-footer a:hover{color:var(--ink)}
+
+/* Toast */
+.zg-toast{position:fixed;left:50%;bottom:24px;z-index:60;max-width:calc(100% - 32px);transform:translate(-50%,calc(100% + 40px));visibility:hidden;padding:14px 20px;border-radius:14px;border:1px solid var(--line2);background:rgba(16,18,23,.9);backdrop-filter:blur(16px);font-size:14px;transition:transform .5s var(--ease),visibility 0s .5s}
+.zg-toast.is-on{transform:translate(-50%,0);visibility:visible;transition:transform .5s var(--ease)}
+
+/* Scroll-driven layout, only when scripts run */
+.zg-js .zg-quiet{height:440vh}
+.zg-js .zg-quiet__sticky{position:sticky;top:0;height:100vh;height:100svh;padding:0;display:flex;flex-direction:column;overflow:hidden}
+.zg-js .zg-quiet__row{flex:1;min-height:0;padding-top:68px}
+.zg-js .zg-places{position:relative}
+.zg-js .zg-place{position:absolute;left:0;top:0;width:100%;margin:0;opacity:0;visibility:hidden;transform:translateY(24px);transition:opacity .55s var(--ease),transform .7s var(--ease),visibility 0s .7s}
+.zg-js .zg-place.is-active{opacity:1;visibility:visible;transform:none;transition:opacity .7s var(--ease) .1s,transform .8s var(--ease) .1s,visibility 0s}
+.zg-js .zg-place__db{display:none}
+.zg-js .zg-meter{display:block;margin-top:24px}
+.zg-js .zg-steps{display:block;margin-top:24px;max-width:380px}
+.zg-js .zg-wavebox{display:block;position:relative;flex:none;height:clamp(86px,15vh,140px);margin-bottom:clamp(14px,3vh,28px)}
+.zg-js .zg-wavebox canvas{position:absolute;left:0;right:0;bottom:0;top:22px;width:100%;height:calc(100% - 22px)}
+.zg-js .zg-day__sticky{position:sticky;top:0;height:100vh;height:100svh;padding:84px 0 24px;overflow:hidden}
+.zg-js .zg-day__viewport{overflow:visible}
+.zg-js .zg-day--native{height:auto!important}
+.zg-js .zg-day--native .zg-day__sticky{position:relative;height:auto;padding:clamp(90px,14vh,150px) 0}
+.zg-js .zg-day--native .zg-day__viewport{overflow-x:auto}
+.zg-line{padding-bottom:.08em}
+
+/* Short laptop screens: keep the hero above the fold and the noise map clear of the wave */
+@media (min-width:901px) and (max-height:780px){
+  .zg-hero{padding:96px 0 60px}
+  .zg-hero .zg-display{margin:16px 0 16px}
+  .zg-cta-row{margin-top:22px}
+  .zg-hero__meta{margin-top:28px}
+  .zg-quiet .zg-h2{font-size:clamp(30px,3.6vw,46px)}
+  .zg-js .zg-meter,.zg-js .zg-steps{margin-top:16px}
+  .zg-meter__nums b{font-size:36px}
+}
+
+/* Below 900px: product in the top half, copy below it */
+@media (max-width:900px){
+  .zg-nav ul{display:none}
+  .zg-hero{align-items:flex-end;padding:52svh 0 64px}
+  .zg-hero__copy{flex-basis:100%}
+  .zg-slot{display:none}
+  .zg-fallback{right:50%;top:18svh;transform:translateX(50%);width:150px}
+  .zg-hero__meta span{padding:0 16px}
+  .zg-quiet__panel{width:100%}
+  .zg-js .zg-quiet__row{align-items:flex-end;padding-bottom:10px}
+  .zg-js .zg-quiet__panel{padding:20px;border:1px solid var(--line);border-radius:20px;background:rgba(14,15,19,.62);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  .zg-quiet .zg-kicker{margin-bottom:12px}
+  .zg-quiet .zg-h2{font-size:30px;margin-bottom:10px}
+  .zg-quiet .zg-lede{font-size:14.5px}
+  .zg-js .zg-meter{margin-top:14px}
+  .zg-meter__nums b{font-size:30px}
+  .zg-js .zg-steps{display:none}
+  .zg-js .zg-wavebox{height:74px;margin-bottom:8px}
+  .zg-legend{gap:12px;font-size:10px}
+  .zg-lab__grid,.zg-buy__grid{grid-template-columns:1fr;gap:0;min-height:0}
+  .zg-lab__space,.zg-buy__space{height:50svh}
+  .zg-bento__grid{grid-template-columns:1fr;grid-auto-rows:auto}
+  .zg-cell--tall{grid-row:auto}
+  .zg-cell--wide{grid-column:auto}
+  .zg-cell{min-height:300px}
+  .zg-stats__grid{grid-template-columns:repeat(2,1fr);gap:28px 16px}
+  .zg-faq__grid{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .zg-cta-row .zg-btn{flex:1}
+  .zg-hero__meta b{font-size:17px}
+  .zg-hero__meta span{padding:0 12px}
+  .zg-a p{padding-right:0}
+  .zg-gauge span{min-width:0;flex:1}
+  .zg-gauge{width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  .zg-intro{display:none}
+  .zg-hint svg,.zg-tag i b,.zg-live i,.zg-mics .zg-ring,.zg-rain i,.zg-chirp i{animation:none}
+  .zg-rain i{opacity:.6;transform:translateY(60px)}
+  .zg-chirp i{opacity:.35;transform:scale(1.6)}
+  #zg-stage,.zg-seg__pill,.zg-a,.zg-toast,.zg-place{transition:none}
+  .zg-ripple{display:none}
+}
+</style>
+</head>
+<body>
+<div class="zg-intro" aria-hidden="true"><div><span>SONRA</span><svg viewBox="0 0 220 40" fill="none" stroke="#a6e1ff" stroke-width="1.5"><path d="M0 20 Q 7 2 14 20 T 28 20 T 42 20 T 56 20 T 70 20 T 84 20 T 98 20 T 112 20 T 126 20 T 140 20 T 154 20 T 168 20 T 182 20 T 196 20 T 210 20 L220 20"/></svg></div></div>
+<div class="zg-backdrop" aria-hidden="true"></div>
+<canvas id="zg-stage" aria-hidden="true"></canvas>
+<div class="zg-hint" id="zg-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 4 0 0 0 18 0"/><path d="M21 12a9 4 0 0 0-14.5-3.2"/><path d="M6 6.5 6.5 8.8 8.8 8.3"/></svg>Drag to rotate</div>
+<div class="zg-grain" aria-hidden="true"></div>
+
+<header class="zg-nav" id="zg-nav">
+  <div class="zg-wrap zg-nav__in">
+    <a class="zg-brand" href="#zg-top" aria-label="Sonra, back to top"><svg viewBox="0 0 22 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M1 7h3l2-5 3 10 3-8 2 5 2-2h5"/></svg>SONRA</a>
+    <nav aria-label="Page sections">
+      <ul>
+        <li><a href="#zg-quiet">Noise map</a></li>
+        <li><a href="#zg-lab">Noise lab</a></li>
+        <li><a href="#zg-day">Battery</a></li>
+        <li><a href="#zg-faq">FAQ</a></li>
+      </ul>
+    </nav>
+    <a class="zg-btn zg-btn--primary zg-btn--sm" href="#zg-buy" data-magnetic>Pre-order</a>
+  </div>
+  <span class="zg-progress" id="zg-progress" aria-hidden="true"></span>
+</header>
+
+<main id="zg-top">
+  <section class="zg-hero" data-scene="hero" aria-labelledby="zg-hero-title">
+    <div class="zg-fallback" aria-hidden="true"><div class="zg-fb-lid"></div><div class="zg-fb-base"></div></div>
+    <div class="zg-wrap">
+      <div class="zg-hero__copy">
+        <span class="zg-tag"><i aria-hidden="true"><b></b><b></b><b></b></i>Wireless earbuds · Adaptive noise cancelling</span>
+        <h1 class="zg-display" id="zg-hero-title" data-split>Quiet that fits in your <em>pocket</em>.</h1>
+        <p class="zg-lede" data-reveal>Sonra Air listens to the room 48,000 times a second and plays the exact opposite wave into your ears. Trains, engines and open offices drop away. The voices you want stay.</p>
+        <div class="zg-cta-row" data-reveal>
+          <a class="zg-btn zg-btn--primary" href="#zg-buy" data-magnetic>Pre-order · $189</a>
+          <a class="zg-btn zg-btn--ghost" href="#zg-lab">Hear the difference</a>
+        </div>
+        <div class="zg-hero__meta" data-reveal>
+          <span><b>48 dB</b>peak cancelling</span>
+          <span><b>9 + 27 h</b>buds plus case</span>
+          <span><b>4.6 g</b>per bud</span>
+        </div>
+      </div>
+      <div class="zg-slot" data-slot="hero" aria-hidden="true">
+        <div class="zg-live"><i></i><span>Room <b id="zg-live-room">64</b> dB</span><span>In ear <b id="zg-live-ear">31</b> dB</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-quiet" id="zg-quiet" data-scene="quiet" aria-labelledby="zg-quiet-title">
+    <div class="zg-quiet__sticky">
+      <div class="zg-wrap zg-quiet__row">
+        <div class="zg-quiet__panel">
+          <h2 class="zg-kicker" id="zg-quiet-title">Noise map · one day, four loud places</h2>
+          <div class="zg-places">
+            <article class="zg-place is-active" data-out="94" data-in="46" data-kind="0">
+              <p class="zg-place__time">07:42 · Platform three</p>
+              <h3 class="zg-h2">The subway <em>rumble</em>, gone.</h3>
+              <p class="zg-lede">Brakes and tunnel roar sit below 200 Hz, where Sonra Air works hardest. An inner mic hears what slips past the tip and cancels it before your ear does.</p>
+              <p class="zg-place__db">Outside <b>94 dB</b>, in your ears <b>46 dB</b></p>
+            </article>
+            <article class="zg-place" data-out="66" data-in="34" data-kind="1">
+              <p class="zg-place__time">10:15 · Open-plan office</p>
+              <h3 class="zg-h2">Keyboards <em>off</em>, people on.</h3>
+              <p class="zg-lede">The clatter fades into the background, but Voice Pass lifts speech by 6 dB, so a question from the next desk still gets through.</p>
+              <p class="zg-place__db">Outside <b>66 dB</b>, in your ears <b>34 dB</b></p>
+            </article>
+            <article class="zg-place" data-out="74" data-in="40" data-kind="2">
+              <p class="zg-place__time">17:50 · Bus shelter, heavy rain</p>
+              <h3 class="zg-h2">Rain on a tin <em>roof</em>.</h3>
+              <p class="zg-lede">Patter jumps around more than an engine does. Adaptive mode re-tunes the filter 200 times a second to keep up with it.</p>
+              <p class="zg-place__db">Outside <b>74 dB</b>, in your ears <b>40 dB</b></p>
+            </article>
+            <article class="zg-place" data-out="86" data-in="38" data-kind="3">
+              <p class="zg-place__time">23:05 · Window seat, red-eye</p>
+              <h3 class="zg-h2">Engine drone, <em>flattened</em>.</h3>
+              <p class="zg-lede">A steady low hum is the easiest sound to cancel. Sleep mode adds a soft noise bed and mutes every prompt until you land.</p>
+              <p class="zg-place__db">Outside <b>86 dB</b>, in your ears <b>38 dB</b></p>
+            </article>
+          </div>
+          <div class="zg-meter" aria-hidden="true">
+            <div class="zg-meter__nums"><span><small>Outside</small><b id="zg-db-out">94</b>dB</span><span><small>In your ears</small><b id="zg-db-in">94</b>dB</span></div>
+            <i class="zg-meter__bar"><b id="zg-db-bar"></b></i>
+          </div>
+          <div class="zg-steps" aria-hidden="true">
+            <div class="zg-steps__labels"><span class="is-active">Subway</span><span>Office</span><span>Rain</span><span>Cabin</span></div>
+            <i class="zg-steps__bar"><b id="zg-steps-fill"></b></i>
+          </div>
+        </div>
+        <div class="zg-slot" data-slot="quiet" aria-hidden="true"></div>
+      </div>
+      <div class="zg-wavebox" aria-hidden="true">
+        <div class="zg-wrap zg-legend"><span style="--c:var(--pulse)">Noise</span><span style="--c:var(--ice)">Anti-noise</span><span style="--c:#fff">What you hear</span></div>
+        <canvas class="zg-wave" id="zg-wave"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-eq" data-scene="eq" aria-label="Sound check">
+    <div class="zg-wrap">
+      <div class="zg-eq__bars" id="zg-eq" aria-hidden="true"></div>
+      <p class="zg-eq__line">Hear less of the street. <em>Hear more of the song.</em></p>
+    </div>
+  </section>
+
+  <section class="zg-sec zg-lab" id="zg-lab" data-scene="lab" aria-labelledby="zg-lab-title">
+    <div class="zg-wrap zg-lab__grid">
+      <div class="zg-lab__space" data-slot="lab" aria-hidden="true"></div>
+      <div class="zg-panel" data-reveal>
+        <p class="zg-kicker">Noise lab</p>
+        <h2 class="zg-h2" id="zg-lab-title">Hear the <em>difference</em>.</h2>
+        <p class="zg-lede">Press play for a synthesized city street, then slide the cancelling up. Watch the foam wall behind the buds go still.</p>
+        <div class="zg-screen">
+          <canvas id="zg-spec" aria-hidden="true"></canvas>
+          <p class="zg-screen__read" aria-live="polite">In your ears <b id="zg-lab-db">42</b>dB</p>
+        </div>
+        <button type="button" class="zg-play" id="zg-play" aria-pressed="false">
+          <i aria-hidden="true"><svg class="zg-ico-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg><svg class="zg-ico-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4.5v16H6zM13.5 4H18v16h-4.5z"/></svg></i>
+          <span><span id="zg-play-label">Play street noise</span><small>Generated in your browser, starts quiet</small></span>
+        </button>
+        <fieldset class="zg-field">
+          <legend>Listening mode</legend>
+          <div class="zg-seg" id="zg-modes" role="radiogroup" aria-label="Listening mode">
+            <button type="button" role="radio" aria-checked="false" data-mode="off">Off</button>
+            <button type="button" role="radio" aria-checked="false" data-mode="aware">Aware</button>
+            <button type="button" role="radio" aria-checked="true" data-mode="anc">Cancel</button>
+            <i class="zg-seg__pill" aria-hidden="true" style="transform:translateX(200%)"></i>
+          </div>
+        </fieldset>
+        <div class="zg-field">
+          <label for="zg-depth">Cancelling depth <span id="zg-depth-out">70%</span></label>
+          <input class="zg-range" id="zg-depth" type="range" min="0" max="100" step="1" value="70">
+        </div>
+        <p class="zg-note">Nothing is recorded. The sound stops when you scroll away.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-sec zg-bento" id="zg-build" data-scene="bento" aria-labelledby="zg-bento-title">
+    <div class="zg-wrap">
+      <header class="zg-sec-head">
+        <p class="zg-kicker">Inside the buds</p>
+        <h2 class="zg-h2" id="zg-bento-title" data-split>Small parts, <em>big silence</em>.</h2>
+      </header>
+      <div class="zg-bento__grid">
+        <article class="zg-cell zg-cell--tall" data-reveal>
+          <div class="zg-viz" aria-hidden="true">
+            <svg class="zg-mics" viewBox="0 0 200 230"><g fill="none" stroke="currentColor" stroke-width="1.4" opacity=".7"><ellipse cx="100" cy="72" rx="50" ry="46"/><rect x="83" y="108" width="34" height="104" rx="17"/><circle cx="64" cy="80" r="22" stroke-dasharray="3 4"/></g><circle class="zg-ring" cx="128" cy="44" r="4"/><circle class="zg-ring" cx="100" cy="200" r="4"/><circle class="zg-ring" cx="64" cy="80" r="4"/><circle class="zg-dot" cx="128" cy="44" r="4"/><circle class="zg-dot" cx="100" cy="200" r="4"/><circle class="zg-dot" cx="64" cy="80" r="4" style="fill:var(--pulse)"/></svg>
+          </div>
+          <h3>Three mics per bud, two jobs</h3>
+          <p>Two outer mics hear the street and one inner mic hears what got past the tip. On calls, the outer pair aims a narrow beam at your mouth and lets the wind slide by.</p>
+        </article>
+        <article class="zg-cell zg-cell--wide" data-reveal>
+          <div class="zg-viz" aria-hidden="true">
+            <div class="zg-tips"><div><i style="--s:34px"></i>XS</div><div><i style="--s:44px"></i>S</div><div class="is-fit"><i style="--s:54px"></i>M</div><div><i style="--s:64px"></i>L</div></div>
+          </div>
+          <h3>A tip for every ear</h3>
+          <p>The fit check plays a short tone, listens for leaks and tells you to size up or down. A good seal does half the quieting before any electronics switch on.</p>
+        </article>
+        <article class="zg-cell" data-reveal>
+          <div class="zg-viz" aria-hidden="true"><div class="zg-rain"><i></i><i></i><i></i><i></i><i></i><strong>IP55</strong></div></div>
+          <h3>Rain ready</h3>
+          <p>Sweat, drizzle and a drop into a puddle are fine. The case is splash-proof too.</p>
+        </article>
+        <article class="zg-cell" data-reveal>
+          <div class="zg-viz" aria-hidden="true"><div class="zg-chirp"><i></i><i></i><i></i><b></b></div></div>
+          <h3>A case that chirps back</h3>
+          <p>Lost it in the sofa? The case plays a loud chirp from its own speaker, even when the buds are flat.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-day" id="zg-day" data-scene="day" aria-labelledby="zg-day-title">
+    <div class="zg-day__sticky">
+      <div class="zg-wrap zg-day__head">
+        <div>
+          <p class="zg-kicker">Battery, hour by hour</p>
+          <h2 class="zg-h2" id="zg-day-title" data-split>One charge, <em>dawn to red-eye</em>.</h2>
+        </div>
+        <div class="zg-gauge" aria-hidden="true"><span>Buds<b id="zg-bud-pct">100%</b></span><span>Case<b id="zg-case-pct">100%</b></span></div>
+      </div>
+      <div class="zg-day__viewport">
+        <div class="zg-day__track" id="zg-day-track">
+          <div class="zg-graph" id="zg-graph" aria-hidden="true">
+            <svg viewBox="0 0 800 100" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="zg-gline" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a6e1ff"/><stop offset=".55" stop-color="#ff4f8b"/><stop offset="1" stop-color="#a6e1ff"/></linearGradient>
+                <linearGradient id="zg-garea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a6e1ff" stop-opacity=".22"/><stop offset="1" stop-color="#a6e1ff" stop-opacity="0"/></linearGradient>
+              </defs>
+              <path class="zg-graph__grid" d="M0 8H800M0 50H800M0 92H800"/>
+              <path class="zg-graph__area" d="M0 8L50 14.7L150 24L250 53.4L350 25.6L450 48.3L550 66L650 8L750 38.2L800 41.6V100H0Z"/>
+              <path class="zg-graph__line" d="M0 8L50 14.7L150 24L250 53.4L350 25.6L450 48.3L550 66L650 8L750 38.2L800 41.6"/>
+            </svg>
+          </div>
+          <article class="zg-hour"><span class="zg-hour__t">06:50</span><h3>Morning run</h3><p>Aware mode keeps traffic audible. The wing tips hold through every stride.</p><div class="zg-hour__foot"><span class="zg-mode" data-m="aware">Aware</span><span>Buds 92%</span></div></article>
+          <article class="zg-hour"><span class="zg-hour__t">07:42</span><h3>Subway in</h3><p>Two stops of brakes and tunnel roar, cancelled down to a murmur.</p><div class="zg-hour__foot"><span class="zg-mode" data-m="cancel">Cancel</span><span>Buds 81%</span></div></article>
+          <article class="zg-hour"><span class="zg-hour__t">09:00</span><h3>Three hours of focus</h3><p>A long playlist and no open-office chatter. The heaviest stretch of the day.</p><div class="zg-hour__foot"><span class="zg-mode" data-m="cancel">Cancel</span><span>Buds 46%</span></div></article>
+          <article class="zg-hour"><span class="zg-hour__t">12:20</span><h3>Lunch in the case</h3><p>Fifteen minutes in the case while you eat buys back three hours.</p><div class="zg-hour__foot"><span class="zg-mode" data-m="case">Charging</span><span>Buds 79%</span></div></article>
+          <article class="zg-hour"><span class="zg-hour__t">14:00</span><h3>Back-to-back calls</h3><p>The beam mics carry your voice, and calls hop between your laptop and phone.</p><div class="zg-hour__foot"><span class="zg-mode" data-m="cancel">Voice</span><span>Buds 52%</span></div></article>
+          <article class="zg-hour"><span class="zg-hour__t">17:50</span><h3>Walk home in the rain</h3><p>Adaptive mode follows the patter on the shelter roof while you wait for the bus.</p><div class="zg-hour__foot"><span class="zg-mode" data-m="cancel">Adaptive</span><span>Buds 31%</span></div></article>
+          <article class="zg-hour"><span class="zg-hour__t">18:10</span><h3>Top-up, full again</h3><p>Twenty minutes on the shelf while you cook. Buds back to full, case still at half.</p><div class="zg-hour__foot"><span class="zg-mode" data-m="case">Charging</span><span>Buds 100%</span></div></article>
+          <article class="zg-hour"><span class="zg-hour__t">23:05</span><h3>Red-eye flight</h3><p>Sleep mode, a soft noise bed and the engine drone flattened. Still 64% when you land.</p><div class="zg-hour__foot"><span class="zg-mode" data-m="cancel">Sleep</span><span>Buds 64%</span></div></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-sec zg-stats" data-scene="stats" aria-label="Sonra Air in numbers">
+    <div class="zg-wrap zg-stats__grid">
+      <div class="zg-stat" data-reveal><strong><span data-count="48">48</span><small>dB</small></strong><span>peak cancelling below 200 Hz, where engines and trains live</span></div>
+      <div class="zg-stat" data-reveal><strong><span data-count="36">36</span><small>h</small></strong><span>of listening with the case, cancelling on the whole time</span></div>
+      <div class="zg-stat" data-reveal><strong><span data-count="10">10</span><small>min</small></strong><span>in the case gives you two more hours of play</span></div>
+      <div class="zg-stat" data-reveal><strong><span data-count="4.6" data-dec="1">4.6</span><small>g</small></strong><span>per bud, about the weight of two coins</span></div>
+    </div>
+  </section>
+
+  <section class="zg-buy" id="zg-buy" data-scene="buy" aria-labelledby="zg-buy-title">
+    <div class="zg-wrap zg-buy__grid">
+      <div class="zg-buy__space" data-slot="buy" aria-hidden="true"></div>
+      <form class="zg-panel" id="zg-config" data-reveal>
+        <p class="zg-kicker">Pre-order · first deliveries in March</p>
+        <h2 class="zg-h2" id="zg-buy-title">Pick your <em>finish</em>.</h2>
+        <fieldset class="zg-field">
+          <legend>Finish <span id="zg-finish-name">Graphite</span></legend>
+          <div class="zg-swatches" id="zg-swatches" role="radiogroup" aria-label="Finish">
+            <button type="button" role="radio" aria-checked="true" data-finish="0" data-name="Graphite" aria-label="Graphite" style="--sw:#2b2e35"></button>
+            <button type="button" role="radio" aria-checked="false" data-finish="1" data-name="Glacier" aria-label="Glacier" style="--sw:#cfe4ef"></button>
+            <button type="button" role="radio" aria-checked="false" data-finish="2" data-name="Rosewater" aria-label="Rosewater" style="--sw:#e7a9b9"></button>
+          </div>
+        </fieldset>
+        <fieldset class="zg-field">
+          <legend>Charging case</legend>
+          <div class="zg-seg zg-seg--two" id="zg-case" role="radiogroup" aria-label="Charging case">
+            <button type="button" role="radio" aria-checked="true" data-case="0">USB-C case</button>
+            <button type="button" role="radio" aria-checked="false" data-case="20">Wireless case +$20</button>
+            <i class="zg-seg__pill" aria-hidden="true"></i>
+          </div>
+        </fieldset>
+        <ul class="zg-incl" aria-label="In the box"><li>Four tip sizes</li><li>Braided USB-C cable</li><li>Felt pouch</li></ul>
+        <div class="zg-total"><span>Total</span><strong id="zg-price">$189</strong></div>
+        <button type="submit" class="zg-btn zg-btn--primary zg-btn--block" data-magnetic>Pre-order Sonra Air</button>
+        <p class="zg-note">Free returns for 45 days. Two-year warranty on buds and case.</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="zg-sec zg-faq" id="zg-faq" data-scene="faq" aria-labelledby="zg-faq-title">
+    <div class="zg-wrap zg-faq__grid">
+      <header>
+        <p class="zg-kicker">Questions</p>
+        <h2 class="zg-h2" id="zg-faq-title" data-split>Before you <em>tune out</em>.</h2>
+      </header>
+      <div class="zg-faq__list" id="zg-faq-list">
+        <div class="zg-q"><h3><button type="button" id="zg-q1" aria-expanded="true" aria-controls="zg-a1">How much noise does Sonra Air cancel?<i aria-hidden="true"></i></button></h3>
+          <div class="zg-a" id="zg-a1" role="region" aria-labelledby="zg-q1"><div><p>Up to 48 dB in the low range where engines and trains sit, and around 25 dB across the voice range. The seal matters most, so run the fit check before you judge it.</p></div></div></div>
+        <div class="zg-q"><h3><button type="button" id="zg-q2" aria-expanded="true" aria-controls="zg-a2">Will I still hear announcements?<i aria-hidden="true"></i></button></h3>
+          <div class="zg-a" id="zg-a2" role="region" aria-labelledby="zg-q2"><div><p>If you want to. Aware mode lets the room in, and Voice Pass lifts speech above the cancelled background whenever someone talks near you.</p></div></div></div>
+        <div class="zg-q"><h3><button type="button" id="zg-q3" aria-expanded="true" aria-controls="zg-a3">Does it work with any phone?<i aria-hidden="true"></i></button></h3>
+          <div class="zg-a" id="zg-a3" role="region" aria-labelledby="zg-q3"><div><p>It pairs over Bluetooth with any phone, tablet or laptop and keeps two connections at once. The companion app adds the fit check, the EQ and Sleep mode.</p></div></div></div>
+        <div class="zg-q"><h3><button type="button" id="zg-q4" aria-expanded="true" aria-controls="zg-a4">Is Sonra a real brand?<i aria-hidden="true"></i></button></h3>
+          <div class="zg-a" id="zg-a4" role="region" aria-labelledby="zg-q4"><div><p>No. Sonra is a concept brand made for this showcase page. The specs, prices and numbers are invented, and nothing here is for sale.</p></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="zg-cta" data-scene="cta" aria-labelledby="zg-cta-title">
+    <div class="zg-wrap">
+      <h2 class="zg-display" id="zg-cta-title" data-split>Press play on <em>quiet</em>.</h2>
+      <p class="zg-lede" data-reveal>First deliveries in March, in Graphite, Glacier and Rosewater.</p>
+      <a class="zg-btn zg-btn--primary" href="#zg-buy" data-magnetic>Pre-order · $189</a>
+    </div>
+  </section>
+</main>
+
+<footer class="zg-footer" data-zg-concept>
+  <div class="zg-wrap zg-footer__inner">
+    <span class="zg-brand">SONRA</span>
+    <p>Concept page. Sonra and Sonra Air are fictional, and nothing on this page is for sale.</p>
+    <p><a href="../index.html">All showcase pages</a> · Designed and coded by <a href="https://zana-g.com">Zana-G</a></p>
+  </div>
+</footer>
+
+<div class="zg-toast" id="zg-toast" role="status" aria-live="polite"></div>
+</body>
+</html>
