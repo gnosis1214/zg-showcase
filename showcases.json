@@ -52,5 +52,32 @@
       "Stacking cards",
       "Scroll-lit manifesto"
     ]
+  },
+  {
+    "file": "2026-11-14-am-kavra-strada-r.html",
+    "date": "2026-11-14",
+    "slot": "am",
+    "type": "product",
+    "brand": "Kavra",
+    "title": "Kavra Strada R",
+    "category": "Road bikes and parts",
+    "summary": "A cycling brand that sells whole bikes and every part. The home section pins while the Strada R comes apart into priced parts and goes back together, then pull parts off the bike and build your own.",
+    "palette": [
+      "#ff3b2f",
+      "#e6dfd0",
+      "#8fb3c4"
+    ],
+    "hero": "SVG line-drawn bike that draws itself over looping parallax ridgelines",
+    "scrollStory": "Pinned home section that takes the bike apart into four priced part groups, then puts it back together",
+    "control": "Drag to pedal with freewheel coasting, parts tabs that pull a group off the bike, builder with colourway, size and wheel depth",
+    "techniques": [
+      "Self-drawing SVG",
+      "Pinned explode view",
+      "Drag to pedal",
+      "Horizontal range track",
+      "Parts shop tabs",
+      "Live builder",
+      "Scroll-drawn profile"
+    ]
   }
 ]
