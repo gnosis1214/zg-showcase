@@ -660,5 +660,416 @@ main,.zg-footer{position:relative;z-index:2}
 </footer>
 
 <div class="zg-toast" id="zg-toast" role="status" aria-live="polite"></div>
+
+<script>
+// Boot: shared state for the 3D scene, plus the CSS case if 3D never starts.
+(function () {
+  var zg = window.zg = window.zg || {};
+  var m = matchMedia('(max-width: 900px)').matches;
+  zg.target = zg.target || { fx: m ? 0 : .56, fy: m ? .46 : -.02, s: m ? .6 : .86, rot: 0, open: .1, lift: 0, anc: .15, noise: 1, dim: 1, hidden: 0, face: 0 };
+  zg.finish = 0;
+  zg.mode = 'anc';
+  setTimeout(function () { if (!zg.ready3D) document.documentElement.classList.add('no-webgl'); }, 6000);
+})();
+</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+
+const zg = window.zg || (window.zg = {});
+const root = document.documentElement;
+const canvas = document.getElementById('zg-stage');
+const T = zg.target;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobileMQ = matchMedia('(max-width: 900px)');
+const TAU = Math.PI * 2;
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+} catch (err) {
+  root.classList.add('no-webgl');
+  throw err;
+}
+canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); root.classList.add('no-webgl'); });
+const dprCap = () => (mobileMQ.matches ? 1.25 : 1.75);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, .1, 60);
+camera.position.set(0, 0, 9);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
+scene.environmentIntensity = .55;
+const ICE = new THREE.Color('#a6e1ff'), PULSE = new THREE.Color('#ff4f8b'), IDLE = new THREE.Color('#5c606a');
+
+/* ---------- Anechoic wall ----------
+   A grid of foam wedges turned 90 degrees in a checkerboard, like a recording booth. The vertex
+   shader stretches each wedge's ridge with a travelling "street noise" wave. uAnc opens a calm
+   circle around the product where the wedges flatten and go dark: noise cancelling, made visible. */
+const WALL_Z = -3.6, CELL = .34, MAXN = 3600;
+function wedgeGeometry() {
+  // Square base at z=0, ridge along x at z=1. Only the faces that point at the camera.
+  const A = [-.5, -.5, 0], B = [.5, -.5, 0], C = [.5, .5, 0], D = [-.5, .5, 0], E = [-.5, 0, 1], F = [.5, 0, 1];
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute([A, B, F, A, F, E, C, D, E, C, E, F, A, E, D, B, C, F].flat(), 3));
+  g.computeVertexNormals();   // non-indexed, so these are flat face normals
+  return g;
+}
+const wallMat = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 }, uNoise: { value: 1 }, uAnc: { value: 0 }, uDim: { value: 1 },
+    uFocus: { value: new THREE.Vector2() }, uSpan: { value: new THREE.Vector2(8, 4) },
+    uBase: { value: new THREE.Color('#16181d') }, uA: { value: ICE.clone() }, uB: { value: PULSE.clone() }
+  },
+  vertexShader: `
+    uniform float uTime, uNoise, uAnc;
+    uniform vec2 uFocus, uSpan;
+    varying float vShade, vWave, vH, vFade, vCalm, vSpot;
+    void main(){
+      vec2 c = (instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xy;   // wedge centre on the wall
+      float d = distance(c, uFocus);
+      // Street noise: a ripple ring spreading from the product plus two crossing swells.
+      float w = sin(d * 2.6 - uTime * 2.4) * 0.55
+              + sin(c.x * 1.3 + uTime * 1.1) * sin(c.y * 1.9 - uTime * 0.8) * 0.45
+              + sin((c.x - c.y) * 3.7 + uTime * 3.3) * 0.18;
+      // Calm circle: the radius grows with uAnc and the edge is soft, so sound fades out rather than stops.
+      float r = uAnc * 5.2;
+      float calm = (1.0 - smoothstep(r * 0.5, r + 1.3, d)) * min(1.0, uAnc * 2.5);
+      float amp = uNoise * (1.0 - calm);
+      vec3 p = position;
+      p.z *= 0.5 + max(w * amp, -0.8) * 0.32 + 0.1 * amp;           // ridge height breathes with the wave
+      vec4 world = modelMatrix * instanceMatrix * vec4(p, 1.0);
+      vec3 n = normalize(mat3(modelMatrix) * mat3(instanceMatrix) * normal);
+      vShade = 0.25 + 0.75 * max(dot(n, normalize(vec3(-0.35, 0.55, 0.75))), 0.0)
+                    + 0.25 * max(dot(n, normalize(vec3(0.6, -0.3, 0.5))), 0.0);
+      vWave = w * amp;
+      vH = position.z;
+      vCalm = calm;
+      vFade = 1.0 - smoothstep(0.55, 1.05, length(c / uSpan));
+      vSpot = 1.0 - 0.62 * smoothstep(0.15, 1.0, length((c - uFocus) / uSpan));   // bright around the case, dark under the copy
+      gl_Position = projectionMatrix * viewMatrix * world;
+    }`,
+  fragmentShader: `
+    uniform vec3 uBase, uA, uB;
+    uniform float uDim;
+    varying float vShade, vWave, vH, vFade, vCalm, vSpot;
+    void main(){
+      vec3 col = uBase * vShade;
+      float tip = vH * vH * vH;                                       // only the ridges catch the colour
+      col += uA * max(vWave, 0.0) * tip * 0.2;                        // crests: ice
+      col += uB * max(-vWave, 0.0) * tip * 0.16;                      // troughs: pink
+      col = mix(col, uBase * 0.5, vCalm * 0.7);                       // the quiet zone
+      col *= uDim * vSpot * mix(0.2, 1.0, vFade);
+      gl_FragColor = vec4(col, 1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`
+});
+const wall = new THREE.InstancedMesh(wedgeGeometry(), wallMat, MAXN);
+wall.position.z = WALL_Z;
+wall.frustumCulled = false;
+scene.add(wall);
+const dummy = new THREE.Object3D();
+function layoutWall(hw, hh) {
+  const cols = Math.ceil(hw * 2 / CELL) + 4, rows = Math.ceil(hh * 2 / CELL) + 4;
+  let i = 0;
+  for (let y = 0; y < rows && i < MAXN; y++) for (let x = 0; x < cols && i < MAXN; x++) {
+    dummy.position.set((x - (cols - 1) / 2) * CELL, (y - (rows - 1) / 2) * CELL, 0);
+    dummy.rotation.set(0, 0, (x + y) % 2 ? Math.PI / 2 : 0);
+    dummy.scale.set(CELL * .97, CELL * .97, CELL * .9);
+    dummy.updateMatrix();
+    wall.setMatrixAt(i++, dummy.matrix);
+  }
+  wall.count = i;
+  wall.instanceMatrix.needsUpdate = true;
+  wallMat.uniforms.uSpan.value.set(hw, hh);
+}
+
+/* ---------- The case and buds ---------- */
+const FINISH = [['#2b2e35', '#4a4d55'], ['#cfe4ef', '#e8eff3'], ['#e7a9b9', '#f4d5dd']]
+  .map(([shell, tip]) => ({ shell: new THREE.Color(shell), tip: new THREE.Color(tip) }));
+const shellMat = new THREE.MeshPhysicalMaterial({
+  color: FINISH[0].shell.clone(), roughness: .5, metalness: 0, clearcoat: .3, clearcoatRoughness: .45,
+  sheen: .12, sheenRoughness: .6, sheenColor: new THREE.Color('#9fb6c8')
+});
+const tipMat = new THREE.MeshPhysicalMaterial({ color: FINISH[0].tip.clone(), roughness: .85 });
+const padMat = new THREE.MeshPhysicalMaterial({ color: '#0f1115', roughness: .12, clearcoat: 1, clearcoatRoughness: .05 });
+const chromeMat = new THREE.MeshStandardMaterial({ color: '#d7dbe3', metalness: 1, roughness: .22 });
+const darkMat = new THREE.MeshStandardMaterial({ color: '#07080a', roughness: .95 });
+const ledMat = new THREE.MeshBasicMaterial({ color: ICE.clone(), toneMapped: false });
+
+// Front silhouette of a case half: a rounded rectangle with separate bottom and top corner radii.
+function rounded(w, h, rb, rt) {
+  const s = new THREE.Shape(), x0 = -w / 2, x1 = w / 2;
+  s.moveTo(x0 + rb, 0);
+  s.lineTo(x1 - rb, 0);
+  s.absarc(x1 - rb, rb, rb, -Math.PI / 2, 0, false);
+  s.lineTo(x1, h - rt);
+  s.absarc(x1 - rt, h - rt, rt, 0, Math.PI / 2, false);
+  s.lineTo(x0 + rt, h);
+  s.absarc(x0 + rt, h - rt, rt, Math.PI / 2, Math.PI, false);
+  s.lineTo(x0, rb);
+  s.absarc(x0 + rb, rb, rb, Math.PI, Math.PI * 1.5, false);
+  return s;
+}
+const EXT = { depth: .72, bevelEnabled: true, bevelThickness: .14, bevelSize: .14, bevelSegments: 8, curveSegments: 40 };
+function slab(w, h, rb, rt) {
+  let g = new THREE.ExtrudeGeometry(rounded(w, h, rb, rt), EXT);
+  g.translate(0, 0, -EXT.depth / 2);
+  // Extrude normals are per face; weld and recompute so the soft-touch shell shades smoothly.
+  g.deleteAttribute('normal');
+  g.deleteAttribute('uv');
+  g = mergeVertices(g, 1e-4);
+  g.computeVertexNormals();
+  return g;
+}
+const HALF_D = EXT.depth / 2 + EXT.bevelThickness;   // front face z
+const BASE_TOP = 1.05 + EXT.bevelSize;
+
+const product = new THREE.Group();     // placed by the scroll map, tilts with the pointer
+const spinner = new THREE.Group();     // idle spin and drag-to-rotate
+const caseG = new THREE.Group();
+product.add(spinner);
+spinner.add(caseG);
+scene.add(product);
+
+const base = new THREE.Mesh(slab(2.1, 1.05, .6, .06), shellMat);
+caseG.add(base);
+const hinge = new THREE.Group();       // pivot on the back top edge of the base
+hinge.position.set(0, BASE_TOP + .006, -HALF_D);
+caseG.add(hinge);
+const lid = new THREE.Mesh(slab(2.1, .5, .06, .48), shellMat);
+lid.position.set(0, EXT.bevelSize, HALF_D);
+hinge.add(lid);
+for (const sx of [-1, 1]) {
+  const cradle = new THREE.Mesh(new THREE.CylinderGeometry(.27, .27, .012, 48), darkMat);
+  cradle.scale.z = .8;
+  cradle.position.set(sx * .5, BASE_TOP + .002, 0);
+  caseG.add(cradle);
+}
+const led = new THREE.Mesh(new THREE.CapsuleGeometry(.022, .1, 4, 12), ledMat);
+led.rotation.z = Math.PI / 2;
+led.position.set(0, .62, HALF_D + .004);
+caseG.add(led);
+const glow = new THREE.PointLight(ICE, 0, 3.2, 2);    // light spilling out as the lid opens
+glow.position.set(0, BASE_TOP + .3, 0);
+caseG.add(glow);
+
+function makeBud(side) {
+  const g = new THREE.Group();
+  const head = new THREE.Mesh(new THREE.SphereGeometry(.24, 48, 32), shellMat);
+  head.scale.set(1, .9, 1.04);
+  const pad = new THREE.Mesh(new THREE.CylinderGeometry(.15, .15, .03, 40), padMat);
+  pad.rotation.z = Math.PI / 2;
+  pad.position.x = side * .225;
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(.018, 12, 8), ledMat);
+  dot.position.set(side * .243, .07, 0);
+  const tip = new THREE.Mesh(new THREE.SphereGeometry(.15, 32, 20), tipMat);
+  tip.scale.set(.72, 1, 1);
+  tip.position.set(-side * .23, -.01, .03);
+  const stem = new THREE.Mesh(new THREE.CapsuleGeometry(.075, .52, 8, 24), shellMat);
+  stem.position.set(side * .02, -.42, 0);
+  stem.rotation.z = side * -.05;
+  const mic = new THREE.Mesh(new THREE.TorusGeometry(.078, .012, 10, 36), chromeMat);
+  mic.rotation.x = Math.PI / 2;
+  mic.position.set(side * .035, -.7, 0);
+  g.add(head, pad, dot, tip, stem, mic);
+  caseG.add(g);
+  return { g, side, hits: [head, stem, tip, pad] };
+}
+const buds = [makeBud(-1), makeBud(1)];
+
+const key = new THREE.DirectionalLight('#ffffff', 2.2);
+key.position.set(3, 4, 6);
+scene.add(key);
+const rimL = new THREE.PointLight(PULSE, 30, 12, 2);
+rimL.position.set(-3, 2, -2);
+scene.add(rimL);
+const fill = new THREE.PointLight(ICE, 10, 10, 2);
+fill.position.set(3, -1.5, 2.5);
+scene.add(fill);
+
+/* ---------- Sizing ---------- */
+function halfExtents(z = 0) {
+  const hh = (camera.position.z - z) * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  return [hh * camera.aspect, hh];
+}
+function resize() {
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, dprCap()));
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  const [hw, hh] = halfExtents(WALL_Z);
+  layoutWall(hw, hh);
+}
+resize();
+addEventListener('resize', resize);
+
+/* ---------- Drag to rotate ----------
+   Once the case has settled in a section, grab it: dragging turns and tilts it, letting go keeps it
+   spinning with inertia, a quick click flicks it. A raycast decides what counts as "on the case",
+   so copy and controls next to it stay selectable and clickable. */
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const tmpV = new THREE.Vector3();
+const HIT = [base, lid, ...buds.flatMap((b) => b.hits)];
+const NO_GRAB = 'a,button,input,select,textarea,label,.zg-panel,.zg-nav,.zg-quiet__panel,.zg-hero__copy,.zg-toast';
+const drag = { on: false, id: -1, x: 0, y: 0, sx: 0, sy: 0, t0: 0, last: 0, yaw: 0, yawShown: 0, pitch: 0, pitchShown: 0, vel: 0, idle: 9, used: false };
+const hint = document.getElementById('zg-hint');
+let canGrab = false, hoverAt = null;
+zg.drag = drag;   // exposed for QA checks
+
+function overCase(x, y, target) {
+  if (!canGrab || (target && target.closest && target.closest(NO_GRAB))) return false;
+  ndc.set(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  return raycaster.intersectObjects(HIT, false).length > 0;
+}
+function endDrag(e) {
+  if (!drag.on || (e && e.pointerId !== drag.id)) return;
+  drag.on = false;
+  zg.dragging = false;
+  drag.idle = 0;
+  root.classList.remove('is-grabbing');
+  const now = performance.now();
+  if (now - drag.last > 90) drag.vel = 0;             // held still before letting go: no fling
+  if (e && e.type === 'pointerup' && now - drag.t0 < 280 && Math.hypot(drag.x - drag.sx, drag.y - drag.sy) < 6) {
+    tmpV.copy(product.position).project(camera);      // a tap flicks the side that was clicked
+    drag.vel += (drag.sx < (tmpV.x + 1) / 2 * innerWidth ? 1 : -1) * 7;
+  }
+}
+addEventListener('pointerdown', (e) => {
+  if (e.button !== 0 || !overCase(e.clientX, e.clientY, e.target)) return;
+  const now = performance.now();
+  Object.assign(drag, { on: true, id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t0: now, last: now, vel: 0, used: true });
+  zg.dragging = true;
+  root.classList.add('is-grabbing');
+  try { root.setPointerCapture(e.pointerId); } catch (_) { /* capture is optional */ }
+  if (e.pointerType === 'mouse') e.preventDefault();
+});
+addEventListener('pointermove', (e) => {
+  if (!drag.on) { hoverAt = e.pointerType === 'mouse' ? e : null; return; }
+  if (e.pointerId !== drag.id) return;
+  const now = performance.now(), turn = (e.clientX - drag.x) * .012;
+  drag.yaw += turn;
+  drag.pitch = Math.max(-.45, Math.min(.45, drag.pitch + (e.clientY - drag.y) * .006));
+  const v = turn / Math.max(8, now - drag.last) * 1000;
+  drag.vel = Math.max(-14, Math.min(14, drag.vel * .5 + v * .5));
+  drag.x = e.clientX; drag.y = e.clientY; drag.last = now;
+}, { passive: true });
+addEventListener('pointerup', endDrag);
+addEventListener('pointercancel', endDrag);
+
+/* ---------- Loop: ease every value toward the target the scroll script writes on window.zg.target ---------- */
+const cur = { fx: T.fx, fy: T.fy, s: T.s, rot: 0, open: T.open, lift: T.lift, anc: T.anc, noise: T.noise, dim: T.dim, hidden: T.hidden };
+const KEYS = Object.keys(cur);
+const ptr = { x: 0, y: 0 }, ZERO = { x: 0, y: 0 };
+const ledCur = ICE.clone();
+const clock = new THREE.Clock();
+const ease = (x) => x * x * (3 - 2 * x);
+let time = 0, wallTime = 2, spin = 0, spinRate = .2, started = false;
+
+function frame() {
+  const dt = Math.min(clock.getDelta(), 1 / 20);
+  time += dt;
+  const k = 1 - Math.exp(-dt * 3.4);
+  if (!started) {
+    for (const key of KEYS) if (typeof T[key] === 'number') cur[key] = T[key];
+    cur.s *= .75;
+  }
+  for (const key of KEYS) if (typeof T[key] === 'number') cur[key] += (T[key] - cur[key]) * k;
+  const p = drag.on ? ZERO : (zg.pointer || ZERO);
+  ptr.x += (p.x - ptr.x) * k;
+  ptr.y += (p.y - ptr.y) * k;
+
+  const [hw, hh] = halfExtents();
+  product.position.x = cur.fx * hw;
+  product.position.y = cur.fy * hh + (reduce ? 0 : Math.sin(time * 1.1) * .045) - cur.hidden * hh * 2.7;
+  product.scale.setScalar(Math.max(.001, cur.s * (1 - cur.hidden * .3)));
+  product.visible = cur.hidden < .985;
+
+  // Lid on its hinge, buds rising out of the cradles and turning their tips toward you.
+  const open = ease(Math.min(1, Math.max(0, cur.open))), lift = ease(Math.min(1, Math.max(0, cur.lift)));
+  hinge.rotation.x = -open * 1.9;
+  glow.intensity = open * 2.6;
+  caseG.position.y = -.98 - lift * .45;
+  for (const b of buds) {
+    const bob = reduce ? 0 : Math.sin(time * 1.3 + b.side) * .06 * lift;
+    b.g.position.set(b.side * (.5 + .85 * lift), BASE_TOP + .1 + lift * 1.35 + Math.sin(lift * Math.PI) * .25 + bob, lift * .25);
+    b.g.rotation.set(lift * .1, b.side * .9 * lift, b.side * .22 * lift);
+  }
+
+  // Grabbable only once the case has arrived in a section that shows it.
+  canGrab = !T.hidden && cur.hidden < .04 && Math.abs(cur.fx - T.fx) < .03 && Math.abs(cur.fy - T.fy) < .03;
+  if (!canGrab && drag.on) endDrag();
+  if (!drag.on) {
+    drag.idle += dt;
+    drag.yaw += drag.vel * dt;
+    drag.vel *= Math.exp(-dt * 2.2);
+    drag.pitch *= Math.exp(-dt * 2.5);
+    root.classList.toggle('is-grab', !!hoverAt && overCase(hoverAt.clientX, hoverAt.clientY, hoverAt.target));
+  }
+  const busy = drag.on || drag.idle < 1.6 || Math.abs(drag.vel) > .3;
+  if (T.face) {
+    // Configurator: once the visitor lets go, turn the front of the case back toward them.
+    if (!busy) {
+      const total = spin + cur.rot + drag.yaw;
+      drag.yaw += (Math.round(total / TAU) * TAU + ptr.x * .4 - total) * k;
+    }
+  } else if (!reduce) {
+    spinRate += ((busy ? 0 : .2) - spinRate) * k;
+    spin += dt * spinRate + (busy ? 0 : Math.min(Math.abs(zg.velocity || 0), 40) * dt * .02);
+  }
+  const sk = 1 - Math.exp(-dt * 14);
+  drag.yawShown += (drag.yaw - drag.yawShown) * sk;
+  drag.pitchShown += (drag.pitch - drag.pitchShown) * sk;
+  spinner.rotation.y = spin + cur.rot + drag.yawShown;
+  product.rotation.x = .2 + ptr.y * .1 + drag.pitchShown + (reduce ? 0 : Math.sin(time * .6) * .03);
+  product.rotation.z = -ptr.x * .05;
+
+  if (hint) {
+    const show = canGrab && !drag.used;
+    hint.classList.toggle('is-on', show);
+    if (show) {
+      tmpV.set(product.position.x, product.position.y + (-1.2 - lift * .45) * product.scale.x, 0).project(camera);
+      hint.style.transform = `translate(${((tmpV.x + 1) / 2 * innerWidth).toFixed(1)}px,${((1 - tmpV.y) / 2 * innerHeight + 10).toFixed(1)}px) translateX(-50%)`;
+    }
+  }
+
+  // Finish and listening-mode LED come from the controls.
+  const fin = FINISH[zg.finish || 0];
+  shellMat.color.lerp(fin.shell, k);
+  tipMat.color.lerp(fin.tip, k);
+  ledCur.lerp(zg.mode === 'aware' ? PULSE : zg.mode === 'off' ? IDLE : ICE, k);
+  ledMat.color.copy(ledCur).multiplyScalar(reduce ? 1 : .75 + .25 * Math.sin(time * 2.4));
+
+  // The wall: noise level, calm radius and a focus that follows the product (projected onto the wall).
+  if (!reduce) wallTime += dt;
+  const u = wallMat.uniforms, toWall = (camera.position.z - WALL_Z) / camera.position.z;
+  u.uTime.value = wallTime;
+  u.uNoise.value = cur.noise;
+  u.uAnc.value = cur.anc;
+  u.uDim.value = cur.dim;
+  // When the case leaves the screen the focus drifts to the centre, so the wall never goes fully dark.
+  u.uFocus.value.set(product.position.x * toWall * (1 - cur.hidden), cur.fy * hh * toWall * (1 - cur.hidden));
+  wall.rotation.y = ptr.x * .035;
+  wall.rotation.x = -ptr.y * .025;
+
+  renderer.render(scene, camera);
+  if (!started) {
+    started = true;
+    zg.ready3D = true;
+    root.classList.remove('no-webgl');
+    root.classList.add('is-3d');
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
 </body>
 </html>
