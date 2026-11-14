@@ -344,6 +344,26 @@ main,.zg-footer{position:relative;z-index:2}
   .zg-js .zg-parts__slot{position:sticky;top:64px;align-self:start;height:calc(100vh - 64px);height:calc(100svh - 64px)}
 }
 .zg-line{padding-bottom:.08em}
+.zg-tabs button[aria-selected="true"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--red)}
+.zg-js .zg-tabs__ink{display:block}
+.zg-js .zg-tabs button[aria-selected="true"]{color:var(--onred);box-shadow:none}
+.zg-js .zg-panel__name{display:none}
+.zg-js .zg-panel{animation:zgPanel .5s var(--ease)}
+@keyframes zgPanel{from{opacity:0;transform:translateY(10px)}}
+.zg-js .zg-seg__pill{display:block}
+.zg-js .zg-seg button[aria-checked="true"]{color:var(--onred);box-shadow:none}
+.zg-js .zg-a{grid-template-rows:0fr}
+.zg-js .zg-q.is-open .zg-a{grid-template-rows:1fr}
+
+/* Drag to pedal: cursor states, a hint under the bike, then a live cadence and speed readout */
+.is-grab,.is-grab *{cursor:grab}
+.is-grabbing,.is-grabbing *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
+[data-scene="home"],[data-scene="parts"],[data-scene="config"]{touch-action:pan-y pinch-zoom}
+.zg-hint{position:fixed;left:0;top:0;z-index:3;display:flex;align-items:center;gap:8px;padding:7px 12px 7px 9px;border:1px solid var(--line2);border-radius:9px;background:rgba(14,14,16,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums;pointer-events:none;opacity:0;transition:opacity .5s}
+.zg-hint.is-on{opacity:1}
+.zg-hint svg{flex:none;width:16px;height:16px;color:var(--red);animation:zgNudge 1.6s ease-in-out infinite}
+.zg-hud{padding-left:12px;color:var(--ink)}
+@keyframes zgNudge{0%,100%{transform:rotate(-30deg)}50%{transform:rotate(30deg)}}
 
 /* Short laptop screens: keep the whole home section above the fold */
 @media (min-width:901px) and (max-height:780px){
@@ -400,7 +420,8 @@ main,.zg-footer{position:relative;z-index:2}
 }
 @media (prefers-reduced-motion:reduce){
   .zg-intro{display:none}
-  .zg-scrollcue i::after{animation:none}
+  .zg-scrollcue i::after,.zg-hint svg{animation:none}
+  .zg-js .zg-panel{animation:none}
   .zg-js .zg-bike :is(.zg-ol,.zg-dim[pathLength]){stroke-dashoffset:0;animation:none}
   .zg-js .zg-bike :is(.zg-fl,.zg-sh,.zg-decal,.zg-badge,.zg-chain,.zg-links,.zg-bar,.zg-cog,.zg-rimtxt,.zg-rotor,.zg-pedal,.zg-axle,.zg-bolt,.zg-pulley,.zg-dimtxt,.zg-road__line,.zg-road__dash){opacity:1;animation:none}
   .zg-seg__pill,.zg-tabs__ink,.zg-a,.zg-toast,.zg-swatches button,.zg-swatches button::after{transition:none}
@@ -410,6 +431,8 @@ main,.zg-footer{position:relative;z-index:2}
 <body>
 <div class="zg-intro" aria-hidden="true"><div><span>KAVRA<i>.</i></span><b></b></div></div>
 <div class="zg-backdrop" aria-hidden="true"><i class="zg-glow zg-glow--a" id="zg-glow-a"></i><i class="zg-glow zg-glow--b" id="zg-glow-b"></i><svg class="zg-ridges" id="zg-ridges" viewBox="0 0 1600 500" preserveAspectRatio="xMidYMax slice" focusable="false"><g class="zg-ridge zg-ridge--0"><path class="zg-ridge__fill" d="M0,207.9L16,209.1L32,209.4L48,208.6L64,206.9L80,205.1L96,203.5L112,202.9L128,203.8L144,206.2L160,210.1L176,215.2L192,220.6L208,225.5L224,229.3L240,231.1L256,230.7L272,227.8L288,222.9L304,216.5L320,209.3L336,202.2L352,195.9L368,191L384,187.7L400,185.9L416,185.3L432,185.2L448,185.1L464,184.4L480,182.7L496,180.1L512,176.6L528,172.9L544,169.5L560,167.3L576,167.8L592,172.7L608,179.9L624,189.1L640,199.7L656,211L672,222L688,231.9L704,240.1L720,246.2L736,250L752,252.1L768,252.8L784,252.8L800,252.9L816,253.5L832,255.1L848,257.5L864,260.5L880,263.7L896,266.3L912,267.7L928,267.5L944,265.5L960,261.8L976,256.8L992,251.3L1008,245.9L1024,241.6L1040,239L1056,238.5L1072,240.1L1088,243.7L1104,248.6L1120,254L1136,259.2L1152,263.4L1168,266.1L1184,267.1L1200,266.4L1216,264.4L1232,261.8L1248,259L1264,256.8L1280,255.4L1296,255L1312,255.3L1328,255.8L1344,256L1360,254.9L1376,253.2L1392,251.6L1408,247.7L1424,241.7L1440,234.3L1456,226.1L1472,218.1L1488,211.2L1504,205.9L1520,202.6L1536,201.4L1552,201.9L1568,203.6L1584,205.8L1600,207.9L1616,209.1L1632,209.4L1648,208.6L1664,206.9L1680,205.1L1696,203.5L1712,202.9L1728,203.8L1744,206.2L1760,210.1L1776,215.2L1792,220.6L1808,225.5L1824,229.3L1840,231.1L1856,230.7L1872,227.8L1888,222.9L1904,216.5L1920,209.3L1936,202.2L1952,195.9L1968,191L1984,187.7L2000,185.9L2016,185.3L2032,185.2L2048,185.1L2064,184.4L2080,182.7L2096,180.1L2112,176.6L2128,172.9L2144,169.5L2160,167.3L2176,167.8L2192,172.7L2208,179.9L2224,189.1L2240,199.7L2256,211L2272,222L2288,231.9L2304,240.1L2320,246.2L2336,250L2352,252.1L2368,252.8L2384,252.8L2400,252.9L2416,253.5L2432,255.1L2448,257.5L2464,260.5L2480,263.7L2496,266.3L2512,267.7L2528,267.5L2544,265.5L2560,261.8L2576,256.8L2592,251.3L2608,245.9L2624,241.6L2640,239L2656,238.5L2672,240.1L2688,243.7L2704,248.6L2720,254L2736,259.2L2752,263.4L2768,266.1L2784,267.1L2800,266.4L2816,264.4L2832,261.8L2848,259L2864,256.8L2880,255.4L2896,255L2912,255.3L2928,255.8L2944,256L2960,254.9L2976,253.2L2992,251.6L3008,247.7L3024,241.7L3040,234.3L3056,226.1L3072,218.1L3088,211.2L3104,205.9L3120,202.6L3136,201.4L3152,201.9L3168,203.6L3184,205.8L3200,207.9L3200,520L0,520Z"/><path class="zg-ridge__line" d="M0,207.9L16,209.1L32,209.4L48,208.6L64,206.9L80,205.1L96,203.5L112,202.9L128,203.8L144,206.2L160,210.1L176,215.2L192,220.6L208,225.5L224,229.3L240,231.1L256,230.7L272,227.8L288,222.9L304,216.5L320,209.3L336,202.2L352,195.9L368,191L384,187.7L400,185.9L416,185.3L432,185.2L448,185.1L464,184.4L480,182.7L496,180.1L512,176.6L528,172.9L544,169.5L560,167.3L576,167.8L592,172.7L608,179.9L624,189.1L640,199.7L656,211L672,222L688,231.9L704,240.1L720,246.2L736,250L752,252.1L768,252.8L784,252.8L800,252.9L816,253.5L832,255.1L848,257.5L864,260.5L880,263.7L896,266.3L912,267.7L928,267.5L944,265.5L960,261.8L976,256.8L992,251.3L1008,245.9L1024,241.6L1040,239L1056,238.5L1072,240.1L1088,243.7L1104,248.6L1120,254L1136,259.2L1152,263.4L1168,266.1L1184,267.1L1200,266.4L1216,264.4L1232,261.8L1248,259L1264,256.8L1280,255.4L1296,255L1312,255.3L1328,255.8L1344,256L1360,254.9L1376,253.2L1392,251.6L1408,247.7L1424,241.7L1440,234.3L1456,226.1L1472,218.1L1488,211.2L1504,205.9L1520,202.6L1536,201.4L1552,201.9L1568,203.6L1584,205.8L1600,207.9L1616,209.1L1632,209.4L1648,208.6L1664,206.9L1680,205.1L1696,203.5L1712,202.9L1728,203.8L1744,206.2L1760,210.1L1776,215.2L1792,220.6L1808,225.5L1824,229.3L1840,231.1L1856,230.7L1872,227.8L1888,222.9L1904,216.5L1920,209.3L1936,202.2L1952,195.9L1968,191L1984,187.7L2000,185.9L2016,185.3L2032,185.2L2048,185.1L2064,184.4L2080,182.7L2096,180.1L2112,176.6L2128,172.9L2144,169.5L2160,167.3L2176,167.8L2192,172.7L2208,179.9L2224,189.1L2240,199.7L2256,211L2272,222L2288,231.9L2304,240.1L2320,246.2L2336,250L2352,252.1L2368,252.8L2384,252.8L2400,252.9L2416,253.5L2432,255.1L2448,257.5L2464,260.5L2480,263.7L2496,266.3L2512,267.7L2528,267.5L2544,265.5L2560,261.8L2576,256.8L2592,251.3L2608,245.9L2624,241.6L2640,239L2656,238.5L2672,240.1L2688,243.7L2704,248.6L2720,254L2736,259.2L2752,263.4L2768,266.1L2784,267.1L2800,266.4L2816,264.4L2832,261.8L2848,259L2864,256.8L2880,255.4L2896,255L2912,255.3L2928,255.8L2944,256L2960,254.9L2976,253.2L2992,251.6L3008,247.7L3024,241.7L3040,234.3L3056,226.1L3072,218.1L3088,211.2L3104,205.9L3120,202.6L3136,201.4L3152,201.9L3168,203.6L3184,205.8L3200,207.9"/></g><g class="zg-ridge zg-ridge--1"><path class="zg-ridge__fill" d="M0,245.1L16,245L32,244.2L48,242.4L64,240.1L80,238.9L96,241.8L112,252.5L128,266.4L144,281.8L160,296.3L176,307.7L192,314.8L208,317.8L224,317.9L240,317.1L256,316.9L272,317.8L288,319.2L304,319.7L320,318.1L336,314L352,308L368,301.8L384,297.4L400,296.2L416,298.4L432,302.8L448,307.2L464,309.5L480,308.3L496,303.3L512,295.8L528,287.4L544,279.6L560,272.9L576,267L592,260.5L608,252.1L624,241.3L640,234L656,227.1L672,222.4L688,221.8L704,225.8L720,233.7L736,243.7L752,253.6L768,261.7L784,267.4L800,271.5L816,275.4L832,280.1L848,286.2L864,292.9L880,298.6L896,301.7L912,301.1L928,297.1L944,291.2L960,285.6L976,282.5L992,283L1008,286.7L1024,292.3L1040,297.7L1056,301.4L1072,302.9L1088,302.5L1104,301.8L1120,301.9L1136,303.3L1152,305.3L1168,309.6L1184,313.3L1200,312.6L1216,307.5L1232,299.2L1248,289.9L1264,281.8L1280,276.5L1296,274.3L1312,274L1328,274.3L1344,273.6L1360,271.5L1376,268.7L1392,266.6L1408,266.5L1424,269.1L1440,273.9L1456,279.2L1472,282.8L1488,282.9L1504,278.9L1520,271.6L1536,262.8L1552,254.7L1568,248.9L1584,246L1600,245.1L1616,245L1632,244.2L1648,242.4L1664,240.1L1680,238.9L1696,241.8L1712,252.5L1728,266.4L1744,281.8L1760,296.3L1776,307.7L1792,314.8L1808,317.8L1824,317.9L1840,317.1L1856,316.9L1872,317.8L1888,319.2L1904,319.7L1920,318.1L1936,314L1952,308L1968,301.8L1984,297.4L2000,296.2L2016,298.4L2032,302.8L2048,307.2L2064,309.5L2080,308.3L2096,303.3L2112,295.8L2128,287.4L2144,279.6L2160,272.9L2176,267L2192,260.5L2208,252.1L2224,241.3L2240,234L2256,227.1L2272,222.4L2288,221.8L2304,225.8L2320,233.7L2336,243.7L2352,253.6L2368,261.7L2384,267.4L2400,271.5L2416,275.4L2432,280.1L2448,286.2L2464,292.9L2480,298.6L2496,301.7L2512,301.1L2528,297.1L2544,291.2L2560,285.6L2576,282.5L2592,283L2608,286.7L2624,292.3L2640,297.7L2656,301.4L2672,302.9L2688,302.5L2704,301.8L2720,301.9L2736,303.3L2752,305.3L2768,309.6L2784,313.3L2800,312.6L2816,307.5L2832,299.2L2848,289.9L2864,281.8L2880,276.5L2896,274.3L2912,274L2928,274.3L2944,273.6L2960,271.5L2976,268.7L2992,266.6L3008,266.5L3024,269.1L3040,273.9L3056,279.2L3072,282.8L3088,282.9L3104,278.9L3120,271.6L3136,262.8L3152,254.7L3168,248.9L3184,246L3200,245.1L3200,520L0,520Z"/><path class="zg-ridge__line" d="M0,245.1L16,245L32,244.2L48,242.4L64,240.1L80,238.9L96,241.8L112,252.5L128,266.4L144,281.8L160,296.3L176,307.7L192,314.8L208,317.8L224,317.9L240,317.1L256,316.9L272,317.8L288,319.2L304,319.7L320,318.1L336,314L352,308L368,301.8L384,297.4L400,296.2L416,298.4L432,302.8L448,307.2L464,309.5L480,308.3L496,303.3L512,295.8L528,287.4L544,279.6L560,272.9L576,267L592,260.5L608,252.1L624,241.3L640,234L656,227.1L672,222.4L688,221.8L704,225.8L720,233.7L736,243.7L752,253.6L768,261.7L784,267.4L800,271.5L816,275.4L832,280.1L848,286.2L864,292.9L880,298.6L896,301.7L912,301.1L928,297.1L944,291.2L960,285.6L976,282.5L992,283L1008,286.7L1024,292.3L1040,297.7L1056,301.4L1072,302.9L1088,302.5L1104,301.8L1120,301.9L1136,303.3L1152,305.3L1168,309.6L1184,313.3L1200,312.6L1216,307.5L1232,299.2L1248,289.9L1264,281.8L1280,276.5L1296,274.3L1312,274L1328,274.3L1344,273.6L1360,271.5L1376,268.7L1392,266.6L1408,266.5L1424,269.1L1440,273.9L1456,279.2L1472,282.8L1488,282.9L1504,278.9L1520,271.6L1536,262.8L1552,254.7L1568,248.9L1584,246L1600,245.1L1616,245L1632,244.2L1648,242.4L1664,240.1L1680,238.9L1696,241.8L1712,252.5L1728,266.4L1744,281.8L1760,296.3L1776,307.7L1792,314.8L1808,317.8L1824,317.9L1840,317.1L1856,316.9L1872,317.8L1888,319.2L1904,319.7L1920,318.1L1936,314L1952,308L1968,301.8L1984,297.4L2000,296.2L2016,298.4L2032,302.8L2048,307.2L2064,309.5L2080,308.3L2096,303.3L2112,295.8L2128,287.4L2144,279.6L2160,272.9L2176,267L2192,260.5L2208,252.1L2224,241.3L2240,234L2256,227.1L2272,222.4L2288,221.8L2304,225.8L2320,233.7L2336,243.7L2352,253.6L2368,261.7L2384,267.4L2400,271.5L2416,275.4L2432,280.1L2448,286.2L2464,292.9L2480,298.6L2496,301.7L2512,301.1L2528,297.1L2544,291.2L2560,285.6L2576,282.5L2592,283L2608,286.7L2624,292.3L2640,297.7L2656,301.4L2672,302.9L2688,302.5L2704,301.8L2720,301.9L2736,303.3L2752,305.3L2768,309.6L2784,313.3L2800,312.6L2816,307.5L2832,299.2L2848,289.9L2864,281.8L2880,276.5L2896,274.3L2912,274L2928,274.3L2944,273.6L2960,271.5L2976,268.7L2992,266.6L3008,266.5L3024,269.1L3040,273.9L3056,279.2L3072,282.8L3088,282.9L3104,278.9L3120,271.6L3136,262.8L3152,254.7L3168,248.9L3184,246L3200,245.1"/></g><g class="zg-ridge zg-ridge--2"><path class="zg-ridge__fill" d="M0,353L16,346.8L32,343.4L48,343.6L64,347.3L80,353.5L96,360.8L112,367.5L128,372.2L144,374.4L160,373.9L176,371.7L192,368.7L208,366L224,364.3L240,363.4L256,362.8L272,361.2L288,357.5L304,351.6L320,346.1L336,338.2L352,329.2L368,320.7L384,314.4L400,311.4L416,312L432,315.6L448,321.2L464,327.2L480,332.3L496,335.9L512,337.8L528,338.7L544,339.7L560,341.5L576,345L592,349.9L608,355.5L624,360.5L640,363.3L656,362.9L672,358.7L688,351.1L704,341.1L720,330.3L736,320.6L752,313.1L768,308.5L784,306.7L800,306.7L816,307.5L832,307.9L848,307.2L864,305.4L880,303.3L896,301.9L912,302.3L928,305.2L944,310.6L960,317.9L976,325.6L992,332L1008,335.8L1024,335.9L1040,332.2L1056,325.6L1072,317.3L1088,309L1104,302.6L1120,301.7L1136,302.9L1152,305.4L1168,308.2L1184,310.3L1200,311.1L1216,310.7L1232,309.8L1248,309.6L1264,311.5L1280,316.5L1296,324.8L1312,336L1328,348.8L1344,361.4L1360,372.3L1376,380.1L1392,384.3L1408,385.4L1424,384.2L1440,382.2L1456,380.4L1472,379.6L1488,379.8L1504,380.4L1520,380.3L1536,378.6L1552,374.7L1568,368.4L1584,360.8L1600,353L1616,346.8L1632,343.4L1648,343.6L1664,347.3L1680,353.5L1696,360.8L1712,367.5L1728,372.2L1744,374.4L1760,373.9L1776,371.7L1792,368.7L1808,366L1824,364.3L1840,363.4L1856,362.8L1872,361.2L1888,357.5L1904,351.6L1920,346.1L1936,338.2L1952,329.2L1968,320.7L1984,314.4L2000,311.4L2016,312L2032,315.6L2048,321.2L2064,327.2L2080,332.3L2096,335.9L2112,337.8L2128,338.7L2144,339.7L2160,341.5L2176,345L2192,349.9L2208,355.5L2224,360.5L2240,363.3L2256,362.9L2272,358.7L2288,351.1L2304,341.1L2320,330.3L2336,320.6L2352,313.1L2368,308.5L2384,306.7L2400,306.7L2416,307.5L2432,307.9L2448,307.2L2464,305.4L2480,303.3L2496,301.9L2512,302.3L2528,305.2L2544,310.6L2560,317.9L2576,325.6L2592,332L2608,335.8L2624,335.9L2640,332.2L2656,325.6L2672,317.3L2688,309L2704,302.6L2720,301.7L2736,302.9L2752,305.4L2768,308.2L2784,310.3L2800,311.1L2816,310.7L2832,309.8L2848,309.6L2864,311.5L2880,316.5L2896,324.8L2912,336L2928,348.8L2944,361.4L2960,372.3L2976,380.1L2992,384.3L3008,385.4L3024,384.2L3040,382.2L3056,380.4L3072,379.6L3088,379.8L3104,380.4L3120,380.3L3136,378.6L3152,374.7L3168,368.4L3184,360.8L3200,353L3200,520L0,520Z"/><path class="zg-ridge__line" d="M0,353L16,346.8L32,343.4L48,343.6L64,347.3L80,353.5L96,360.8L112,367.5L128,372.2L144,374.4L160,373.9L176,371.7L192,368.7L208,366L224,364.3L240,363.4L256,362.8L272,361.2L288,357.5L304,351.6L320,346.1L336,338.2L352,329.2L368,320.7L384,314.4L400,311.4L416,312L432,315.6L448,321.2L464,327.2L480,332.3L496,335.9L512,337.8L528,338.7L544,339.7L560,341.5L576,345L592,349.9L608,355.5L624,360.5L640,363.3L656,362.9L672,358.7L688,351.1L704,341.1L720,330.3L736,320.6L752,313.1L768,308.5L784,306.7L800,306.7L816,307.5L832,307.9L848,307.2L864,305.4L880,303.3L896,301.9L912,302.3L928,305.2L944,310.6L960,317.9L976,325.6L992,332L1008,335.8L1024,335.9L1040,332.2L1056,325.6L1072,317.3L1088,309L1104,302.6L1120,301.7L1136,302.9L1152,305.4L1168,308.2L1184,310.3L1200,311.1L1216,310.7L1232,309.8L1248,309.6L1264,311.5L1280,316.5L1296,324.8L1312,336L1328,348.8L1344,361.4L1360,372.3L1376,380.1L1392,384.3L1408,385.4L1424,384.2L1440,382.2L1456,380.4L1472,379.6L1488,379.8L1504,380.4L1520,380.3L1536,378.6L1552,374.7L1568,368.4L1584,360.8L1600,353L1616,346.8L1632,343.4L1648,343.6L1664,347.3L1680,353.5L1696,360.8L1712,367.5L1728,372.2L1744,374.4L1760,373.9L1776,371.7L1792,368.7L1808,366L1824,364.3L1840,363.4L1856,362.8L1872,361.2L1888,357.5L1904,351.6L1920,346.1L1936,338.2L1952,329.2L1968,320.7L1984,314.4L2000,311.4L2016,312L2032,315.6L2048,321.2L2064,327.2L2080,332.3L2096,335.9L2112,337.8L2128,338.7L2144,339.7L2160,341.5L2176,345L2192,349.9L2208,355.5L2224,360.5L2240,363.3L2256,362.9L2272,358.7L2288,351.1L2304,341.1L2320,330.3L2336,320.6L2352,313.1L2368,308.5L2384,306.7L2400,306.7L2416,307.5L2432,307.9L2448,307.2L2464,305.4L2480,303.3L2496,301.9L2512,302.3L2528,305.2L2544,310.6L2560,317.9L2576,325.6L2592,332L2608,335.8L2624,335.9L2640,332.2L2656,325.6L2672,317.3L2688,309L2704,302.6L2720,301.7L2736,302.9L2752,305.4L2768,308.2L2784,310.3L2800,311.1L2816,310.7L2832,309.8L2848,309.6L2864,311.5L2880,316.5L2896,324.8L2912,336L2928,348.8L2944,361.4L2960,372.3L2976,380.1L2992,384.3L3008,385.4L3024,384.2L3040,382.2L3056,380.4L3072,379.6L3088,379.8L3104,380.4L3120,380.3L3136,378.6L3152,374.7L3168,368.4L3184,360.8L3200,353"/></g><g class="zg-ridge zg-ridge--3"><path class="zg-ridge__fill" d="M0,404L16,414.1L32,425.9L48,436.7L64,443.3L80,444.3L96,440.4L112,434.1L128,427.9L144,423.4L160,419.8L176,415.7L192,409.5L208,401.2L224,392.7L240,386.6L256,384.6L272,386.7L288,390.8L304,393.7L320,393.3L336,389.3L352,384.3L368,384.4L384,386.5L400,390.7L416,395.1L432,397.9L448,398.3L464,397.4L480,397.7L496,401.5L512,409.5L528,420.2L544,430.7L560,438.1L576,440.9L592,440L608,437.2L624,434.6L640,432.4L656,429.5L672,423.9L688,414.4L704,401.8L720,388.6L736,377.9L752,372.8L768,376.7L784,383.1L800,389.1L816,392.8L832,394.4L848,395.2L864,397.3L880,401.4L896,406.4L912,410L928,410.3L944,406.8L960,401.2L976,396.5L992,395.3L1008,398.4L1024,404.5L1040,410.9L1056,415.4L1072,417.2L1088,417.4L1104,417.9L1120,419.7L1136,422.3L1152,424.6L1168,427.5L1184,425.2L1200,418.5L1216,410.1L1232,403.1L1248,399.5L1264,399.1L1280,400L1296,400.2L1312,398.7L1328,396.4L1344,395.1L1360,396.6L1376,400.9L1392,406.3L1408,409.9L1424,409.4L1440,404.6L1456,397.2L1472,390.3L1488,386L1504,385.2L1520,386.4L1536,387.6L1552,388.4L1568,392.4L1584,397L1600,404L1616,414.1L1632,425.9L1648,436.7L1664,443.3L1680,444.3L1696,440.4L1712,434.1L1728,427.9L1744,423.4L1760,419.8L1776,415.7L1792,409.5L1808,401.2L1824,392.7L1840,386.6L1856,384.6L1872,386.7L1888,390.8L1904,393.7L1920,393.3L1936,389.3L1952,384.3L1968,384.4L1984,386.5L2000,390.7L2016,395.1L2032,397.9L2048,398.3L2064,397.4L2080,397.7L2096,401.5L2112,409.5L2128,420.2L2144,430.7L2160,438.1L2176,440.9L2192,440L2208,437.2L2224,434.6L2240,432.4L2256,429.5L2272,423.9L2288,414.4L2304,401.8L2320,388.6L2336,377.9L2352,372.8L2368,376.7L2384,383.1L2400,389.1L2416,392.8L2432,394.4L2448,395.2L2464,397.3L2480,401.4L2496,406.4L2512,410L2528,410.3L2544,406.8L2560,401.2L2576,396.5L2592,395.3L2608,398.4L2624,404.5L2640,410.9L2656,415.4L2672,417.2L2688,417.4L2704,417.9L2720,419.7L2736,422.3L2752,424.6L2768,427.5L2784,425.2L2800,418.5L2816,410.1L2832,403.1L2848,399.5L2864,399.1L2880,400L2896,400.2L2912,398.7L2928,396.4L2944,395.1L2960,396.6L2976,400.9L2992,406.3L3008,409.9L3024,409.4L3040,404.6L3056,397.2L3072,390.3L3088,386L3104,385.2L3120,386.4L3136,387.6L3152,388.4L3168,392.4L3184,397L3200,404L3200,520L0,520Z"/><path class="zg-ridge__line" d="M0,404L16,414.1L32,425.9L48,436.7L64,443.3L80,444.3L96,440.4L112,434.1L128,427.9L144,423.4L160,419.8L176,415.7L192,409.5L208,401.2L224,392.7L240,386.6L256,384.6L272,386.7L288,390.8L304,393.7L320,393.3L336,389.3L352,384.3L368,384.4L384,386.5L400,390.7L416,395.1L432,397.9L448,398.3L464,397.4L480,397.7L496,401.5L512,409.5L528,420.2L544,430.7L560,438.1L576,440.9L592,440L608,437.2L624,434.6L640,432.4L656,429.5L672,423.9L688,414.4L704,401.8L720,388.6L736,377.9L752,372.8L768,376.7L784,383.1L800,389.1L816,392.8L832,394.4L848,395.2L864,397.3L880,401.4L896,406.4L912,410L928,410.3L944,406.8L960,401.2L976,396.5L992,395.3L1008,398.4L1024,404.5L1040,410.9L1056,415.4L1072,417.2L1088,417.4L1104,417.9L1120,419.7L1136,422.3L1152,424.6L1168,427.5L1184,425.2L1200,418.5L1216,410.1L1232,403.1L1248,399.5L1264,399.1L1280,400L1296,400.2L1312,398.7L1328,396.4L1344,395.1L1360,396.6L1376,400.9L1392,406.3L1408,409.9L1424,409.4L1440,404.6L1456,397.2L1472,390.3L1488,386L1504,385.2L1520,386.4L1536,387.6L1552,388.4L1568,392.4L1584,397L1600,404L1616,414.1L1632,425.9L1648,436.7L1664,443.3L1680,444.3L1696,440.4L1712,434.1L1728,427.9L1744,423.4L1760,419.8L1776,415.7L1792,409.5L1808,401.2L1824,392.7L1840,386.6L1856,384.6L1872,386.7L1888,390.8L1904,393.7L1920,393.3L1936,389.3L1952,384.3L1968,384.4L1984,386.5L2000,390.7L2016,395.1L2032,397.9L2048,398.3L2064,397.4L2080,397.7L2096,401.5L2112,409.5L2128,420.2L2144,430.7L2160,438.1L2176,440.9L2192,440L2208,437.2L2224,434.6L2240,432.4L2256,429.5L2272,423.9L2288,414.4L2304,401.8L2320,388.6L2336,377.9L2352,372.8L2368,376.7L2384,383.1L2400,389.1L2416,392.8L2432,394.4L2448,395.2L2464,397.3L2480,401.4L2496,406.4L2512,410L2528,410.3L2544,406.8L2560,401.2L2576,396.5L2592,395.3L2608,398.4L2624,404.5L2640,410.9L2656,415.4L2672,417.2L2688,417.4L2704,417.9L2720,419.7L2736,422.3L2752,424.6L2768,427.5L2784,425.2L2800,418.5L2816,410.1L2832,403.1L2848,399.5L2864,399.1L2880,400L2896,400.2L2912,398.7L2928,396.4L2944,395.1L2960,396.6L2976,400.9L2992,406.3L3008,409.9L3024,409.4L3040,404.6L3056,397.2L3072,390.3L3088,386L3104,385.2L3120,386.4L3136,387.6L3152,388.4L3168,392.4L3184,397L3200,404"/></g></svg></div>
+<div class="zg-hint" id="zg-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="2.6"/><path d="m13.8 13.6 4.4 3.6"/><rect x="15.4" y="16.2" width="6.2" height="2.6" rx="1.2"/></svg>Drag to pedal</div>
+<div class="zg-hint zg-hud" id="zg-hud" aria-hidden="true">0 rpm · 0.0 km/h</div>
 <div class="zg-bike" id="zg-bike" data-colour="signal" data-wheel="carbon"><svg class="zg-bike__svg" id="zg-bikesvg" viewBox="-400 -730 1830 1131" aria-hidden="true" focusable="false">
 <defs><path id="zg-rimpath" d="M-292,0a292,292 0 1 1 584,0a292,292 0 1 1 -584,0"/><linearGradient id="zg-roadg" gradientUnits="userSpaceOnUse" x1="-400" y1="0" x2="1430" y2="0"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset=".2" stop-color="currentColor" stop-opacity=".55"/><stop offset=".8" stop-color="currentColor" stop-opacity=".55"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient><linearGradient id="zg-s0" gradientUnits="userSpaceOnUse" x1="209.2" y1="21.7" x2="204.8" y2="44.3"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s1" gradientUnits="userSpaceOnUse" x1="139" y1="-175.3" x2="151.1" y2="-164.9"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s2" gradientUnits="userSpaceOnUse" x1="343" y1="-197" x2="308.5" y2="-186.8"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s3" gradientUnits="userSpaceOnUse" x1="593.7" y1="-171.5" x2="630.4" y2="-136.1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s4" gradientUnits="userSpaceOnUse" x1="526.4" y1="-455.2" x2="529.1" y2="-425.3"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s5" gradientUnits="userSpaceOnUse" x1="834.3" y1="-425.8" x2="786.5" y2="-411.1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s6" gradientUnits="userSpaceOnUse" x1="927.8" y1="-176.7" x2="896.9" y2="-162.6"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s7" gradientUnits="userSpaceOnUse" x1="236.5" y1="-537.7" x2="212.5" y2="-530.7"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s8" gradientUnits="userSpaceOnUse" x1="800" y1="-518.6" x2="762.7" y2="-507.1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s9" gradientUnits="userSpaceOnUse" x1="827.2" y1="-554.9" x2="830.8" y2="-521.1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient><linearGradient id="zg-s10" gradientUnits="userSpaceOnUse" x1="490" y1="53" x2="490" y2="91"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".34"/><stop offset=".42" stop-color="#fff" stop-opacity=".05"/><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".42"/></linearGradient></defs>
 <g class="zg-dims" id="zg-dims">
@@ -817,6 +840,164 @@ addEventListener('DOMContentLoaded', function () {
     zg.pointer.y = e.clientY / innerHeight * 2 - 1;
   }, { passive: true });
 
+  /* ---------- Controls that work with or without GSAP ---------- */
+  var toastEl = $('#zg-toast'), toastT;
+  var CONCEPT = 'Concept page: Kavra Cycles is fictional, so nothing is for sale.';
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('is-on');
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { toastEl.classList.remove('is-on'); }, 3800);
+  }
+  function radioGroup(group, items, pick) {
+    items.forEach(function (b) { b.addEventListener('click', function () { pick(b); }); });
+    group.addEventListener('keydown', function (e) {
+      var i = items.indexOf(document.activeElement), n = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (i < 0 || !n) return;
+      e.preventDefault();
+      pick(items[(i + n + items.length) % items.length], true);
+    });
+  }
+
+  // Bag: "Add" counts up in the nav, then says there is no checkout.
+  var bagN = 0, bagEl = $('#zg-bag'), bagNum = $('#zg-bag-n');
+  $$('[data-add]').forEach(function (b) {
+    var name = b.getAttribute('data-add');
+    b.setAttribute('aria-label', 'Add ' + name + ' to bag');
+    b.addEventListener('click', function () {
+      bagN++;
+      bagNum.textContent = bagN;
+      bagEl.setAttribute('aria-label', 'Bag, ' + bagN + (bagN === 1 ? ' item' : ' items'));
+      b.classList.add('is-added');
+      b.textContent = 'Added';
+      setTimeout(function () { b.classList.remove('is-added'); b.textContent = 'Add'; }, 1600);
+      if (hasGsap && !zg.reduce) gsap.fromTo(bagNum, { scale: 1.7 }, { scale: 1, duration: .6, ease: 'back.out(3)' });
+      toast(name + ' added. ' + CONCEPT);
+    });
+  });
+  bagEl.addEventListener('click', function () {
+    toast(bagN ? 'Your bag holds ' + bagN + (bagN === 1 ? ' part. ' : ' parts. ') + CONCEPT : CONCEPT);
+  });
+  $$('[data-buy]').forEach(function (b) {
+    b.addEventListener('click', function () { toast('The ' + b.getAttribute('data-buy') + ' is a concept bike. ' + CONCEPT); });
+  });
+
+  // Parts tabs: the chosen group lights up and slides off the bike.
+  var tabs = $$('[role="tab"]'), tablist = $('.zg-tabs'), ink = $('.zg-tabs__ink');
+  function moveInk() {
+    var t = $('[aria-selected="true"]', tablist);
+    ink.style.width = t.offsetWidth + 'px';
+    ink.style.transform = 'translateX(' + t.offsetLeft + 'px)';
+  }
+  function selectTab(t, focus) {
+    tabs.forEach(function (x) {
+      var on = x === t;
+      x.setAttribute('aria-selected', String(on));
+      x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+    });
+    moveInk();
+    zg.partsFocus = t.getAttribute('data-focus');
+    if (focus) t.focus();
+  }
+  tabs.forEach(function (t) { t.addEventListener('click', function () { selectTab(t); }); });
+  tablist.addEventListener('keydown', function (e) {
+    var i = tabs.indexOf(document.activeElement), n = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (e.key === 'Home') n = -i;
+    if (e.key === 'End') n = tabs.length - 1 - i;
+    if (i < 0 || n === undefined) return;
+    e.preventDefault();
+    selectTab(tabs[(i + n + tabs.length) % tabs.length], true);
+  });
+  selectTab(tabs[0]);
+  addEventListener('resize', moveInk);
+  if (document.fonts) document.fonts.ready.then(moveInk);
+
+  // Builder: colourway repaints the bike, height picks the frame size, groupset and wheels change price and weight.
+  var bikeBox = $('#zg-bike'), build = { group: 'elec', wheel: 'carbon', size: 56, kg: .08 };
+  var priceEl = $('#zg-price'), weightEl = $('#zg-weight'), price = { v: 5720 };
+  function summary() {
+    var p = 4290 + (build.group === 'elec' ? 540 : 0) + (build.wheel === 'carbon' ? 890 : 0);
+    var kg = 7.9 - (build.group === 'elec' ? .25 : 0) - (build.wheel === 'carbon' ? .55 : 0) + build.kg;
+    weightEl.textContent = kg.toFixed(1);
+    var show = function () { priceEl.textContent = '$' + Math.round(price.v).toLocaleString('en-US'); };
+    if (hasGsap && !zg.reduce) gsap.to(price, { v: p, duration: .9, ease: 'power3.out', overwrite: true, onUpdate: show });
+    else { price.v = p; show(); }
+  }
+  var swatches = $$('.zg-swatches [role="radio"]'), colourName = $('#zg-colour-name');
+  var GLOWC = { signal: 'rgba(255,59,47,.2)', raw: 'rgba(255,59,47,.12)', chalk: 'rgba(231,224,209,.12)', col: 'rgba(95,132,149,.28)' };
+  function pickColour(b, focus) {
+    swatches.forEach(function (x) { var on = x === b; x.setAttribute('aria-checked', String(on)); x.tabIndex = on ? 0 : -1; });
+    var c = b.getAttribute('data-colour');
+    bikeBox.setAttribute('data-colour', c);
+    colourName.textContent = b.getAttribute('data-name');
+    root.style.setProperty('--glowA', GLOWC[c]);
+    if (focus) b.focus();
+  }
+  radioGroup($('.zg-swatches'), swatches, pickColour);
+  pickColour(swatches[0]);
+  $$('.zg-seg').forEach(function (seg) {
+    var key = seg.getAttribute('data-key'), items = $$('[role="radio"]', seg), pill = $('.zg-seg__pill', seg);
+    function pick(b, focus) {
+      items.forEach(function (x, i) {
+        var on = x === b;
+        x.setAttribute('aria-checked', String(on));
+        x.tabIndex = on ? 0 : -1;
+        if (on) pill.style.transform = 'translateX(' + (i * 100) + '%)';
+      });
+      build[key] = b.getAttribute('data-val');
+      if (key === 'wheel') bikeBox.setAttribute('data-wheel', build.wheel);
+      if (focus) b.focus();
+      summary();
+    }
+    radioGroup(seg, items, pick);
+    pick(items.filter(function (x) { return x.getAttribute('aria-checked') === 'true'; })[0] || items[0]);
+  });
+  // Rider height to frame size: [under cm, size, stack, reach, wheelbase, drawing scale, weight change kg]
+  var SIZES = [[160, 49, 520, 372, 975, .93, -.2], [168, 52, 540, 379, 982, .965, -.1], [175, 54, 560, 385, 990, 1, 0],
+    [182, 56, 578, 391, 998, 1.03, .08], [189, 58, 597, 396, 1006, 1.06, .16], [999, 61, 620, 402, 1018, 1.09, .26]];
+  var hIn = $('#zg-height'), hOut = $('#zg-height-out');
+  function fit() {
+    var h = +hIn.value, s = SIZES.filter(function (x) { return h < x[0]; })[0];
+    hOut.textContent = h + ' cm';
+    hIn.style.setProperty('--p', ((h - 150) / 50 * 100).toFixed(1) + '%');
+    $('#zg-size').textContent = s[1];
+    $('#zg-stack').textContent = s[2];
+    $('#zg-reach').textContent = s[3];
+    $('#zg-dim-wb').textContent = 'WB ' + s[4];
+    $('#zg-dim-reach').textContent = 'REACH ' + s[3];
+    zg.sizeScale = s[5];
+    if (build.size !== s[1]) { build.size = s[1]; build.kg = s[6]; summary(); }
+  }
+  hIn.addEventListener('input', fit);
+  build.size = 0;
+  fit();
+  $('#zg-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    toast('Your Strada R: ' + colourName.textContent + ', size ' + build.size + ', ' + (build.group === 'elec' ? 'electronic' : 'mechanical') +
+      ', ' + (build.wheel === 'carbon' ? 'carbon 45' : 'alloy 30') + ' wheels. ' + CONCEPT);
+  });
+
+  // FAQ accordion, first answer open.
+  $$('.zg-q').forEach(function (q, i) {
+    var b = $('button', q);
+    function set(open) { q.classList.toggle('is-open', open); b.setAttribute('aria-expanded', String(open)); }
+    set(i === 0);
+    b.addEventListener('click', function () {
+      set(!q.classList.contains('is-open'));
+      if (hasGsap) setTimeout(function () { ScrollTrigger.refresh(); }, 620);
+    });
+  });
+
+  // Spotlight cards follow the pointer.
+  $$('.zg-model, .zg-card').forEach(function (el) {
+    el.addEventListener('pointermove', function (e) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+
   if (!hasGsap) { root.classList.remove('zg-js'); return; }
 
   /* ---------- Smooth scroll and nav ---------- */
@@ -932,6 +1113,81 @@ addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  /* ---------- Drag to pedal ----------
+     Grab the bike with a mouse or a finger and drag sideways to turn the cranks. The wheels follow through the gear
+     and keep coasting when you let go; a quick tap kicks the pedals round. Text, links and controls stay clickable. */
+  var hint = $('#zg-hint'), hud = $('#zg-hud'), hudTxt = '', canGrab = false, hoverAt = null;
+  var NO_GRAB = 'a,button,input,select,textarea,label,.zg-form,.zg-nav,.zg-home__copy,.zg-parts__shop,.zg-toast';
+  var HULL = [[-10, -30], [240, -480], [800, -560], [1000, -560], [1000, 0], [430, 130]];   // frame outline, SVG units
+  function inPoly(x, y, poly) {
+    var c = false;
+    for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      var a = poly[i], b = poly[j];
+      if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c;
+    }
+    return c;
+  }
+  // Hit test in SVG units, following each part to wherever it has moved.
+  function overBike(x, y, target) {
+    if (!canGrab || (target && target.closest && target.closest(NO_GRAB))) return false;
+    var r = svg.getBoundingClientRect();
+    if (!r.width) return false;
+    var ux = vb[0] + (x - r.left) / r.width * vb[2], uy = vb[1] + (y - r.top) / r.height * vb[3], o = offCur;
+    return Math.hypot(ux - o.rear[0], uy - o.rear[1]) < 345 || Math.hypot(ux - 990 - o.front[0], uy - o.front[1]) < 345 ||
+      Math.hypot(ux - 404 - o.drive[0], uy - 72 - o.drive[1]) < 200 || inPoly(ux - o.frame[0], uy - o.frame[1], HULL);
+  }
+  function endDrag(e) {
+    if (!drag.on || (e && e.pointerId !== drag.id)) return;
+    drag.on = false;
+    drag.idle = 0;
+    root.classList.remove('is-grabbing');
+    var now = performance.now();
+    if (now - drag.last > 90) drag.vel = 0;                              // held still before letting go: no fling
+    if (e && e.type === 'pointerup' && now - drag.t0 < 280 && Math.hypot(drag.x - drag.sx, drag.y - drag.sy) < 6) drag.vel += 6.5;
+  }
+  addEventListener('pointerdown', function (e) {
+    if (e.button !== 0 || !overBike(e.clientX, e.clientY, e.target)) return;
+    var now = performance.now();
+    drag.on = true; drag.id = e.pointerId; drag.used = true;
+    drag.x = drag.sx = e.clientX; drag.y = drag.sy = e.clientY; drag.t0 = drag.last = now; drag.vel = 0;
+    root.classList.add('is-grabbing');
+    try { root.setPointerCapture(e.pointerId); } catch (_) { /* capture is optional */ }
+    if (e.pointerType === 'mouse') e.preventDefault();                   // no text selection while pedalling
+  });
+  addEventListener('pointermove', function (e) {
+    if (!drag.on) { hoverAt = e.pointerType === 'mouse' ? e : null; return; }
+    if (e.pointerId !== drag.id) return;
+    var now = performance.now(), turn = (e.clientX - drag.x) * .014;
+    drag.yaw += turn;
+    drag.vel = clamp(drag.vel * .5 + turn / Math.max(8, now - drag.last) * 1000, -16, 16);   // rad/s, smoothed
+    drag.x = e.clientX; drag.y = e.clientY; drag.last = now;
+  }, { passive: true });
+  addEventListener('pointerup', endDrag);
+  addEventListener('pointercancel', endDrag);
+
+  /* ---------- Micro-interactions: magnetic buttons and tilting service cards ---------- */
+  if (finePointer && !zg.reduce) {
+    $$('[data-magnetic]').forEach(function (el) {
+      var xTo = gsap.quickTo(el, 'x', { duration: .55, ease: 'power3.out' }), yTo = gsap.quickTo(el, 'y', { duration: .55, ease: 'power3.out' });
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        xTo((e.clientX - r.left - r.width / 2) * .28);
+        yTo((e.clientY - r.top - r.height / 2) * .4);
+      });
+      el.addEventListener('pointerleave', function () { xTo(0); yTo(0); });
+    });
+    $$('[data-tilt]').forEach(function (el) {
+      gsap.set(el, { transformPerspective: 900 });
+      var rx = gsap.quickTo(el, 'rotationX', { duration: .6, ease: 'power3.out' }), ry = gsap.quickTo(el, 'rotationY', { duration: .6, ease: 'power3.out' });
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        ry(((e.clientX - r.left) / r.width - .5) * 10);
+        rx(-((e.clientY - r.top) / r.height - .5) * 10);
+      });
+      el.addEventListener('pointerleave', function () { rx(0); ry(0); });
+    });
+  }
+
   /* ---------- One loop moves the bike, its parts, wheels, ridges and glows ---------- */
   var last = performance.now(), t0 = last, lastScene = '';
   var wheelStr = '', crankStr = '';
@@ -1025,6 +1281,26 @@ addEventListener('DOMContentLoaded', function () {
     bikeEl.style.width = place.w.toFixed(1) + 'px';
     bikeEl.style.opacity = place.o.toFixed(3);
     bikeEl.style.visibility = place.o < .01 ? 'hidden' : 'visible';
+
+    // Grabbable once the bike has settled in a section that shows it.
+    canGrab = !!S && t > 4 && place.o > .95 && Math.abs(place.x - tgt.x) < 3 && Math.abs(place.y - tgt.y) < 3;
+    if (!canGrab && drag.on) endDrag();
+    if (drag.on && now - drag.last > 80) drag.vel *= Math.exp(-dt * 12);   // holding still while grabbed
+    if (!drag.on) root.classList.toggle('is-grab', !!hoverAt && overBike(hoverAt.clientX, hoverAt.clientY, hoverAt.target));
+    // "Drag to pedal" under the bike until the first grab, then a live cadence and speed readout.
+    var showHint = canGrab && !drag.used && rig.view < .2, showHud = canGrab && drag.used && (drag.on || wheel.v > .05);
+    hint.classList.toggle('is-on', showHint);
+    hud.classList.toggle('is-on', showHud);
+    if (showHint || showHud) {
+      var br = svg.getBoundingClientRect();
+      var pos = 'translate(' + (br.left + (495 - vb[0]) / vb[2] * br.width).toFixed(1) + 'px,' + (br.top + (412 - vb[1]) / vb[3] * br.height).toFixed(1) + 'px) translateX(-50%)';
+      hint.style.transform = pos;
+      hud.style.transform = pos;
+    }
+    if (showHud) {
+      var txt = Math.round(Math.max(0, drag.vel) / (Math.PI * 2) * 60) + ' rpm · ' + (wheel.v * .34 * 3.6).toFixed(1) + ' km/h';
+      if (txt !== hudTxt) { hudTxt = txt; hud.textContent = txt; }
+    }
 
     // Ridgelines loop with the distance the wheels cover, with a little pointer parallax.
     ridgeO += ((name === 'home' ? 1 - rig.e * .5 : 0) - ridgeO) * (1 - Math.exp(-dt * 4));
